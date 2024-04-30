@@ -138,10 +138,12 @@ def run_nn(path_dict: dict,
 
 
 def run_test_CRT(path_dict: dict,
-             params_dict: dict,
-             nn_mode: str):
+                 params_dict: dict,
+                 nn_mode: str,
+                 counter: int):
     """ Runs the neural network to test its predictions against actual vehicle data from CarRealTime
 
+        :param counter:
         :param path_dict:           dictionary which contains paths to all relevant folders and files of this module
         :type path_dict: dict
         :param params_dict:         dictionary which contains all parameters necessary to run this module
@@ -168,7 +170,7 @@ def run_test_CRT(path_dict: dict,
         elif nn_mode == "recurrent":
             path2model = path_dict['filepath2results_trainedmodel_recurr']
 
-    with open(path_dict['filepath2inputs_testdata_CRT'] + '.csv', 'r') as fh:
+    with open(path_dict['filepath2inputs_testdata_CRT'] + '_' + str(counter) + '.csv', 'r') as fh:
         data = np.loadtxt(fh, delimiter=',')
 
     input_shape = params_dict['NeuralNetwork_Settings']['input_shape']
@@ -207,7 +209,7 @@ def run_test_CRT(path_dict: dict,
         else:
             data_convert = new_input
 
-        result_process = model.predict(data_convert)
+        result_process = model.predict(data_convert, verbose=0)
         results[i_count + input_timesteps, 0:output_shape] = result_process
 
         # convert test data
@@ -243,4 +245,4 @@ def run_test_CRT(path_dict: dict,
                                               params_dict=params_dict,
                                               dataset=results)
 
-    np.savetxt(os.path.join(path_dict['path2results_matfiles'], 'prediction_result_' + nn_mode + '_CRT.csv'), results)
+    np.savetxt(os.path.join(path_dict['path2results_matfiles'], 'prediction_result_' + nn_mode + '_CRT_'+str(counter)+'.csv'), results)

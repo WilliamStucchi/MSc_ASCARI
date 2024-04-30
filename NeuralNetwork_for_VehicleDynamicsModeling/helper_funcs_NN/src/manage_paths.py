@@ -55,7 +55,7 @@ def manage_paths() -> dict:
     path_dict['filepath2inputs_testdata'] = os.path.join(path_dict['path2inputs_trainingdata'], 'data_to_run')
 
     # Car Real Time data for testing
-    path_dict['filepath2inputs_testdata_CRT'] = os.path.join(path_dict['path2inputs_trainingdata'], 'testset')
+    path_dict['filepath2inputs_testdata_CRT'] = os.path.join(path_dict['path2inputs_trainingdata'], 'test_set')
 
     path_dict['filepath2scaler_load'] = os.path.join(path_dict['path2inputs_trainedmodels'], 'scaler.plk')
     path_dict['filepath2inputs_trainedmodel_ff'] = os.path.join(path_dict['path2inputs_trainedmodels'],

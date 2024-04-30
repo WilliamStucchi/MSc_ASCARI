@@ -55,23 +55,28 @@ if params_dict['NeuralNetwork_Settings']['model_mode'] == 2:
 print('---------------------------------------------------------------------------------------------------------------')
 print('Car Real Time Test Running...')
 
-if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
-    print('STARTING RUN FEEDFORWARD NETWORK')
+for count in range(0,3):
 
-    src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
-                                       params_dict=params_dict,
-                                       nn_mode="feedforward")
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
+        print('STARTING RUN FEEDFORWARD NETWORK')
 
-if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
-    print('STARTING RUN RECURRENT NETWORK')
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           nn_mode="feedforward",
+                                           counter=count)
 
-    src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
-                                       params_dict=params_dict,
-                                       nn_mode='recurrent')
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
+        print('STARTING RUN RECURRENT NETWORK')
 
-# save and plot results (if activated in parameter file)
-visualization.plot_results.plot_run_test_CRT(path_dict=path_dict,
-                                             params_dict=params_dict)
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           nn_mode='recurrent',
+                                           counter=count)
+
+    # save and plot results (if activated in parameter file)
+    visualization.plot_results.plot_run_test_CRT(path_dict=path_dict,
+                                                 params_dict=params_dict,
+                                                 counter=count)
 
 print('---------------------------------------------------------------------------------------------------------------')
 
