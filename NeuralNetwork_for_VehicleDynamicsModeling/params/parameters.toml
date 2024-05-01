@@ -27,8 +27,8 @@ save_scaling = true
 [NeuralNetwork_Settings]
 
 # 0 --> NO EXECUTION, 1 --> EXECUTION WITH FEEDFORWARD MODEL, 2 --> EXECUTION WITH RECURRENT MODEL
-model_mode = 1     # training of the neural network
-run_file_mode = 1   # vehicle data (ground trouth) replay and evaluation, comparsion of the neural network
+model_mode = 2     # training of the neural network
+run_file_mode = 2   # vehicle data (ground trouth) replay and evaluation, comparsion of the neural network
 
 # THESE ARE THE TRAIN PARAMETERS OF THE NEURAL NETWORK
 batch_size = 1000

@@ -22,15 +22,16 @@ class NN_model_V2():
         # Hidden layers
         x = tfkl.Dense(units=self.units_first_layer, activation='softplus')(input_layer)
         x = tfkl.Dense(units=self.units_second_layer, activation='softplus')(x)
-        x = tfkl.Dense(units=self.output_dim)(x)
 
         # Output layer
+        output_layer = tfkl.Dense(units=self.output_dim)(x)
 
-        """
+        model = tfk.Model(inputs=input_layer, outputs=output_layer, name='model_v2')
+
         model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam(weight_decay=5e-4),
                       metrics=['mse'])
 
         model.summary()
 
         return model
-        """
+        
