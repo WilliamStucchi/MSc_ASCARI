@@ -124,4 +124,4 @@ create_training_set(path_to_data, path_to_output, 18, 3)
 path_to_output = 'CRT/train_data_step_4'
 create_training_set(path_to_data, path_to_output, 18, 4)
 
-# create_test_set(path_to_data, 2)
+create_test_set(path_to_data, 2)
