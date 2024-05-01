@@ -17,6 +17,7 @@ model = mod.build_model(seed=1)
 # GET TRAINING DATA
 
 
+
 # CREATE CALLBACKS
 mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/'+path_day+'/'+path_datetime,
                          monitor='mean_squared_error',

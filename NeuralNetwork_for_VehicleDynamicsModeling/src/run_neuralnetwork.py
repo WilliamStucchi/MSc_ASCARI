@@ -96,7 +96,7 @@ def run_nn(path_dict: dict,
         else:
             data_convert = new_input
 
-        result_process = model.predict(data_convert)
+        result_process = model.predict(data_convert, verbose=0)
         results[i_count + input_timesteps, 0:output_shape] = result_process
 
         # convert test data

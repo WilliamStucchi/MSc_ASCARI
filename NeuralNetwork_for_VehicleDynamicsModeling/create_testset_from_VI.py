@@ -7,6 +7,7 @@ def create_test_set(path_to_test_set, number_of_tests, path_to_input_set):
         # Load test set
         data = pd.read_csv(path_to_test_set + 'test_' + str(i) + '/DemoSportsCar_mxp.csv')
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
+        data.reset_index(drop=True, inplace=True)
 
         # Columns of interest
         # Torques
@@ -53,6 +54,7 @@ def create_training_set(path_to_training_set, path_to_input_set, number_of_sets)
         # Load set
         data = pd.read_csv(path_to_training_set + 'test_' + str(i) + '/DemoSportsCar_mxp.csv')
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
+        data.reset_index(drop=True, inplace=True)
 
         print(data.head())
 
