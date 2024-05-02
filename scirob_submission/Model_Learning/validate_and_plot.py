@@ -1,6 +1,7 @@
 import tensorflow as tf
 from run_tests import *
 from plot_tests import *
+import multiprocessing as mp
 
 
 def build_model():
@@ -81,6 +82,16 @@ def run_plot_save_v2(test_path_, model, save_data):
         plot_run(save_data, test_path, 0, len_data, save_plots)
 
 
+def runInParallel(*fns, test_path_, model, save_data):
+  proc = []
+  for fn in fns:
+    p = mp.Process(target=fn, args=(test_path_, model, save_data))
+    p.start()
+    proc.append(p)
+  for p in proc:
+    p.join()
+
+
 """
 # Test parameters
 n_test = 37
@@ -103,6 +114,10 @@ for i in [1, 2, 3, 5, 6]:
             plot_run(idx_start, counter, run_timespan, i)
             # input('Waiting...')
 """
+#runInParallel(func1, func2)
+
+# Multiprocess
+# mp.set_start_method('spawn')
 
 # Step 1
 # No callbacks
@@ -112,10 +127,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_1/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p1 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_1/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p2 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 1
 # Callbacks
@@ -125,10 +142,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_1/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p3 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_1/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p4 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 2
 # No callbacks
@@ -138,10 +157,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_2/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p5 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_2/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p6 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 2
 # Callbacks
@@ -151,10 +172,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_2/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p7 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_2/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p8 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 3
 # No callbacks
@@ -164,10 +187,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_3/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p9 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_3/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p10 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 3
 # Callbacks
@@ -177,10 +202,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_3/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p11 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_3/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p12 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 4
 # No callbacks
@@ -190,10 +217,12 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_4/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p13 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_4/no_callbacks/2024_05_02/09_14_05/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p14 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 # Step 4
 # Callbacks
@@ -203,7 +232,45 @@ loaded_model = tf.keras.models.load_model(model_path)
 test_path = 'data/CRT/test_set_1.csv'
 save_path = 'results/step_4/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p15 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
 
 test_path = 'data/CRT/test_set_2.csv'
 save_path = 'results/step_4/callbacks/2024_05_02/09_59_22/results.csv'
 run_plot_save_v2(test_path, loaded_model, save_path)
+# p16 = mp.Process(target=run_plot_save_v2, args=(test_path, loaded_model, save_path))
+
+"""
+p1.start()
+p2.start()
+p3.start()
+p4.start()
+p5.start()
+p6.start()
+p7.start()
+p8.start()
+p9.start()
+p10.start()
+p11.start()
+p12.start()
+p13.start()
+p14.start()
+p15.start()
+p16.start()
+
+p1.join()
+p2.join()
+p3.join()
+p4.join()
+p5.join()
+p6.join()
+p7.join()
+p8.join()
+p9.join()
+p10.join()
+p11.join()
+p12.join()
+p13.join()
+p14.join()
+p15.join()
+p16.join()
+"""

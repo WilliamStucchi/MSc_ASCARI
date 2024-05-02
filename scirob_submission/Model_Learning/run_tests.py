@@ -88,9 +88,10 @@ def run_test(path_to_test_data,
 
     results[:, output_shape:input_shape] = data[start_point:start_point + len(delta) + input_timesteps,
                                                 output_shape: input_shape]
-
+    """
     for element in results:
         print(element)
+    """
 
     print('Saving test results in: ' + path_save)
     np.savetxt(path_save, results)
