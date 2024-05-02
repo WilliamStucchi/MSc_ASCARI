@@ -48,7 +48,7 @@ val_features_step_4 = dataset_step_4[math.floor(len(dataset_step_4) * (1 - perc_
 train_labels_step_4 = dataset_step_4[:math.floor(len(dataset_step_4) * (1 - perc_validation)), -3:]
 val_labels_step_4 = dataset_step_4[math.floor(len(dataset_step_4) * (1 - perc_validation)):, -3:]
 
-for i in range(0,1):
+for i in range(0, 2):
     # Step 1 training
     if CALLBACKS:
         es = tf.keras.callbacks.EarlyStopping(monitor='val_mse',
@@ -63,38 +63,43 @@ for i in range(0,1):
                                                               mode='min',
                                                               min_delta=0.000005)
 
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_1/callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_1/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_1/callbacks/' + path_day + '/' + path_datetime)
 
         with tf.device('/GPU:0'):
             history_mod = model_step_1.fit(x=train_features_step_1,
-                                    y=train_labels_step_1,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_1, val_labels_step_1),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[reduce_lr_loss, es, mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_1,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_1, val_labels_step_1),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[reduce_lr_loss, es, mc],
+                                           use_multiprocessing=True)
     else:
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_1/no_callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_1/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_1/no_callbacks/' + path_day + '/' + path_datetime)
+
         with tf.device('/GPU:0'):
             history_mod = model_step_1.fit(x=train_features_step_1,
-                                    y=train_labels_step_1,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_1, val_labels_step_1),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_1,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_1, val_labels_step_1),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[mc],
+                                           use_multiprocessing=True)
 
     # Step 2 training
     if CALLBACKS:
@@ -110,38 +115,43 @@ for i in range(0,1):
                                                               mode='min',
                                                               min_delta=0.000005)
 
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_2/callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_2/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_2/callbacks/' + path_day + '/' + path_datetime)
 
         with tf.device('/GPU:0'):
             history_mod = model_step_2.fit(x=train_features_step_2,
-                                    y=train_labels_step_2,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_2, val_labels_step_2),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[reduce_lr_loss, es, mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_2,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_2, val_labels_step_2),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[reduce_lr_loss, es, mc],
+                                           use_multiprocessing=True)
     else:
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_2/no_callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_2/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_2/no_callbacks/' + path_day + '/' + path_datetime)
+
         with tf.device('/GPU:0'):
             history_mod = model_step_2.fit(x=train_features_step_2,
-                                    y=train_labels_step_2,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_2, val_labels_step_2),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_2,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_2, val_labels_step_2),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[mc],
+                                           use_multiprocessing=True)
 
     # Step 3 training
     if CALLBACKS:
@@ -157,38 +167,43 @@ for i in range(0,1):
                                                               mode='min',
                                                               min_delta=0.000005)
 
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_3/callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_3/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_3/callbacks/' + path_day + '/' + path_datetime)
 
         with tf.device('/GPU:0'):
             history_mod = model_step_3.fit(x=train_features_step_3,
-                                    y=train_labels_step_3,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_3, val_labels_step_3),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[reduce_lr_loss, es, mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_3,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_3, val_labels_step_3),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[reduce_lr_loss, es, mc],
+                                           use_multiprocessing=True)
     else:
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_3/no_callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_3/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_3/no_callbacks/' + path_day + '/' + path_datetime)
+
         with tf.device('/GPU:0'):
             history_mod = model_step_3.fit(x=train_features_step_3,
-                                    y=train_labels_step_3,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_3, val_labels_step_3),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_3,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_3, val_labels_step_3),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[mc],
+                                           use_multiprocessing=True)
 
     # Step 4 training
     if CALLBACKS:
@@ -204,37 +219,42 @@ for i in range(0,1):
                                                               mode='min',
                                                               min_delta=0.000005)
 
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_4/callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_4/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_4/callbacks/' + path_day + '/' + path_datetime)
 
         with tf.device('/GPU:0'):
             history_mod = model_step_4.fit(x=train_features_step_4,
-                                    y=train_labels_step_4,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_4, val_labels_step_4),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[reduce_lr_loss, es, mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_4,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_4, val_labels_step_4),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[reduce_lr_loss, es, mc],
+                                           use_multiprocessing=True)
     else:
-        mc = tf.keras.callbacks.ModelCheckpoint(filepath='saved_models/step_4/no_callbacks/' + path_day + '/' + path_datetime,
-                                                monitor='val_mse',
-                                                mode='min',
-                                                verbose=1,
-                                                save_best_only=True)
+        mc = tf.keras.callbacks.ModelCheckpoint(
+            filepath='saved_models/step_4/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            monitor='val_mse',
+            mode='min',
+            verbose=1,
+            save_best_only=True)
+        os.mkdir('results/step_4/no_callbacks/' + path_day + '/' + path_datetime)
+
         with tf.device('/GPU:0'):
             history_mod = model_step_4.fit(x=train_features_step_1,
-                                    y=train_labels_step_1,
-                                    batch_size=1000,
-                                    validation_data=(val_features_step_1, val_labels_step_1),
-                                    epochs=1500,
-                                    verbose=1,
-                                    shuffle=True,
-                                    callbacks=[mc],
-                                    use_multiprocessing=True)
+                                           y=train_labels_step_1,
+                                           batch_size=1000,
+                                           validation_data=(val_features_step_1, val_labels_step_1),
+                                           epochs=1500,
+                                           verbose=1,
+                                           shuffle=True,
+                                           callbacks=[mc],
+                                           use_multiprocessing=True)
 
     CALLBACKS = True
