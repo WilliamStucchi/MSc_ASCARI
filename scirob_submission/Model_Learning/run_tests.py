@@ -6,7 +6,8 @@ def run_test(path_to_test_data,
              loaded_model,
              start_point: int,
              run_timespan: int,
-             path_save: str):
+             path_save: str,
+             name: str):
     # Load data and model parameters
     input_shape = Param['N_STATE_INPUT']
     output_shape = Param['N_TARGETS']
@@ -22,23 +23,23 @@ def run_test(path_to_test_data,
         run_timespan = len(data)
 
     if start_point + run_timespan > data.shape[0]:
-        print('test dataset fully covered -> exit main script')
+        print(name + '[test dataset fully covered -> exit main script]')
         return 0
 
     initial, delta, fx = dataset_separation(data, start_point, run_timespan)
 
     # Initialize structures
     results = np.zeros((len(delta) + input_timesteps, input_shape))
-    # print('Results shape: ', results.shape)
+    # print(name + '[Results shape: ', results.shape, ']')
     new_input = np.zeros((1, input_shape * input_timesteps))
-    # print('New input shape: ', new_input.shape)
-    # print('Initial: ', initial)
+    # print(name + '[New input shape: ', new_input.shape, ']')
+    # print(name + 'Initial: ', initial)
 
-    # print('Results: ')
+    # print(name + 'Results: ')
     for i in range(0, input_timesteps):
         results[i, 0:output_shape] = initial[:, i * input_shape:i * input_shape + output_shape]
-        # print('Results: ', results)
-        # print('Initials: ', initial)
+        # print(name + '[Results: ' + results + ']')
+        # print(name + '[Initials: ' + initial + ']')
         # print('------------')
 
         # Run test
@@ -54,7 +55,7 @@ def run_test(path_to_test_data,
                                                                                  input_timesteps - 1) + output_shape]
 
         if abs(result_process[:, 0]) > 1000 or abs(result_process[:, 1]) > 1000 or abs(result_process[:, 2]) > 1000:
-            print('Error in computing the prediction. Values are too big!')
+            print(name + '[Error in computing the prediction. Values are too big!]')
             return 0, -1
 
         """
@@ -93,7 +94,7 @@ def run_test(path_to_test_data,
         print(element)
     """
 
-    print('Saving test results in: ' + path_save)
+    print(name + '[Saving test results in: ' + path_save + ']')
     np.savetxt(path_save, results)
     # input('wait')
 

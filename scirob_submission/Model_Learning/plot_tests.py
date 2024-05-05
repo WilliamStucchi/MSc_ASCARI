@@ -8,19 +8,25 @@ def plot_run(path_to_results: str,
              path_to_labels: str,
              start: int,
              run_timespan: int,
-             save_path: str):
+             save_path: str,
+             name: str):
     # Load results
+    print(name + "[Loading data from: "  + path_to_results + ']')
     results = np.loadtxt(path_to_results, delimiter=' ')
     # Load labels
+    print(name + "[Loading labels from: " + path_to_labels + ']')
     labels = np.loadtxt(path_to_labels, delimiter=',')
+
+    if run_timespan == -1:
+        run_timespan = results.shape[0]
 
     dyaw_result = results[:, 0][:, np.newaxis]
     vy_result = results[:, 1][:, np.newaxis]
     vx_result = results[:, 2][:, np.newaxis]
 
-    dyaw_label = labels[start:run_timespan + start, 2][:, np.newaxis]
+    dyaw_label = labels[start:run_timespan + start, 0][:, np.newaxis]
     vy_label = labels[start:run_timespan + start, 1][:, np.newaxis]
-    vx_label = labels[start:run_timespan + start, 0][:, np.newaxis]
+    vx_label = labels[start:run_timespan + start, 2][:, np.newaxis]
 
     dyaw_diff = dyaw_label - dyaw_result
     vy_diff = vy_label - vy_result
@@ -80,6 +86,7 @@ def plot_run(path_to_results: str,
 
     print('\n')
 
+    print(name + '[Save path: ' + save_path + ']')
     # plot and save comparison between NN predicted and actual vehicle state
     plot_and_save(dyaw_result, dyaw_label, dyaw_diff, 'Yaw rate [rad/s]',
                   save_path + 'images/yaw.png', True, True)
@@ -108,6 +115,9 @@ def plot_and_save(inp_1,
     ax2.set_xlabel('Time steps (8 ms)')
     ax1.legend()
     ax2.legend()
+
+    plt.figure().set_figwidth(25)
+    plt.figure().set_figheight(15)
 
     if plot:
         plt.show()
