@@ -14,7 +14,7 @@ def create_training_set(path_to_data, path_to_output, number_of_sets, step):
 
     for i in tqdm(range(0, number_of_sets)):
         # print('Opening: ' + path_to_data + '/flat/test_' + str(i) + '/DemoSportsCar_mxp.csv')
-        data[i] = pd.read_csv(path_to_data + '/flat/test_' + str(i) + '/DemoSportsCar_mxp.csv', dtype=object)
+        data[i] = pd.read_csv(path_to_data + '/flat/test_' + str(i+1) + '/DemoSportsCar_mxp.csv', dtype=object)
         data[i] = data[i].drop(0, axis='rows')  # remove the row containing the measure units
         data[i].reset_index(drop=True, inplace=True)
 
@@ -53,8 +53,93 @@ def create_training_set(path_to_data, path_to_output, number_of_sets, step):
     np.random.seed(1)
     np.random.shuffle(result_filtered)
 
-    np.savetxt('CRT/train_data_step'+str(step)+'.csv', result_filtered, delimiter=',')
+    np.savetxt(path_to_output + 'train_data_step'+str(step)+'.csv', result_filtered, delimiter=',')
 
+
+def create_training_set_v1(path_to_data, path_to_output, number_of_sets, step):
+    data = [None] * number_of_sets
+    result = [None] * number_of_sets
+    yaw_rate = np.zeros(4)
+    uy = np.zeros(4)
+    ux = np.zeros(4)
+    steer = np.zeros(4)
+    fx = np.zeros(4)
+
+    for i in tqdm(range(0, number_of_sets)):
+        # print('Opening: ' + path_to_data + '/flat/test_' + str(i) + '/DemoSportsCar_mxp.csv')
+        data[i] = pd.read_csv(path_to_data + '/flat/test_' + str(i+1) + '/DemoSportsCar_mxp.csv', dtype=object)
+        data[i] = data[i].drop(0, axis='rows')  # remove the row containing the measure units
+        data[i].reset_index(drop=True, inplace=True)
+
+        # print(len(data[i]))
+        # input('Wait')
+
+        result[i] = np.zeros((len(data[i]), 5*4+3))  # 5 inputs, 4 steps in the past, 3 objectives
+
+        count = 0
+        for idx in range(0, len(data[i]) - 5 + 1, step):
+            # print(idx)
+            for j in range(0, 4):
+                yaw_rate[j], uy[j], ux[j], steer[j], fx[j] = pick_data_idx(data[i], idx + j)
+
+            yaw_t = float(data[i]['Vehicle_States.yaw_angular_vel_wrt_road'][idx + 4])
+            uy_t = float(data[i]['Vehicle_States.lateral_vel_wrt_road'][idx + 4])
+            ux_t = float(data[i]['Vehicle_States.longitudinal_vel_wrt_road'][idx + 4])
+
+            result[i][count] = [yaw_rate[0], uy[0], ux[0], steer[0], fx[0],
+                           yaw_rate[1], uy[1], ux[1], steer[1], fx[1],
+                           yaw_rate[2], uy[2], ux[2], steer[2], fx[2],
+                           yaw_rate[3], uy[3], ux[3], steer[3], fx[3],
+                           yaw_t, uy_t, ux_t]
+            count += 1
+
+    # Put together all data extracted
+    result_flat = flatten_extend(result)
+
+    # Flatten to obtain a list of lists (200000+, 23)
+    result_flat = np.array(result_flat)
+
+    # Remove all lists of all-zero elements
+    result_filtered = result_flat[~np.all(result_flat == 0, axis=1)]
+
+    # Shuffle and Divide into datasets
+    # train, dev, test = shuffle_and_divide(data, Param)
+    train, dev, test = shuffle_and_divide(result_filtered, 0.8, 0.15)
+
+    # Write out the first generated dataset , dev=dev, test=test
+    np.savez(path_to_output + 'train_data_step'+str(step)+'.csv',
+             train_f=train[0],
+             train_t=train[1],
+             dev_f=dev[0],
+             dev_t=dev[1],
+             test_f=test[0],
+             test_t=test[1])
+
+
+def shuffle_and_divide(gen_data, train_perc, dev_perc):
+    # first shuffle the data generated
+    # This is necessary for the two friction data.
+    np.random.seed(1)
+    np.random.shuffle(gen_data)
+
+    # split into features and targets
+    features = gen_data[:, 0:-2]
+    targets = gen_data[:, -2:]
+
+    # split into train, dev, and test sets
+
+    # calculate train index
+    train_ind = int(train_perc * features.shape[0])
+    dev_ind = int((train_perc + dev_perc) * features.shape[0])
+
+    # do the splitting
+    train = (features[0:train_ind, :], targets[0:train_ind, :])
+
+    dev = (features[train_ind:dev_ind, :], targets[train_ind:dev_ind, :])
+
+    test = (features[dev_ind:, :], targets[dev_ind:, :])
+
+    return train, dev, test
 
 
 def flatten_extend(matrix):
@@ -78,8 +163,8 @@ def pick_data_idx(data, idx):
     return yaw_rate, uy, ux, steer, fx
 
 
-def create_test_set(path_to_data, number_of_sets):
-    for i in range(0, number_of_sets):
+def create_test_set(path_to_data, path_to_output_, number_of_sets):
+    for i in range(1, number_of_sets + 1):
         data = pd.read_csv(path_to_data + '/test/test_' + str(i) + '/DemoSportsCar_mxp.csv', dtype=object)
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
         data.reset_index(drop=True, inplace=True)
@@ -110,19 +195,23 @@ def create_test_set(path_to_data, number_of_sets):
 
         # Save test_set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv('CRT/test_set_' + str(i) + '.csv', index=False, header=False)
+        dataframe.to_csv(path_to_output_ + 'test_set_' + str(i) + '.csv', index=False, header=False)
 
 
 path_to_data = '../../../../CRT_data'
 
+path_to_output = 'gen/'
+create_training_set_v1(path_to_data, path_to_output, 32, 1)
+create_training_set_v1(path_to_data, path_to_output, 32, 2)
+create_training_set_v1(path_to_data, path_to_output, 32, 3)
+create_training_set_v1(path_to_data, path_to_output, 32, 4)
+
 """
-path_to_output = 'CRT/train_data_step_1'
-create_training_set(path_to_data, path_to_output, 18, 1)
-path_to_output = 'CRT/train_data_step_2'
-create_training_set(path_to_data, path_to_output, 18, 2)
-path_to_output = 'CRT/train_data_step_3'
-create_training_set(path_to_data, path_to_output, 18, 3)
-path_to_output = 'CRT/train_data_step_4'
-create_training_set(path_to_data, path_to_output, 18, 4)
+path_to_output = 'CRT/'
+create_training_set(path_to_data, path_to_output, 32, 1)
+create_training_set(path_to_data, path_to_output, 32, 2)
+create_training_set(path_to_data, path_to_output, 32, 3)
+create_training_set(path_to_data, path_to_output, 32, 4)
 """
-create_test_set(path_to_data, 2)
+
+create_test_set(path_to_data, path_to_output, 3)
