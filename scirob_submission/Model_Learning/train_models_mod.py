@@ -24,7 +24,7 @@ tf.set_random_seed(1)
 # probably some work to verify and then retrain still have old results
 # saved
 
-
+"""
 ##########################################################################
 # Experiment 1 modified (added Ux_t to the outputs)
 ##########################################################################
@@ -35,7 +35,7 @@ data = np.load("data/gen/exp_1_mod.npz")
 # Output the Data From the Experiment
 train_data = (data["train_f"], data["train_t"])
 
-"""
+
 # w: print all elements passed to the network in one input of the training
 
 count = 0
@@ -49,7 +49,7 @@ for element in train_data[0]:
     correspondence += 1
 
     variable = input()
-"""
+
 
 dev_data = (data["dev_f"], data["dev_t"])
 test_data = (data["test_f"], data["test_t"])
@@ -434,13 +434,14 @@ with tf.device('/GPU:0'):
         # Close and reset the session
         # tf.reset_default_graph()
         sess.close()
+        """
 ##########################################################################
 # Experiment 6
 ##########################################################################
 
 
 # first Load in the data
-data = np.load("data/gen/exp_6_mod.npz")
+data = np.load("data/gen/train_data_step4.npz")
 
 # Output the Data From the Experiment
 train_data = (data["train_f"], data["train_t"])
@@ -451,6 +452,8 @@ test_data = (data["test_f"], data["test_t"])
 n_batches = len(train_data[0]) // Param["BATCH_SIZE"] + 1
 train_cost = np.zeros(shape=(Param["EPOCHS"], 2))
 dev_cost = np.zeros(shape=(Param["EPOCHS"], 2))
+
+tf.disable_eager_execution()
 
 # Create necessary placeholders for the data.
 x, y = tf.placeholder(tf.float64, shape=[None, Param["N_FEATURES"]]), tf.placeholder(tf.float64,
@@ -518,14 +521,14 @@ with tf.device('/GPU:0'):
         test_mse_b, test_mse_nn = sess.run([bike_6.mse(), NN_6.mse()])
 
         # write out Experimental Results
-        np.savez("results/gen_test_3_w/exp_6_mod",
+        np.savez("results/step_4/v1",
                  test_mse=(test_mse_b, test_mse_nn),
                  delay_states=Param["T_MODEL"],
                  train_cost=train_cost,
                  dev_cost=dev_cost)
 
         # And save the session!
-        saver.save(sess, "saved_models/gen_test_3_w/exp_6_mod/model.ckpt")
+        saver.save(sess, "saved_models/step_4/v1/model.ckpt")
         print("Model for Exp 6 Saved")
 
         # Close and reset the session
