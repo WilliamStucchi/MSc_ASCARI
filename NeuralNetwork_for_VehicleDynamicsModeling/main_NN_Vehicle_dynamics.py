@@ -55,7 +55,7 @@ if params_dict['NeuralNetwork_Settings']['model_mode'] == 2:
 print('---------------------------------------------------------------------------------------------------------------')
 print('Car Real Time Test Running...')
 
-for count in range(1, 4):
+for count in range(1, 3):
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
         print('STARTING RUN FEEDFORWARD NETWORK')

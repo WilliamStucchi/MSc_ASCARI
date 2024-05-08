@@ -3,7 +3,7 @@ import traceback
 from tensorflow import keras
 
 # custom modules
-import helper_funcs_NN
+from NeuralNetwork_for_VehicleDynamicsModeling import helper_funcs_NN
 
 """
 Created by: Rainer Trauth
