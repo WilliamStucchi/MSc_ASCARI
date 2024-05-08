@@ -264,7 +264,7 @@ def create_dataset_separation(path_dict: dict,
     """
 
     if not nn_mode == "feedforward" or not nn_mode == "recurrent":
-        ValueError('unknown "neural network mode"; must be either "feedforard" or "recurrent"')
+        ValueError('unknown "neural network mode"; must be either "feedforward" or "recurrent"')
 
     input_shape = params_dict['NeuralNetwork_Settings']['input_shape']
     output_shape = params_dict['NeuralNetwork_Settings']['output_shape']
@@ -282,7 +282,7 @@ def create_dataset_separation(path_dict: dict,
             if file.startswith('data_to_train'):
                 file_counting += 1
 
-    print('dataset usati in training: ', file_counting)
+    print('dataset used in training: ', file_counting)
     # generate datasets
     lengthsum = 0
     lengthsumtwo = 0

@@ -1,10 +1,10 @@
 import tensorflow as tf
 from tensorflow import keras as tfk
 from tensorflow.keras import layers as tfkl
-from data_preprocessing.parameters.learning_params import *
+from ..data_preprocessing.parameters.learning_params import *
 
 
-class NN_model_V2():
+class NN_Model_V2():
     def __init__(self):
         self.units_first_layer = Param['N1']
         self.units_second_layer = Param['N2']
