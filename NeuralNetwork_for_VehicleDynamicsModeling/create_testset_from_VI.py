@@ -2,19 +2,19 @@ import numpy as np
 import pandas as pd
 
 
-def create_test_set(path_to_test_set, number_of_tests, path_to_input_set):
+def create_test_set(path_to_test_set, path_to_input_set, number_of_tests):
     for i in range(1, number_of_tests + 1, 1):
         # Load test set
-        data = pd.read_csv(path_to_test_set + 'test_' + str(i) + '/DemoSportsCar_mxp.csv')
+        data = pd.read_csv(path_to_test_set + 'test_' + str(i) + '/DemoSportsCar_mxp.csv', dtype=object)
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
         data.reset_index(drop=True, inplace=True)
 
         # Columns of interest
         # Torques
-        trl = data['differential_torques.output_torque_left_rear'].to_numpy()
-        trr = data['differential_torques.output_torque_right_rear'].to_numpy()
-        tfl = data['differential_torques.output_torque_left_front'].to_numpy()
-        tfr = data['differential_torques.output_torque_right_front'].to_numpy()
+        trl = data['differential_torques.output_torque_left_rear'].to_numpy().astype(float)
+        trr = data['differential_torques.output_torque_right_rear'].to_numpy().astype(float)
+        tfl = data['differential_torques.output_torque_left_front'].to_numpy().astype(float)
+        tfr = data['differential_torques.output_torque_right_front'].to_numpy().astype(float)
 
         tl = trl + tfl
         tr = trr + tfr
@@ -29,20 +29,20 @@ def create_test_set(path_to_test_set, number_of_tests, path_to_input_set):
         bp_r = ((bp_rl + bp_rr) / 2) * 10  # average of the two lines and conversion from Mpa to bar
 
         # Steering
-        steer = data['driver_demands.steering'].to_numpy()
+        steer = data['driver_demands.steering'].to_numpy().astype(float)
 
         # Accelerations
-        ax = data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy()
-        ay = data['Vehicle_States.lateral_acc_wrt_road'].to_numpy()
-        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy()
+        ax = data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float)
+        ay = data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float)
+        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
 
         # Velocities
-        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy()
-        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy()
+        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
 
         # Create test_set
-        test_set = np.transpose(np.array([ux, uy, yaw_rate, ax, ay, steer, trl, trr, bp_f, bp_r]))
-        print(test_set.shape)
+        test_set = np.transpose(np.array([ux, uy, yaw_rate, ax, ay, steer, tl, tr, bp_f, bp_r]))
+        # print(test_set.shape)
 
         # Save test_set
         dataframe = pd.DataFrame(test_set)
@@ -52,18 +52,18 @@ def create_test_set(path_to_test_set, number_of_tests, path_to_input_set):
 def create_training_set(path_to_training_set, path_to_input_set, number_of_sets):
     for i in range(1,number_of_sets+1, 1):
         # Load set
-        data = pd.read_csv(path_to_training_set + 'test_' + str(i) + '/DemoSportsCar_mxp.csv')
+        data = pd.read_csv(path_to_training_set + 'test_' + str(i) + '/DemoSportsCar_mxp.csv', dtype=object)
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
         data.reset_index(drop=True, inplace=True)
 
-        print(data.head())
+        # print(data.head())
 
         # Columns of interest
         # Torques
-        trl = data['differential_torques.output_torque_left_rear'].to_numpy()
-        trr = data['differential_torques.output_torque_right_rear'].to_numpy()
-        tfl = data['differential_torques.output_torque_left_front'].to_numpy()
-        tfr = data['differential_torques.output_torque_right_front'].to_numpy()
+        trl = data['differential_torques.output_torque_left_rear'].to_numpy().astype(float)
+        trr = data['differential_torques.output_torque_right_rear'].to_numpy().astype(float)
+        tfl = data['differential_torques.output_torque_left_front'].to_numpy().astype(float)
+        tfr = data['differential_torques.output_torque_right_front'].to_numpy().astype(float)
 
         tl = trl + tfl
         tr = trr + tfr
@@ -78,32 +78,32 @@ def create_training_set(path_to_training_set, path_to_input_set, number_of_sets)
         bp_r = ((bp_rl + bp_rr) / 2) * 10  # average of the two lines and conversion from Mpa to bar
 
         # Steering
-        steer = data['driver_demands.steering'].to_numpy()
+        steer = data['driver_demands.steering'].to_numpy().astype(float)
 
         # Accelerations
-        ax = data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy()
-        ay = data['Vehicle_States.lateral_acc_wrt_road'].to_numpy()
-        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy()
+        ax = data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float)
+        ay = data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float)
+        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
 
         # Velocities
-        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy()
-        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy()
+        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
 
         # Create test_set
-        set = np.transpose(np.array([ux, uy, yaw_rate, ax, ay, steer, tl, tr, bp_f, bp_r]))
-        print(set.shape)
+        set_ = np.transpose(np.array([ux, uy, yaw_rate, ax, ay, steer, tl, tr, bp_f, bp_r]))
+        # print(set_.shape)
 
         # Save set
-        dataframe = pd.DataFrame(set)
+        dataframe = pd.DataFrame(set_)
         dataframe.to_csv(path_to_input_set+'data_to_train_'+str(i-1)+'.csv', index=False, header=False)
 
 
 # Create test set
 path_to_test_set = '../../CRT_data/test/'
 path_to_input_set = 'inputs/trainingdata/'
-create_test_set(path_to_test_set, 2, path_to_input_set)
+create_test_set(path_to_test_set, path_to_input_set, 3)
 
 # Create training datasets
 path_to_training_set = '../../CRT_data/flat/'
 path_to_input_set = path_to_input_set + 'CRT/'
-create_training_set(path_to_training_set, path_to_input_set, 18)
+create_training_set(path_to_training_set, path_to_input_set, 32)
