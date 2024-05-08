@@ -128,8 +128,24 @@ for i in [1, 2, 3, 5, 6]:
             # input('Waiting...')
 """
 
-test_set_0 = 'data/CRT/test_set_0.csv'
 test_set_1 = 'data/CRT/test_set_1.csv'
+test_set_2 = 'data/CRT/test_set_2.csv'
+test_set_3 = 'data/CRT/test_set_3.csv'
+
+checkpoint_path = "saved_models/step_4/v1/model.ckpt"
+loaded_model_4 = build_model()
+loaded_model_4.load_weights(checkpoint_path)
+_, leng = run_test(test_set_1, loaded_model_4, 0, -1, 'results/step_4/v1/results_test_1.csv', 'v1_41')
+plot_run('results/step_4/v1/results_test_1.csv', test_set_1, 0, leng, 'results/step_4/v1/', 'v1_41')
+
+_, leng = run_test(test_set_2, loaded_model_4, 0, -1, 'results/step_4/v1/results_test_2.csv', 'v1_42')
+plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/step_4/v1/', 'v1_42')
+
+"""_, leng = run_test(test_set_3, loaded_model, 0, -1, 'results/step_4/v1/results_test_3.csv', 'v1_43')
+plot_run('results/step_4/v1/results_test_3.csv', test_set_3, 0, leng, 'results/step_4/v1/', 'v1_43')"""
+
+
+"""
 
 # Step 1
 # No callbacks
@@ -204,3 +220,4 @@ save_path = 'results/step_4/callbacks/2024_05_02/09_59_22/results_test_1.csv'
 p16 = create_thread('t16', test_set_1, model_path, save_path)
 
 start_parallel_threads([p1, p2, p3, p4])
+"""
