@@ -4,7 +4,7 @@ from tqdm import tqdm
 def calculate_correlation(x, y):
     return np.corrcoef(x, y)[0, 1]
 
-data = np.loadtxt('scirob_submission/Model_Learning/data/CRT/train_data_step1.csv', delimiter=',')
+data = np.loadtxt('scirob_submission/Model_Learning/data/CRT/old/train_data_step1.csv', delimiter=',')
 print('Shape of the training data: ', data.shape)
 
 correlation_matrix = np.zeros((data.shape[0], 4))

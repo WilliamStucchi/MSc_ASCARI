@@ -107,7 +107,7 @@ def create_training_set_v1(path_to_data, path_to_output, number_of_sets, step):
     train, dev, test = shuffle_and_divide(result_filtered, 0.8, 0.15)
 
     # Write out the first generated dataset , dev=dev, test=test
-    np.savez(path_to_output + 'train_data_step'+str(step)+'.csv',
+    np.savez(path_to_output + 'train_data_step'+str(step),
              train_f=train[0],
              train_t=train[1],
              dev_f=dev[0],
@@ -123,8 +123,8 @@ def shuffle_and_divide(gen_data, train_perc, dev_perc):
     np.random.shuffle(gen_data)
 
     # split into features and targets
-    features = gen_data[:, 0:-2]
-    targets = gen_data[:, -2:]
+    features = gen_data[:, 0:-3]
+    targets = gen_data[:, -3:]
 
     # split into train, dev, and test sets
 
@@ -182,11 +182,13 @@ def create_test_set(path_to_data, path_to_output_, number_of_sets):
         steer = data['driver_demands.steering'].to_numpy().astype(float)
 
         # Fx
+        #TODO: CONTROLLARE COSA SUCCEDE QUANDO FACCIO QUESTA OPERAZIONE DI NORMALIZZAZIONE
+        #TODO: FA LA MEDIA CORRETTAMENTE? E SE IO VOLESSI PRENDERE LA FORZA ANTERIORE IN FRENATA E LA FORZA POSTERIORE IN ACCELERAZIONE?
         frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
         frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
         fr = (frl + frr) / 2
-        ff = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
-        fx = fr + ff
+        ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
+        fx = fr + ffl
 
         # Save test set
         # Create test_set
@@ -212,6 +214,7 @@ create_training_set(path_to_data, path_to_output, 32, 1)
 create_training_set(path_to_data, path_to_output, 32, 2)
 create_training_set(path_to_data, path_to_output, 32, 3)
 create_training_set(path_to_data, path_to_output, 32, 4)
-"""
+
 
 create_test_set(path_to_data, path_to_output, 3)
+"""

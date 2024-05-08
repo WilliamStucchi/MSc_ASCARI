@@ -67,8 +67,8 @@ active_layer_3 = false # new field
 [NeuralNetwork_Settings.Feedforward]
 
 # NUMBER OF NEURONS FIRST AND SECOND LAYER
-neurons_first_layer = 128 # 50
-neurons_second_layer = 128 # 50
+neurons_first_layer = 50 # 128
+neurons_second_layer = 50 # 128
 neurons_third_layer = 64 # new field
 
 # ACTIVATION FUNCTIONS OF THE LAYERS
@@ -84,8 +84,8 @@ activation_3 = 'None' # new field
 recurrent_mode = 'GRU'
 
 # NUMBER OF NEURONS OF FIRST AND SECOND LAYER
-neurons_first_layer_recurrent = 150
-neurons_second_layer_recurrent = 150
+neurons_first_layer_recurrent = 25 # 150
+neurons_second_layer_recurrent = 25 # 150
 
 # ACTIVATION FUNCTIONS OF THE RECURRENT LAYERS
 activation_1_recurrent = 'relu'
@@ -111,5 +111,5 @@ activation_end = 'linear'
 run_timespan = 1500     # number of timesteps covered. timespan = number of timesteps * timestep_length
 run_timestart = 0       # start timestep
 
-n_test = 37
+n_test = 4  # 37
 iteration_step = 1250   # run a test every iteration_step index (row index of test data file) 
