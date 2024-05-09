@@ -62,6 +62,7 @@ for count in range(1, 3):
 
         src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
                                            params_dict=params_dict,
+                                           path_to_model='',
                                            nn_mode="feedforward",
                                            counter=count)
 
@@ -70,6 +71,7 @@ for count in range(1, 3):
 
         src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
                                            params_dict=params_dict,
+                                           path_to_model='',
                                            nn_mode='recurrent',
                                            counter=count)
 
@@ -95,6 +97,7 @@ for i_count in range(0, params_dict['Test']['n_test']):
         src.run_neuralnetwork.run_nn(path_dict=path_dict,
                                      params_dict=params_dict,
                                      startpoint=idx_start,
+                                     path_to_model='',
                                      counter=i_count,
                                      nn_mode="feedforward")
 
@@ -104,6 +107,7 @@ for i_count in range(0, params_dict['Test']['n_test']):
         src.run_neuralnetwork.run_nn(path_dict=path_dict,
                                      params_dict=params_dict,
                                      startpoint=idx_start,
+                                     path_to_model='',
                                      counter=i_count,
                                      nn_mode="recurrent")
 

@@ -18,6 +18,7 @@ np.set_printoptions(formatter={'float': lambda x: "{0:0.16f}".format(x)})
 
 def run_nn(path_dict: dict,
            params_dict: dict,
+           path_to_model: str,
            startpoint: float,
            counter: int,
            nn_mode: str):
@@ -46,7 +47,10 @@ def run_nn(path_dict: dict,
             path2model = path_dict['filepath2inputs_trainedmodel_recurr']
 
     else:
-        path2scaler = path_dict['filepath2scaler_save']
+        if path_to_model == '':
+            path2scaler = path_dict['filepath2scaler_save']
+        else:
+            path2scaler = path_to_model[:path_to_model.rfind('/') + 1] + 'scaler.plk'
 
         if nn_mode == "feedforward":
             path2model = path_dict['filepath2results_trainedmodel_ff']
@@ -73,7 +77,10 @@ def run_nn(path_dict: dict,
                                                        params_dict['Test']['run_timespan'], nn_mode)
 
     # load neural network model
-    model = keras.models.load_model(path2model)
+    if path_to_model == '':
+        model = keras.models.load_model(path2model)
+    else:
+        model = keras.models.load_model(path_to_model)
 
     results = np.zeros((len(torqueRR_Nm) + input_timesteps, input_shape))
 
@@ -133,12 +140,19 @@ def run_nn(path_dict: dict,
                                               params_dict=params_dict,
                                               dataset=results)
 
-    np.savetxt(os.path.join(path_dict['path2results_matfiles'], 'prediction_result_' + nn_mode + str(counter) + '.csv'),
-               results)
+    if path_to_model == '':
+        np.savetxt(
+            os.path.join(path_dict['path2results_matfiles'], 'prediction_result_' + nn_mode + str(counter) + '.csv'),
+            results)
+    else:
+        index_last_slash = path_to_model.rfind('/')
+        output_path = path_to_model[:index_last_slash] + 'prediction_result_' + nn_mode + str(counter) + '.csv'
+        np.savetxt(output_path, results)
 
 
 def run_test_CRT(path_dict: dict,
                  params_dict: dict,
+                 path_to_model: str,
                  nn_mode: str,
                  counter: int):
     """ Runs the neural network to test its predictions against actual vehicle data from CarRealTime
@@ -163,7 +177,10 @@ def run_test_CRT(path_dict: dict,
             path2model = path_dict['filepath2inputs_trainedmodel_recurr']
 
     else:
-        path2scaler = path_dict['filepath2scaler_save']
+        if path_to_model == '':
+            path2scaler = path_dict['filepath2scaler_save']
+        else:
+            path2scaler = path_to_model[:path_to_model.rfind('/') + 1] + 'scaler.plk'
 
         if nn_mode == "feedforward":
             path2model = path_dict['filepath2results_trainedmodel_ff']
@@ -186,7 +203,10 @@ def run_test_CRT(path_dict: dict,
         src.prepare_data.create_dataset_separation_run_for_testing(data, params_dict, nn_mode)
 
     # load neural network model
-    model = keras.models.load_model(path2model)
+    if path_to_model == '':
+        model = keras.models.load_model(path2model)
+    else:
+        model = keras.models.load_model(path_to_model)
 
     results = np.zeros((len(torqueRR_Nm) + input_timesteps, input_shape))
 
@@ -245,4 +265,13 @@ def run_test_CRT(path_dict: dict,
                                               params_dict=params_dict,
                                               dataset=results)
 
-    np.savetxt(os.path.join(path_dict['path2results_matfiles'], 'prediction_result_' + nn_mode + '_CRT_'+str(counter)+'.csv'), results)
+    if path_to_model == '':
+        np.savetxt(
+            os.path.join(path_dict['path2results_matfiles'],
+                         'prediction_result_' + nn_mode + '_CRT_' + str(counter)+'.csv'),
+            results)
+    else:
+        index_last_slash = path_to_model.rfind('/')
+        output_path = (path_to_model[:index_last_slash] + 'prediction_result_' + nn_mode + '_CRT_' +
+                       str(counter) + '.csv')
+        np.savetxt(output_path, results)

@@ -84,8 +84,8 @@ activation_3 = 'None' # new field
 recurrent_mode = 'GRU'
 
 # NUMBER OF NEURONS OF FIRST AND SECOND LAYER
-neurons_first_layer_recurrent = 25 # 150
-neurons_second_layer_recurrent = 25 # 150
+neurons_first_layer_recurrent = 150 # 75
+neurons_second_layer_recurrent = 150 # 75
 
 # ACTIVATION FUNCTIONS OF THE RECURRENT LAYERS
 activation_1_recurrent = 'relu'

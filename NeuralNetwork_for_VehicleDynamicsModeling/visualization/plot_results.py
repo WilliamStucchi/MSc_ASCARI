@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os.path
+
+from matplotlib.ticker import MultipleLocator
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
@@ -12,6 +14,7 @@ Created on: 01.04.2020
 
 def plot_run(path_dict: dict,
              params_dict: dict,
+             path_to_results: str,
              counter,
              start):
     """Plots test results of comparison between neural network and provided vehicle data.
@@ -32,7 +35,10 @@ def plot_run(path_dict: dict,
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
         filename_model = 'prediction_result_recurrent'
 
-    filepath2results = os.path.join(path_dict['path2results_matfiles'], filename_model + str(counter) + '.csv')
+    if path_to_results == '':
+        filepath2results = os.path.join(path_dict['path2results_matfiles'], filename_model + str(counter) + '.csv')
+    else:
+        filepath2results = path_to_results + filename_model + str(counter) + '.csv'
 
     # load results
     with open(filepath2results, 'r') as fh:
@@ -127,17 +133,29 @@ def plot_run(path_dict: dict,
 
     print('\n')
 
-    # plot and save comparsion between NN predicted and actual vehicle state
-    plot_and_save(params_dict, yaw_result, yaw_label, yaw_diff, 'Yaw rate in rad/s',
-                  os.path.join(path_dict['path2results_figures'], 'yaw' + str(counter) + '.png'))
-    plot_and_save(params_dict, vy_result, vy_label, vy_diff, 'Lat. vel. vy in m/s',
-                  os.path.join(path_dict['path2results_figures'], 'vy' + str(counter) + '.png'))
-    plot_and_save(params_dict, vx_result, vx_label, vx_diff, 'Long. vel. vx in m/s',
-                  os.path.join(path_dict['path2results_figures'], 'vx' + str(counter) + '.png'))
-    plot_and_save(params_dict, ay_result, ay_label, ay_diff, 'Lat. acc. ay in m/s2',
-                  os.path.join(path_dict['path2results_figures'], 'ay' + str(counter) + '.png'))
-    plot_and_save(params_dict, ax_result, ax_label, ax_diff, 'Long. acc. ax in m/s2',
-                  os.path.join(path_dict['path2results_figures'], 'ax' + str(counter) + '.png'))
+    # plot and save comparison between NN predicted and actual vehicle state
+    if path_to_results == '':
+        plot_and_save(params_dict, yaw_result, yaw_label, yaw_diff, 'Yaw rate in rad/s',
+                      os.path.join(path_dict['path2results_figures'], 'yaw' + str(counter) + '.png'))
+        plot_and_save(params_dict, vy_result, vy_label, vy_diff, 'Lat. vel. vy in m/s',
+                      os.path.join(path_dict['path2results_figures'], 'vy' + str(counter) + '.png'))
+        plot_and_save(params_dict, vx_result, vx_label, vx_diff, 'Long. vel. vx in m/s',
+                      os.path.join(path_dict['path2results_figures'], 'vx' + str(counter) + '.png'))
+        plot_and_save(params_dict, ay_result, ay_label, ay_diff, 'Lat. acc. ay in m/s2',
+                      os.path.join(path_dict['path2results_figures'], 'ay' + str(counter) + '.png'))
+        plot_and_save(params_dict, ax_result, ax_label, ax_diff, 'Long. acc. ax in m/s2',
+                      os.path.join(path_dict['path2results_figures'], 'ax' + str(counter) + '.png'))
+    else:
+        plot_and_save(params_dict, yaw_result, yaw_label, yaw_diff, 'Yaw rate in rad/s',
+                      path_to_results + 'figures/yaw' + str(counter) + '.png')
+        plot_and_save(params_dict, vy_result, vy_label, vy_diff, 'Lat. vel. vy in m/s',
+                      path_to_results + 'figures/vy' + str(counter) + '.png')
+        plot_and_save(params_dict, vx_result, vx_label, vx_diff, 'Long. vel. vx in m/s',
+                      path_to_results + 'figures/vx' + str(counter) + '.png')
+        plot_and_save(params_dict, ay_result, ay_label, ay_diff, 'Lat. acc. ay in m/s2',
+                      path_to_results + 'figures/ay' + str(counter) + '.png')
+        plot_and_save(params_dict, ax_result, ax_label, ax_diff, 'Long. acc. ax in m/s2',
+                      path_to_results + 'figures/ax' + str(counter) + '.png')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -145,6 +163,7 @@ def plot_run(path_dict: dict,
 
 def plot_run_test_CRT(path_dict: dict,
                       params_dict: dict,
+                      path_to_results: str,
                       counter: int):
     """Plots test results of comparison between neural network and provided vehicle data.
 
@@ -257,16 +276,28 @@ def plot_run_test_CRT(path_dict: dict,
     print('\n')
 
     # plot and save comparison between NN predicted and actual vehicle state
-    plot_and_save(params_dict, yaw_result, yaw_label, yaw_diff, 'Yaw rate [rad/s]',
-                  os.path.join(path_dict['path2results_figures'], 'yaw_test_'+str(counter)+'.png'))
-    plot_and_save(params_dict, vy_result, vy_label, vy_diff, 'Lat. vel. vy [m/s]',
-                  os.path.join(path_dict['path2results_figures'], 'vy_test_'+str(counter)+'.png'))
-    plot_and_save(params_dict, vx_result, vx_label, vx_diff, 'Long. vel. vx [m/s]',
-                  os.path.join(path_dict['path2results_figures'], 'vx_test_'+str(counter)+'.png'))
-    plot_and_save(params_dict, ay_result, ay_label, ay_diff, 'Lat. acc. ay [m/s2]',
-                  os.path.join(path_dict['path2results_figures'], 'ay_test_'+str(counter)+'.png'))
-    plot_and_save(params_dict, ax_result, ax_label, ax_diff, 'Long. acc. ax [m/s2]',
-                  os.path.join(path_dict['path2results_figures'], 'ax_test_'+str(counter)+'.png'))
+    if path_to_results == '':
+        plot_and_save(params_dict, yaw_result, yaw_label, yaw_diff, 'Yaw rate [rad/s]',
+                      os.path.join(path_dict['path2results_figures'], 'yaw_test_'+str(counter)+'.png'))
+        plot_and_save(params_dict, vy_result, vy_label, vy_diff, 'Lat. vel. vy [m/s]',
+                      os.path.join(path_dict['path2results_figures'], 'vy_test_'+str(counter)+'.png'))
+        plot_and_save(params_dict, vx_result, vx_label, vx_diff, 'Long. vel. vx [m/s]',
+                      os.path.join(path_dict['path2results_figures'], 'vx_test_'+str(counter)+'.png'))
+        plot_and_save(params_dict, ay_result, ay_label, ay_diff, 'Lat. acc. ay [m/s2]',
+                      os.path.join(path_dict['path2results_figures'], 'ay_test_'+str(counter)+'.png'))
+        plot_and_save(params_dict, ax_result, ax_label, ax_diff, 'Long. acc. ax [m/s2]',
+                      os.path.join(path_dict['path2results_figures'], 'ax_test_'+str(counter)+'.png'))
+    else:
+        plot_and_save(params_dict, yaw_result, yaw_label, yaw_diff, 'Yaw rate [rad/s]',
+                      path_to_results + 'figures/yaw_test_' + str(counter) + '.png')
+        plot_and_save(params_dict, vy_result, vy_label, vy_diff, 'Lat. vel. vy [m/s]',
+                      path_to_results + 'figures/vy_test_' + str(counter) + '.png')
+        plot_and_save(params_dict, vx_result, vx_label, vx_diff, 'Long. vel. vx [m/s]',
+                      path_to_results + 'figures/vx_test_' + str(counter) + '.png')
+        plot_and_save(params_dict, ay_result, ay_label, ay_diff, 'Lat. acc. ay [m/s2]',
+                      path_to_results + 'figures/ay_test_' + str(counter) + '.png')
+        plot_and_save(params_dict, ax_result, ax_label, ax_diff, 'Long. acc. ax [m/s2]',
+                      path_to_results + 'figures/ax_test_' + str(counter) + '.png')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -293,7 +324,14 @@ def plot_and_save(params_dict: dict,
     :type savename: [type]
     """
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True, sharey=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(25, 10), sharex='all', sharey='all')
+
+    if 'yaw' not in savename:
+        ax1.yaxis.set_major_locator(MultipleLocator(2.5))
+        ax2.yaxis.set_major_locator(MultipleLocator(2.5))
+    else:
+        ax1.yaxis.set_major_locator(MultipleLocator(0.25))
+        ax2.yaxis.set_major_locator(MultipleLocator(0.25))
 
     ax1.plot(inp_1, label='Result', color='tab:orange')
     ax1.plot(inp_2, label='Label', color='tab:blue')
@@ -305,6 +343,7 @@ def plot_and_save(params_dict: dict,
     ax2.set_xlabel('Time steps (8 ms)')
     ax1.legend()
     ax2.legend()
+    plt.grid()
 
     if params_dict['General']['plot_result']:
         plt.show()
