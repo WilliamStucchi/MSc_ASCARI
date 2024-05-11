@@ -20,8 +20,10 @@ class NN_Model_V2():
         input_layer = tfkl.Input(shape=(self.input_dim,), name='input_layer')
 
         # Hidden layers
-        x = tfkl.Dense(units=self.units_first_layer, activation='softplus')(input_layer)
-        x = tfkl.Dense(units=self.units_second_layer, activation='softplus')(x)
+        x = tfkl.Dense(units=self.units_first_layer, activation='softplus',
+                       kernel_initializer=tf.keras.initializers.he_uniform(seed=2))(input_layer)
+        x = tfkl.Dense(units=self.units_second_layer, activation='softplus',
+                       kernel_initializer=tf.keras.initializers.he_uniform(seed=2))(x)
 
         # Output layer
         output_layer = tfkl.Dense(units=self.output_dim)(x)
