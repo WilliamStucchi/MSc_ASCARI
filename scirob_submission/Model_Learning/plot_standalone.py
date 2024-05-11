@@ -33,26 +33,20 @@ def plot_run(filepath2results: str,
     vx_result = results[:, 0][:, np.newaxis]
     vy_result = results[:, 1][:, np.newaxis]
     yaw_result = results[:, 2][:, np.newaxis]
-    ax_result = results[:, 3][:, np.newaxis]
-    ay_result = results[:, 4][:, np.newaxis]
 
     vx_label = labels[start:1500 + start, 0][:, np.newaxis]
     vy_label = labels[start:1500 + start, 1][:, np.newaxis]
     yaw_label = labels[start:1500 + start, 2][:, np.newaxis]
-    ax_label = labels[start:1500 + start, 3][:, np.newaxis]
-    ay_label = labels[start:1500 + start, 4][:, np.newaxis]
 
     yaw_diff = yaw_label - yaw_result
     vy_diff = vy_label - vy_result
     vx_diff = vx_label - vx_result
-    ay_diff = ay_label - ay_result
-    ax_diff = ax_label - ax_result
 
     # calculate scaled results
     scaler_results = MinMaxScaler(feature_range=(0, 1))
 
-    scaler_temp_result = np.concatenate((vx_result, vy_result, yaw_result, ax_result, ay_result), axis=1)
-    scaler_temp_label = np.concatenate((vx_label, vy_label, yaw_label, ax_label, ay_label), axis=1)
+    scaler_temp_result = np.concatenate((vx_result, vy_result, yaw_result), axis=1)
+    scaler_temp_label = np.concatenate((vx_label, vy_label, yaw_label), axis=1)
     scaler_temp = np.concatenate((scaler_temp_result, scaler_temp_label), axis=0)
 
     scaler_results = scaler_results.fit(scaler_temp)
@@ -62,14 +56,10 @@ def plot_run(filepath2results: str,
     vx_result_scaled = scaler_temp_result[:, 0]
     vy_result_scaled = scaler_temp_result[:, 1]
     yaw_result_scaled = scaler_temp_result[:, 2]
-    ax_result_scaled = scaler_temp_result[:, 3]
-    ay_result_scaled = scaler_temp_result[:, 4]
 
     vx_label_scaled = scaler_temp_label[:, 0]
     vy_label_scaled = scaler_temp_label[:, 1]
     yaw_label_scaled = scaler_temp_label[:, 2]
-    ax_label_scaled = scaler_temp_label[:, 3]
-    ay_label_scaled = scaler_temp_label[:, 4]
 
     # print deviation from label
 
@@ -81,15 +71,11 @@ def plot_run(filepath2results: str,
     data = np.asarray([mean_squared_error(yaw_label, yaw_result),
                        mean_squared_error(vx_label, vx_result),
                        mean_squared_error(vy_label, vy_result),
-                       mean_squared_error(ax_label, ax_result),
-                       mean_squared_error(ay_label, ay_result),
                        mean_absolute_error(yaw_label, yaw_result),
                        mean_absolute_error(vx_label, vx_result),
-                       mean_absolute_error(vy_label, vy_result),
-                       mean_absolute_error(ax_label, ax_result),
-                       mean_absolute_error(ay_label, ay_result)]).reshape(2, 5).round(round_digits)
+                       mean_absolute_error(vy_label, vy_result)]).reshape(2, 5).round(round_digits)
 
-    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy', 'long. acc. ax', 'lat. acc. ay']
+    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy']
     row_header = ['MSE', 'MAE']
 
     row_format = "{:>15}" * (len(column_header) + 1)
@@ -102,13 +88,9 @@ def plot_run(filepath2results: str,
     data = np.asarray([mean_squared_error(yaw_label_scaled, yaw_result_scaled),
                        mean_squared_error(vx_label_scaled, vx_result_scaled),
                        mean_squared_error(vy_label_scaled, vy_result_scaled),
-                       mean_squared_error(ax_label_scaled, ax_result_scaled),
-                       mean_squared_error(ay_label_scaled, ay_result_scaled),
                        mean_absolute_error(yaw_label_scaled, yaw_result_scaled),
                        mean_absolute_error(vx_label_scaled, vx_result_scaled),
-                       mean_absolute_error(vy_label_scaled, vy_result_scaled),
-                       mean_absolute_error(ax_label_scaled, ax_result_scaled),
-                       mean_absolute_error(ay_label_scaled, ay_result_scaled)]).reshape(2, 5).round(round_digits)
+                       mean_absolute_error(vy_label_scaled, vy_result_scaled)]).reshape(2, 5).round(round_digits)
 
     for row_head, row_data in zip(row_header, data):
         print(row_format.format(row_head, *row_data))
@@ -122,10 +104,6 @@ def plot_run(filepath2results: str,
                   filepath2plots + 'vy' + str(counter) + '.png')
     plot_and_save(vx_result, vx_label, vx_diff, 'Long. vel. vx in m/s',
                   filepath2plots + 'vx' + str(counter) + '.png')
-    plot_and_save(ay_result, ay_label, ay_diff, 'Lat. acc. ay in m/s2',
-                  filepath2plots + 'ay' + str(counter) + '.png')
-    plot_and_save(ax_result, ax_label, ax_diff, 'Long. acc. ax in m/s2',
-                  filepath2plots + 'ax' + str(counter) + '.png')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -152,29 +130,23 @@ def plot_run_test_CRT(filepath2results: str,
     with open(filepath2testdata, 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
 
-    vx_result = results[:, 0][:, np.newaxis]
+    vx_result = results[:, 2][:, np.newaxis]
     vy_result = results[:, 1][:, np.newaxis]
-    yaw_result = results[:, 2][:, np.newaxis]
-    ax_result = results[:, 3][:, np.newaxis]
-    ay_result = results[:, 4][:, np.newaxis]
+    yaw_result = results[:, 0][:, np.newaxis]
 
     vx_label = labels[:, 0][:, np.newaxis]
     vy_label = labels[:, 1][:, np.newaxis]
     yaw_label = labels[:, 2][:, np.newaxis]
-    ax_label = labels[:, 3][:, np.newaxis]
-    ay_label = labels[:, 4][:, np.newaxis]
 
     yaw_diff = yaw_label - yaw_result
     vy_diff = vy_label - vy_result
     vx_diff = vx_label - vx_result
-    ay_diff = ay_label - ay_result
-    ax_diff = ax_label - ax_result
 
     # calculate scaled results
     scaler_results = MinMaxScaler(feature_range=(0, 1))
 
-    scaler_temp_result = np.concatenate((vx_result, vy_result, yaw_result, ax_result, ay_result), axis=1)
-    scaler_temp_label = np.concatenate((vx_label, vy_label, yaw_label, ax_label, ay_label), axis=1)
+    scaler_temp_result = np.concatenate((vx_result, vy_result, yaw_result), axis=1)
+    scaler_temp_label = np.concatenate((vx_label, vy_label, yaw_label), axis=1)
     scaler_temp = np.concatenate((scaler_temp_result, scaler_temp_label), axis=0)
 
     scaler_results = scaler_results.fit(scaler_temp)
@@ -184,14 +156,10 @@ def plot_run_test_CRT(filepath2results: str,
     vx_result_scaled = scaler_temp_result[:, 0]
     vy_result_scaled = scaler_temp_result[:, 1]
     yaw_result_scaled = scaler_temp_result[:, 2]
-    ax_result_scaled = scaler_temp_result[:, 3]
-    ay_result_scaled = scaler_temp_result[:, 4]
 
     vx_label_scaled = scaler_temp_label[:, 0]
     vy_label_scaled = scaler_temp_label[:, 1]
     yaw_label_scaled = scaler_temp_label[:, 2]
-    ax_label_scaled = scaler_temp_label[:, 3]
-    ay_label_scaled = scaler_temp_label[:, 4]
 
     # print deviation from label
 
@@ -203,15 +171,11 @@ def plot_run_test_CRT(filepath2results: str,
     data = np.asarray([mean_squared_error(yaw_label, yaw_result),
                        mean_squared_error(vx_label, vx_result),
                        mean_squared_error(vy_label, vy_result),
-                       mean_squared_error(ax_label, ax_result),
-                       mean_squared_error(ay_label, ay_result),
                        mean_absolute_error(yaw_label, yaw_result),
                        mean_absolute_error(vx_label, vx_result),
-                       mean_absolute_error(vy_label, vy_result),
-                       mean_absolute_error(ax_label, ax_result),
-                       mean_absolute_error(ay_label, ay_result)]).reshape(2, 5).round(round_digits)
+                       mean_absolute_error(vy_label, vy_result)]).reshape(2, 3).round(round_digits)
 
-    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy', 'long. acc. ax', 'lat. acc. ay']
+    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy']
     row_header = ['MSE', 'MAE']
 
     row_format = "{:>15}" * (len(column_header) + 1)
@@ -226,13 +190,9 @@ def plot_run_test_CRT(filepath2results: str,
     data = np.asarray([mean_squared_error(yaw_label_scaled, yaw_result_scaled),
                        mean_squared_error(vx_label_scaled, vx_result_scaled),
                        mean_squared_error(vy_label_scaled, vy_result_scaled),
-                       mean_squared_error(ax_label_scaled, ax_result_scaled),
-                       mean_squared_error(ay_label_scaled, ay_result_scaled),
                        mean_absolute_error(yaw_label_scaled, yaw_result_scaled),
                        mean_absolute_error(vx_label_scaled, vx_result_scaled),
-                       mean_absolute_error(vy_label_scaled, vy_result_scaled),
-                       mean_absolute_error(ax_label_scaled, ax_result_scaled),
-                       mean_absolute_error(ay_label_scaled, ay_result_scaled)]).reshape(2, 5).round(round_digits)
+                       mean_absolute_error(vy_label_scaled, vy_result_scaled)]).reshape(2, 3).round(round_digits)
 
     for row_head, row_data in zip(row_header, data):
         print(row_format.format(row_head, *row_data))
@@ -248,10 +208,6 @@ def plot_run_test_CRT(filepath2results: str,
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
     plot_and_save(vx_result, vx_label, None, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_test_' + str(counter) + '.png')
-    plot_and_save(ay_result, ay_label, None, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_test_' + str(counter) + '.png')
-    plot_and_save(ax_result, ax_label, None, 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_test_' + str(counter) + '.png')
 
     # Difference
     plot_and_save(None, None, yaw_diff, 'Yaw rate [rad/s]',
@@ -260,10 +216,6 @@ def plot_run_test_CRT(filepath2results: str,
                   filepath2plots + 'vy_diff_' + str(counter) + '.png')
     plot_and_save(None, None, vx_diff, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_diff_' + str(counter) + '.png')
-    plot_and_save(None, None, ay_diff, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_diff_' + str(counter) + '.png')
-    plot_and_save(None, None, ax_diff, 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_diff_' + str(counter) + '.png')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -307,9 +259,9 @@ def save_to_csv(data, title, path_, counter):
 # TEST CRT
 # ----------------------------------------------------------------------------------------------------------------------
 
-path_to_results = '../outputs/2024_05_06/09_52_48/matfiles/prediction_result_feedforward_CRT_'
-path_to_data = '../inputs/trainingdata/test_set_'
-path_to_plots = '../outputs/2024_05_06/09_52_48/figures/'
+path_to_results = 'results/step_4/callbacks/2024_05_10/09_39_23/results_test_'
+path_to_data = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
+path_to_plots = 'results/step_4/callbacks/2024_05_10/09_39_23/images/'
 
 for num_tests in range(1, 3):
     index_last_underscore = path_to_results.rfind('_')
