@@ -10,7 +10,7 @@ CALLBACKS = True
 # create datetime-dependent paths
 path_day = datetime.datetime.now().strftime('%Y_%m_%d')
 path_datetime = datetime.datetime.now().strftime('%H_%M_%S')
-save_path_initial = '..saved_models/'
+save_path_initial = '../saved_models/'
 
 mod = NN_Model_V2()
 model_step_1 = mod.build_model(seed=1)
@@ -21,10 +21,10 @@ model_step_4 = mod.build_model(seed=1)
 # GET TRAINING DATA
 perc_validation = 0.2
 
-dataset_step_1 = np.loadtxt('../data/CRT/old/train_data_step1.csv', delimiter=',')
-dataset_step_2 = np.loadtxt('../data/CRT/old/train_data_step2.csv', delimiter=',')
-dataset_step_3 = np.loadtxt('../data/CRT/old/train_data_step3.csv', delimiter=',')
-dataset_step_4 = np.loadtxt('../data/CRT/old/train_data_step4.csv', delimiter=',')
+dataset_step_1 = np.loadtxt('../data/CRT/train_data_step1.csv', delimiter=',')
+dataset_step_2 = np.loadtxt('../data/CRT/train_data_step2.csv', delimiter=',')
+dataset_step_3 = np.loadtxt('../data/CRT/train_data_step3.csv', delimiter=',')
+dataset_step_4 = np.loadtxt('../data/CRT/train_data_step4.csv', delimiter=',')
 
 # 1 step
 train_features_step_1 = dataset_step_1[:math.floor(len(dataset_step_1) * (1 - perc_validation)), :-3]
@@ -66,7 +66,7 @@ for i in range(0, 1):
                                                               min_delta=0.000005)
 
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_1/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_1/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -85,7 +85,7 @@ for i in range(0, 1):
                                            use_multiprocessing=True)
     else:
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_1/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_1/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -118,7 +118,7 @@ for i in range(0, 1):
                                                               min_delta=0.000005)
 
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_2/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_2/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -137,7 +137,7 @@ for i in range(0, 1):
                                            use_multiprocessing=True)
     else:
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_2/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_2/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -170,7 +170,7 @@ for i in range(0, 1):
                                                               min_delta=0.000005)
 
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_3/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_3/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -189,7 +189,7 @@ for i in range(0, 1):
                                            use_multiprocessing=True)
     else:
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_3/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_3/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -222,7 +222,7 @@ for i in range(0, 1):
                                                               min_delta=0.000005)
 
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_4/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_4/callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,
@@ -241,7 +241,7 @@ for i in range(0, 1):
                                            use_multiprocessing=True)
     else:
         mc = tf.keras.callbacks.ModelCheckpoint(
-            filepath=save_path_initial +'/step_4/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
+            filepath=save_path_initial +'step_4/no_callbacks/' + path_day + '/' + path_datetime + "/keras_model.h5",
             monitor='val_mse',
             mode='min',
             verbose=1,

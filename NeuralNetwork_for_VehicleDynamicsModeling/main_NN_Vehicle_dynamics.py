@@ -78,6 +78,7 @@ for count in range(1, 3):
     # save and plot results (if activated in parameter file)
     visualization.plot_results.plot_run_test_CRT(path_dict=path_dict,
                                                  params_dict=params_dict,
+                                                 path_to_results='',
                                                  counter=count)
 
 print('---------------------------------------------------------------------------------------------------------------')
@@ -114,6 +115,7 @@ for i_count in range(0, params_dict['Test']['n_test']):
     # save and plot results (if activated in parameter file)
     visualization.plot_results.plot_run(path_dict=path_dict,
                                         params_dict=params_dict,
+                                        path_to_results='',
                                         counter=i_count,
                                         start=idx_start)
 

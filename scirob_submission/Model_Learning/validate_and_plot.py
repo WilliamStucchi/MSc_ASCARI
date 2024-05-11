@@ -2,7 +2,6 @@ import tensorflow as tf
 from run_tests import *
 from plot_tests import *
 import threading as th
-from copy import copy
 
 
 def build_model():
@@ -130,8 +129,8 @@ for i in [1, 2, 3, 5, 6]:
 
 test_set_1 = 'data/CRT/test_set_1.csv'
 test_set_2 = 'data/CRT/test_set_2.csv'
-test_set_3 = 'data/CRT/test_set_3.csv'
 
+"""
 checkpoint_path = "saved_models/step_4/v1/model.ckpt"
 loaded_model_4 = build_model()
 loaded_model_4.load_weights(checkpoint_path)
@@ -140,84 +139,42 @@ plot_run('results/step_4/v1/results_test_1.csv', test_set_1, 0, leng, 'results/s
 
 _, leng = run_test(test_set_2, loaded_model_4, 0, -1, 'results/step_4/v1/results_test_2.csv', 'v1_42')
 plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/step_4/v1/', 'v1_42')
-
-"""_, leng = run_test(test_set_3, loaded_model, 0, -1, 'results/step_4/v1/results_test_3.csv', 'v1_43')
-plot_run('results/step_4/v1/results_test_3.csv', test_set_3, 0, leng, 'results/step_4/v1/', 'v1_43')"""
-
-
 """
 
 # Step 1
-# No callbacks
-model_path = 'saved_models/step_1/no_callbacks/2024_05_02/09_14_05/keras_model.h5'
-save_path = 'results/step_1/no_callbacks/2024_05_02/09_14_05/results_test_0.csv'
-p1 = create_thread('t1', test_set_0, model_path, save_path)
-
-save_path = 'results/step_1/no_callbacks/2024_05_02/09_14_05/results_test_1.csv'
-p2 = create_thread('t2', test_set_1, model_path, save_path)
-
-# Step 1
 # Callbacks
-model_path = 'saved_models/step_1/callbacks/2024_05_02/09_59_22/keras_model.h5'
-save_path = 'results/step_1/callbacks/2024_05_02/09_59_22/results_test_0.csv'
-p3 = create_thread('t3', test_set_0, model_path, save_path)
+model_path = 'saved_models/step_1/callbacks/2024_05_10/09_39_23/keras_model.h5'
+save_path = 'results/step_1/callbacks/2024_05_10/09_39_23/results_test_1.csv'
+p3 = create_thread('t3', test_set_1, model_path, save_path)
 
-save_path = 'results/step_1/callbacks/2024_05_02/09_59_22/results_test_1.csv'
-p4 = create_thread('t4', test_set_1, model_path, save_path)
-
-# Step 2
-# No callbacks
-model_path = 'saved_models/step_2/no_callbacks/2024_05_02/09_14_05/keras_model.h5'
-save_path = 'results/step_2/no_callbacks/2024_05_02/09_14_05/results_test_0.csv'
-p5 = create_thread('t5', test_set_0, model_path, save_path)
-
-save_path = 'results/step_2/no_callbacks/2024_05_02/09_14_05/results_test_1.csv'
-p6 = create_thread('t6', test_set_1, model_path, save_path)
+save_path = 'results/step_1/callbacks/2024_05_10/09_39_23/results_test_2.csv'
+p4 = create_thread('t4', test_set_2, model_path, save_path)
 
 # Step 2
 # Callbacks
-model_path = 'saved_models/step_2/callbacks/2024_05_02/09_59_22/keras_model.h5'
-save_path = 'results/step_2/callbacks/2024_05_02/09_59_22/results_test_0.csv'
-p7 = create_thread('t7', test_set_0, model_path, save_path)
+model_path = 'saved_models/step_2/callbacks/2024_05_10/09_39_23/keras_model.h5'
+save_path = 'results/step_2/callbacks/2024_05_10/09_39_23/results_test_1.csv'
+p7 = create_thread('t7', test_set_1, model_path, save_path)
 
-save_path = 'results/step_2/callbacks/2024_05_02/09_59_22/results_test_1.csv'
-p8 = create_thread('t8', test_set_1, model_path, save_path)
-
-# Step 3
-# No callbacks
-model_path = 'saved_models/step_3/no_callbacks/2024_05_02/09_14_05/keras_model.h5'
-save_path = 'results/step_3/no_callbacks/2024_05_02/09_14_05/results_test_0.csv'
-p9 = create_thread('t9', test_set_0, model_path, save_path)
-
-save_path = 'results/step_3/no_callbacks/2024_05_02/09_14_05/results_test_1.csv'
-p10 = create_thread('t10', test_set_1, model_path, save_path)
+save_path = 'results/step_2/callbacks/2024_05_10/09_39_23/results_test_2.csv'
+p8 = create_thread('t8', test_set_2, model_path, save_path)
 
 # Step 3
 # Callbacks
-model_path = 'saved_models/step_3/callbacks/2024_05_02/09_59_22/keras_model.h5'
-save_path = 'results/step_3/callbacks/2024_05_02/09_59_22/results_test_0.csv'
-p11 = create_thread('t11', test_set_0, model_path, save_path)
+model_path = 'saved_models/step_3/callbacks/2024_05_10/09_39_23/keras_model.h5'
+save_path = 'results/step_3/callbacks/2024_05_10/09_39_23/results_test_1.csv'
+p11 = create_thread('t11', test_set_1, model_path, save_path)
 
-save_path = 'results/step_3/callbacks/2024_05_02/09_59_22/results_test_1.csv'
-p12 = create_thread('t12', test_set_1, model_path, save_path)
-
-# Step 4
-# No callbacks
-model_path = 'saved_models/step_4/no_callbacks/2024_05_02/09_14_05/keras_model.h5'
-save_path = 'results/step_4/no_callbacks/2024_05_02/09_14_05/results_test_0.csv'
-p13 = create_thread('t13', test_set_0, model_path, save_path)
-
-save_path = 'results/step_4/no_callbacks/2024_05_02/09_14_05/results_test_1.csv'
-p14 = create_thread('t14', test_set_1, model_path, save_path)
+save_path = 'results/step_3/callbacks/2024_05_10/09_39_23/results_test_2.csv'
+p12 = create_thread('t12', test_set_2, model_path, save_path)
 
 # Step 4
 # Callbacks
-model_path = 'saved_models/step_4/callbacks/2024_05_02/09_59_22/keras_model.h5'
-save_path = 'results/step_4/callbacks/2024_05_02/09_59_22/results_test_0.csv'
-p15 = create_thread('t15', test_set_0, model_path, save_path)
+model_path = 'saved_models/step_4/callbacks/2024_05_10/09_39_23/keras_model.h5'
+save_path = 'results/step_4/callbacks/2024_05_10/09_39_23/results_test_1.csv'
+p15 = create_thread('t15', test_set_1, model_path, save_path)
 
-save_path = 'results/step_4/callbacks/2024_05_02/09_59_22/results_test_1.csv'
-p16 = create_thread('t16', test_set_1, model_path, save_path)
+save_path = 'results/step_4/callbacks/2024_05_10/09_39_23/results_test_2.csv'
+p16 = create_thread('t16', test_set_2, model_path, save_path)
 
-start_parallel_threads([p1, p2, p3, p4])
-"""
+start_parallel_threads([p11])
