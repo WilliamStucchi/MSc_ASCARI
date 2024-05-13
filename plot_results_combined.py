@@ -115,22 +115,22 @@ def plot(TUM_filepath2results_ff: str,
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
     plot_and_save(results_TUM_ff[2], results_TUM_rr[2], results_STAN[2], labels_all[2], 'Yaw rate [rad/s]',
                   filepath2plots + 'yaw_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[3], results_TUM_rr[3], [], labels_all[3], 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[4], results_TUM_rr[4], [], labels_all[4], 'Long. acc. ax [m/s2]',
+    plot_and_save(results_TUM_ff[3], results_TUM_rr[3], None, labels_all[3], 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_test_' + str(counter) + '.png')
+    plot_and_save(results_TUM_ff[4], results_TUM_rr[4], None, labels_all[4], 'Lat. acc. ay [m/s2]',
+                  filepath2plots + 'ay_test_' + str(counter) + '.png')
 
     # Plot and save differences
-    plot_and_save(diff_TUM_ff[0], diff_TUM_rr[0], diff_STAN[0], [], 'Long. vel. vx [m/s]',
+    plot_and_save(diff_TUM_ff[0], diff_TUM_rr[0], diff_STAN[0], None, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[1], diff_TUM_rr[1], diff_STAN[1], [], 'Lat. vel. vy [m/s]',
+    plot_and_save(diff_TUM_ff[1], diff_TUM_rr[1], diff_STAN[1], None, 'Lat. vel. vy [m/s]',
                   filepath2plots + 'vy_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[2], diff_TUM_rr[2], diff_STAN[2], [], 'Yaw rate [rad/s]',
+    plot_and_save(diff_TUM_ff[2], diff_TUM_rr[2], diff_STAN[2], None, 'Yaw rate [rad/s]',
                   filepath2plots + 'yaw_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[3], diff_TUM_rr[3], [], [], 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[4], diff_TUM_rr[4], [], [], 'Long. acc. ax [m/s2]',
+    plot_and_save(diff_TUM_ff[3], diff_TUM_rr[3], None, None, 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_diff_' + str(counter) + '.png')
+    plot_and_save(diff_TUM_ff[4], diff_TUM_rr[4], None, None, 'Lat. acc. ay [m/s2]',
+                  filepath2plots + 'ay_diff_' + str(counter) + '.png')
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -143,9 +143,13 @@ def plot_and_save(TUM_ff, TUM_rr, STAN, label, value, savename):
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
-    plt.plot(TUM_ff, label='TUM feedforward', color='tab:orange')
-    plt.plot(TUM_rr, label='TUM recurrent', color='tab:red')
-    if len(STAN) != 0:
+    if TUM_ff is not None:
+        plt.plot(TUM_ff, label='TUM feedforward', color='tab:orange')
+
+    if TUM_rr is not None:
+        plt.plot(TUM_rr, label='TUM recurrent', color='tab:red')
+
+    if STAN is not None:
         plt.plot(STAN, label='Stanford', color='tab:green')
 
     if label is not None:
@@ -270,11 +274,11 @@ def save_to_csv(data, title, path_, counter):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-TUM_path_to_results_ff = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_06/09_52_48/matfiles/prediction_result_feedforward_CRT_'
+TUM_path_to_results_ff = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_13/11_47_38/matfiles/prediction_result_recurrent_CRT_'
 TUM_path_to_results_rr = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_10/14_26_01/matfiles/prediction_result_recurrent_CRT_'
-STAN_path_to_results = 'scirob_submission/Model_Learning/results/step_4/callbacks/2024_05_10/09_39_23/results_test_'
+STAN_path_to_results = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_05_10/09_39_23/results_test_'
 TUM_path_to_data = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
-path_to_plots = '../results_combined_4/'
+path_to_plots = '../test/'
 
 for num_tests in range(1, 3):
     TUM_path_to_results_ff = complete_path(TUM_path_to_results_ff, num_tests)
@@ -289,3 +293,16 @@ for num_tests in range(1, 3):
          filepath2testdata=TUM_path_to_data,
          filepath2plots=path_to_plots,
          counter=num_tests)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Best
+# ----------------------------------------------------------------------------------------------------------------------
+
+"""
+TUM_path_to_results_ff = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_06/09_52_48/matfiles/prediction_result_feedforward_CRT_'
+TUM_path_to_results_rr = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_10/14_26_01/matfiles/prediction_result_recurrent_CRT_'
+STAN_path_to_results = 'scirob_submission/Model_Learning/results/step_4/callbacks/2024_05_10/09_39_23/results_test_'
+TUM_path_to_data = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
+path_to_plots = '../results_combined_4/'
+"""
