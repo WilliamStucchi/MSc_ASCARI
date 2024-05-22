@@ -8,6 +8,8 @@ from sklearn.preprocessing import MinMaxScaler
 def plot(TUM_filepath2results_ff: str,
          TUM_filepath2results_rr: str,
          STAN_filepath2results: str,
+         STAN_filepath2ax: str,
+         STAN_filepath2ay: str,
          filepath2testdata: str,
          filepath2plots: str,
          counter: int):
@@ -21,13 +23,19 @@ def plot(TUM_filepath2results_ff: str,
     with open(STAN_filepath2results, 'r') as fh:
         STAN_data = np.loadtxt(fh)
 
+    with open(STAN_filepath2ax, 'r') as fh:
+        STAN_ax = np.loadtxt(fh)
+
+    with open(STAN_filepath2ay, 'r') as fh:
+        STAN_ay = np.loadtxt(fh)
+
     # load label data
     with open(filepath2testdata, 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
 
     results_TUM_ff = np.zeros((5, len(TUM_data_ff), 1))
     results_TUM_rr = np.zeros((5, len(TUM_data_rr), 1))
-    results_STAN = np.zeros((3, len(STAN_data), 1))
+    results_STAN = np.zeros((5, len(STAN_data), 1))
     labels_all = np.zeros((5, len(labels), 1))
 
     # Vx
@@ -48,10 +56,12 @@ def plot(TUM_filepath2results_ff: str,
     # Ax
     results_TUM_ff[3] = TUM_data_ff[:, 3][:, np.newaxis]
     results_TUM_rr[3] = TUM_data_rr[:, 3][:, np.newaxis]
+    results_STAN[3] = STAN_ax[:][:, np.newaxis]
 
     # Ay
     results_TUM_ff[4] = TUM_data_ff[:, 4][:, np.newaxis]
     results_TUM_rr[4] = TUM_data_rr[:, 4][:, np.newaxis]
+    results_STAN[4] = STAN_ay[:][:, np.newaxis]
 
     # Labels
     labels_all[0] = labels[:, 0][:, np.newaxis]
@@ -63,14 +73,14 @@ def plot(TUM_filepath2results_ff: str,
     # Differences
     diff_TUM_ff = labels_all - results_TUM_ff
     diff_TUM_rr = labels_all - results_TUM_rr
-    diff_STAN = labels_all[:3] - results_STAN
+    diff_STAN = labels_all - results_STAN
 
     # Scaled results
     results_scaled_TUM_ff, labels_scaled_TUM_ff = scale_results(results_TUM_ff, labels_all)
 
     results_scaled_TUM_rr, labels_scaled_TUM_rr = scale_results(results_TUM_rr, labels_all)
 
-    results_scaled_STAN, labels_scaled_STAN = scale_results(results_STAN, labels_all[:3])
+    results_scaled_STAN, labels_scaled_STAN = scale_results(results_STAN, labels_all)
 
     # Compute metrics
     row_header = ['MSE', 'RMSE', 'MAE', 'R2']
@@ -99,7 +109,6 @@ def plot(TUM_filepath2results_ff: str,
     compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_TUM_rr, labels_scaled_TUM_rr,
                                   'Test CRT TUM Recurrent scaled', filepath2plots, counter)
 
-    column_header = ['long. vel. vx', 'lat. vel. vy', 'yaw rate']
     print('Test CRT Stanford')
     compute_metrics_matrix(row_header, column_header, my_dict, results_STAN, labels_all,
                            'Test CRT Stanford', filepath2plots, counter)
@@ -115,9 +124,9 @@ def plot(TUM_filepath2results_ff: str,
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
     plot_and_save(results_TUM_ff[2], results_TUM_rr[2], results_STAN[2], labels_all[2], 'Yaw rate [rad/s]',
                   filepath2plots + 'yaw_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[3], results_TUM_rr[3], None, labels_all[3], 'Long. acc. ax [m/s2]',
+    plot_and_save(results_TUM_ff[3], results_TUM_rr[3], results_STAN[3], labels_all[3], 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[4], results_TUM_rr[4], None, labels_all[4], 'Lat. acc. ay [m/s2]',
+    plot_and_save(results_TUM_ff[4], results_TUM_rr[4], results_STAN[4], labels_all[4], 'Lat. acc. ay [m/s2]',
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
 
     # Plot and save differences
@@ -127,9 +136,9 @@ def plot(TUM_filepath2results_ff: str,
                   filepath2plots + 'vy_diff_' + str(counter) + '.png')
     plot_and_save(diff_TUM_ff[2], diff_TUM_rr[2], diff_STAN[2], None, 'Yaw rate [rad/s]',
                   filepath2plots + 'yaw_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[3], diff_TUM_rr[3], None, None, 'Long. acc. ax [m/s2]',
+    plot_and_save(diff_TUM_ff[3], diff_TUM_rr[3], diff_STAN[3], None, 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[4], diff_TUM_rr[4], None, None, 'Lat. acc. ay [m/s2]',
+    plot_and_save(diff_TUM_ff[4], diff_TUM_rr[4], diff_STAN[4], None, 'Lat. acc. ay [m/s2]',
                   filepath2plots + 'ay_diff_' + str(counter) + '.png')
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -156,7 +165,7 @@ def plot_and_save(TUM_ff, TUM_rr, STAN, label, value, savename):
         plt.plot(label, label='Ground Truth', color='tab:blue')
 
     plt.ylabel(value)
-    plt.xlabel('Time steps (8 ms)')
+    plt.xlabel('Time steps (10 ms)')
     plt.legend()
     plt.grid()
 
@@ -276,20 +285,26 @@ def save_to_csv(data, title, path_, counter):
 
 TUM_path_to_results_ff = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_13/11_47_38/matfiles/prediction_result_recurrent_CRT_'
 TUM_path_to_results_rr = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_10/14_26_01/matfiles/prediction_result_recurrent_CRT_'
-STAN_path_to_results = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_05_10/09_39_23/results_test_'
+STAN_path_to_results = 'scirob_submission/Model_Learning/results/step_4/callbacks/2024_05_13/16_50_36/results_test_'
 TUM_path_to_data = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
 path_to_plots = '../test/'
 
-for num_tests in range(1, 3):
+for num_tests in range(2, 3):
     TUM_path_to_results_ff = complete_path(TUM_path_to_results_ff, num_tests)
     TUM_path_to_results_rr = complete_path(TUM_path_to_results_rr, num_tests)
     STAN_path_to_results = complete_path(STAN_path_to_results, num_tests)
+
+    index_last_slash = STAN_path_to_results.rfind('_')
+    STAN_ax_path = STAN_path_to_results[:index_last_slash + 2] + '_ax.csv'
+    STAN_ay_path = STAN_path_to_results[:index_last_slash + 2] + '_ay.csv'
 
     TUM_path_to_data = complete_path(TUM_path_to_data, num_tests)
 
     plot(TUM_filepath2results_ff=TUM_path_to_results_ff,
          TUM_filepath2results_rr=TUM_path_to_results_rr,
          STAN_filepath2results=STAN_path_to_results,
+         STAN_filepath2ax=STAN_ax_path,
+         STAN_filepath2ay=STAN_ay_path,
          filepath2testdata=TUM_path_to_data,
          filepath2plots=path_to_plots,
          counter=num_tests)

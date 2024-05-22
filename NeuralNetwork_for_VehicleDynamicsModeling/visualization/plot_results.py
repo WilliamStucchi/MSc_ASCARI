@@ -163,6 +163,7 @@ def plot_run(path_dict: dict,
 
 def plot_run_test_CRT(path_dict: dict,
                       params_dict: dict,
+                      path_to_model: str,
                       path_to_results: str,
                       counter: int):
     """Plots test results of comparison between neural network and provided vehicle data.
@@ -180,7 +181,12 @@ def plot_run_test_CRT(path_dict: dict,
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
         filename_model = 'prediction_result_recurrent'
 
-    filepath2results = os.path.join(path_dict['path2results_matfiles'], filename_model + '_CRT_'+str(counter)+'.csv')
+    if path_to_model is not None:
+        filepath2results = (path_to_model[:path_to_model.rfind('/') + 1] + '/matfiles/' +
+                            filename_model + '_CRT_' + str(counter) + '.csv')
+    else:
+        filepath2results = os.path.join(path_dict['path2results_matfiles'],
+                                        filename_model + '_CRT_' + str(counter) + '.csv')
 
     # load results
     with open(filepath2results, 'r') as fh:
@@ -369,7 +375,8 @@ def plot_mse(path_dict: dict,
     """
 
     # Plot training & validation accuracy values
-    fig = plt.figure()
+    fig, ax = plt.subplots()
+    ax.yaxis.set_major_locator(MultipleLocator(0.0001))
 
     plt.plot(histories.history[params_dict['NeuralNetwork_Settings']['Optimizer']['loss_function']])
     plt.plot(histories.history['val_' + params_dict['NeuralNetwork_Settings']['Optimizer']['loss_function']])

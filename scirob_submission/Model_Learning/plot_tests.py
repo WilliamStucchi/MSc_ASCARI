@@ -11,7 +11,7 @@ def plot_run(path_to_results: str,
              save_path: str,
              name: str):
     # Load results
-    print(name + "[Loading data from: "  + path_to_results + ']')
+    print(name + "[Loading data from: " + path_to_results + ']')
     results = np.loadtxt(path_to_results, delimiter=' ')
     # Load labels
     print(name + "[Loading labels from: " + path_to_labels + ']')
@@ -111,8 +111,8 @@ def plot_and_save(inp_1,
 
     ax1.set_ylabel(value)
     ax2.set_ylabel('Difference label - result')
-    ax1.set_xlabel('Time steps (8 ms)')
-    ax2.set_xlabel('Time steps (8 ms)')
+    ax1.set_xlabel('Time steps (10 ms)')
+    ax2.set_xlabel('Time steps (10 ms)')
     ax1.legend()
     ax2.legend()
 
