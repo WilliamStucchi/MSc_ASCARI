@@ -15,6 +15,7 @@ Created on: 01.04.2020
 # SET FLOATING POINT PRECISION
 np.set_printoptions(formatter={'float': lambda x: "{0:0.16f}".format(x)})
 
+# ----------------------------------------------------------------------------------------------------------------------
 
 def run_nn(path_dict: dict,
            params_dict: dict,
@@ -150,9 +151,12 @@ def run_nn(path_dict: dict,
         np.savetxt(output_path, results)
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
 def run_test_CRT(path_dict: dict,
                  params_dict: dict,
-                 path_to_model: str,
+                 path_to_model: object,
+                 path_to_data: object,
                  nn_mode: str,
                  counter: int):
     """ Runs the neural network to test its predictions against actual vehicle data from CarRealTime
@@ -177,18 +181,22 @@ def run_test_CRT(path_dict: dict,
             path2model = path_dict['filepath2inputs_trainedmodel_recurr']
 
     else:
-        if path_to_model == '':
-            path2scaler = path_dict['filepath2scaler_save']
-        else:
+        if path_to_model is not None:
             path2scaler = path_to_model[:path_to_model.rfind('/') + 1] + 'scaler.plk'
+        else:
+            path2scaler = path_dict['filepath2scaler_save']
 
         if nn_mode == "feedforward":
             path2model = path_dict['filepath2results_trainedmodel_ff']
         elif nn_mode == "recurrent":
             path2model = path_dict['filepath2results_trainedmodel_recurr']
 
-    with open(path_dict['filepath2inputs_testdata_CRT'] + '_' + str(counter) + '.csv', 'r') as fh:
-        data = np.loadtxt(fh, delimiter=',')
+    if path_to_data is not None:
+        with open(path_to_data + str(counter) + '.csv', 'r') as fh:
+            data = np.loadtxt(fh, delimiter=',')
+    else:
+        with open(path_dict['filepath2inputs_testdata_CRT'] + '_' + str(counter) + '.csv', 'r') as fh:
+            data = np.loadtxt(fh, delimiter=',')
 
     input_shape = params_dict['NeuralNetwork_Settings']['input_shape']
     output_shape = params_dict['NeuralNetwork_Settings']['output_shape']
@@ -203,10 +211,10 @@ def run_test_CRT(path_dict: dict,
         src.prepare_data.create_dataset_separation_run_for_testing(data, params_dict, nn_mode)
 
     # load neural network model
-    if path_to_model == '':
-        model = keras.models.load_model(path2model)
-    else:
+    if path_to_model is not None:
         model = keras.models.load_model(path_to_model)
+    else:
+        model = keras.models.load_model(path2model)
 
     results = np.zeros((len(torqueRR_Nm) + input_timesteps, input_shape))
 
@@ -272,6 +280,6 @@ def run_test_CRT(path_dict: dict,
             results)
     else:
         index_last_slash = path_to_model.rfind('/')
-        output_path = (path_to_model[:index_last_slash] + 'prediction_result_' + nn_mode + '_CRT_' +
+        output_path = (path_to_model[:index_last_slash + 1] + '/matfiles/prediction_result_' + nn_mode + '_CRT_' +
                        str(counter) + '.csv')
         np.savetxt(output_path, results)
