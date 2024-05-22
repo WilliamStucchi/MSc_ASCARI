@@ -22,15 +22,15 @@ path_dict = helper_funcs_NN.src.manage_paths.manage_paths()
 # Run Tests ------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-path_to_model = 'outputs/2024_05_08/15_23_02/keras_model_recurrent.h5'
+path_to_model = 'outputs/2024_05_21/14_45_17/keras_model_recurrent.h5'
 
-index_last_slash = path_to_model.rfind('/')
-path_to_results = path_to_model[:index_last_slash + 1]
+path_to_results = 'outputs/2024_05_21/14_45_17/'
+path_to_data = 'inputs/trainingdata/test_set_'
 
 # create a dictionary which contains all parameters
 params_dict = helper_funcs_NN.src.handle_params.handle_params(path_dict=path_dict)
 
-for count in range(1, 3):
+for count in range(0, 4):
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
         print('STARTING RUN FEEDFORWARD NETWORK')
@@ -38,6 +38,7 @@ for count in range(1, 3):
         src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
                                            params_dict=params_dict,
                                            path_to_model=path_to_model,
+                                           path_to_data=path_to_data,
                                            nn_mode="feedforward",
                                            counter=count)
 
@@ -47,6 +48,40 @@ for count in range(1, 3):
         src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
                                            params_dict=params_dict,
                                            path_to_model=path_to_model,
+                                           path_to_data=path_to_data,
+                                           nn_mode='recurrent',
+                                           counter=count)
+
+    # save and plot results (if activated in parameter file)
+    visualization.plot_results.plot_run_test_CRT(path_dict=path_dict,
+                                                 params_dict=params_dict,
+                                                 path_to_model=path_to_model,
+                                                 path_to_results=path_to_results,
+                                                 counter=count)
+
+"""
+index_last_slash = path_to_model.rfind('/')
+path_to_results = path_to_model[:index_last_slash + 1]
+
+for count in range(1, 3):
+
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
+        print('STARTING RUN FEEDFORWARD NETWORK')
+
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           path_to_model=path_to_model,
+                                           path_to_data=None,
+                                           nn_mode="feedforward",
+                                           counter=count)
+
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
+        print('STARTING RUN RECURRENT NETWORK')
+
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           path_to_model=path_to_model,
+                                           path_to_data=None,
                                            nn_mode='recurrent',
                                            counter=count)
 
@@ -96,3 +131,4 @@ for i_count in range(0, params_dict['Test']['n_test']):
 
 
 
+"""
