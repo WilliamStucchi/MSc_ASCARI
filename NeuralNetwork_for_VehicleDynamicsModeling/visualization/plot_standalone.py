@@ -301,17 +301,22 @@ def save_to_csv(data, title, path_, counter):
     np.savetxt(path_ + title + ' ' + str(counter) + '.csv', data,
                header='long. vel. vx, lat. vel. vy, yaw rate, long. acc. ax, lat. acc. ay', delimiter=',')
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
 # TEST CRT
 # ----------------------------------------------------------------------------------------------------------------------
 
-path_to_results = '../outputs/2024_05_06/09_52_48/matfiles/prediction_result_feedforward_CRT_'
+"""path_to_results = '../outputs/2024_05_13/09_20_39/matfiles/prediction_result_recurrent_CRT_'
 path_to_data = '../inputs/trainingdata/test_set_'
-path_to_plots = '../outputs/2024_05_06/09_52_48/figures/'
+path_to_plots = '../outputs/2024_05_13/09_20_39/figures/'"""
 
-for num_tests in range(1, 3):
+path_to_results = '../outputs/2024_05_20/11_30_21/matfiles/prediction_result_recurrent_CRT_'
+path_to_data = '../inputs/trainingdata/test_set_'
+path_to_plots = '../outputs/2024_05_20/11_30_21/figures/'
+
+for num_tests in range(0, 4):
     index_last_underscore = path_to_results.rfind('_')
     path_to_results = path_to_results[:index_last_underscore + 1]
     path_to_results += str(num_tests) + '.csv'
