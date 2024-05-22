@@ -38,7 +38,7 @@ def manage_paths() -> dict:
 
     # specify paths to folders
     path_dict['path2inputs_trainingdata'] = os.path.join(path_dict['path2inputs'], 'trainingdata')
-    path_dict['path2inputs_trainingdata_CRT'] = os.path.join(path_dict['path2inputs_trainingdata'], 'CRT')
+    path_dict['path2inputs_trainingdata_CRT'] = os.path.join(path_dict['path2inputs_trainingdata'], 'new')
     path_dict['path2inputs_trainedmodels'] = os.path.join(path_dict['path2inputs'], 'trainedmodels')
 
     path_dict['path2results'] = os.path.join(path_dict['path2outputs'], path_day, path_datetime)
