@@ -12,63 +12,10 @@ def plot(step_1: str,
          filepath2testdata: str,
          filepath2plots: str,
          counter: int):
-    # load results
-    with open(step_1, 'r') as fh:
-        step_1_data = np.loadtxt(fh)
 
-    with open(step_2, 'r') as fh:
-        step_2_data = np.loadtxt(fh)
-
-    with open(step_3, 'r') as fh:
-        step_3_data = np.loadtxt(fh)
-
-    with open(step_4, 'r') as fh:
-        step_4_data = np.loadtxt(fh)
-
-    # load label data
-    with open(filepath2testdata, 'r') as fh:
-        labels = np.loadtxt(fh, delimiter=',')
-
-    res_step_1 = np.zeros((3, len(step_1_data), 1))
-    res_step_2 = np.zeros((3, len(step_2_data), 1))
-    res_step_3 = np.zeros((3, len(step_3_data), 1))
-    res_step_4 = np.zeros((3, len(step_4_data), 1))
-    labels_all = np.zeros((3, len(labels), 1))
-
-    # Vx
-    res_step_1[0] = step_1_data[:, 2][:, np.newaxis]
-    res_step_2[0] = step_2_data[:, 2][:, np.newaxis]
-    res_step_3[0] = step_3_data[:, 2][:, np.newaxis]
-    res_step_4[0] = step_4_data[:, 2][:, np.newaxis]
-
-    # Vy
-    res_step_1[1] = step_1_data[:, 1][:, np.newaxis]
-    res_step_2[1] = step_2_data[:, 1][:, np.newaxis]
-    res_step_3[1] = step_3_data[:, 1][:, np.newaxis]
-    res_step_4[1] = step_4_data[:, 1][:, np.newaxis]
-
-    # Yaw rate
-    res_step_1[2] = step_1_data[:, 0][:, np.newaxis]
-    res_step_2[2] = step_2_data[:, 0][:, np.newaxis]
-    res_step_3[2] = step_3_data[:, 0][:, np.newaxis]
-    res_step_4[2] = step_4_data[:, 0][:, np.newaxis]
-
-    # Labels
-    labels_all[0] = labels[:, 0][:, np.newaxis]
-    labels_all[1] = labels[:, 1][:, np.newaxis]
-    labels_all[2] = labels[:, 2][:, np.newaxis]
-
-    # Differences
-    diff_step_1 = labels_all - res_step_1
-    diff_step_2 = labels_all - res_step_2
-    diff_step_3 = labels_all - res_step_3
-    diff_step_4 = labels_all - res_step_4
-
-    # Scaled results
-    res_scaled_step_1, lab_scaled_step_1 = scale_results(res_step_1, labels_all)
-    res_scaled_step_2, lab_scaled_step_2 = scale_results(res_step_2, labels_all)
-    res_scaled_step_3, lab_scaled_step_3 = scale_results(res_step_3, labels_all)
-    res_scaled_step_4, lab_scaled_step_4 = scale_results(res_step_4, labels_all)
+    res_step_1, res_step_2, res_step_3, res_step_4 = None, None, None, None
+    labels_all = None
+    diff_step_1, diff_step_2, diff_step_3, diff_step_4 = None, None, None, None
 
     # Compute metrics
     row_header = ['MSE', 'RMSE', 'MAE', 'R2']
@@ -80,62 +27,118 @@ def plot(step_1: str,
                'R2': r2_score
                }
 
-    print('\n')
-    msg = 'Test CRT Step 1'
-    print(msg)
-    compute_metrics_matrix(row_header, column_header, my_dict, res_step_1, labels_all,
-                           msg, filepath2plots, counter)
+    # load label data
+    if filepath2testdata != 'None':
+        with open(filepath2testdata, 'r') as fh:
+            labels = np.loadtxt(fh, delimiter=',')
 
-    msg = 'Test CRT Step 1 scaled'
-    print(msg)
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_1, lab_scaled_step_1,
-                                  msg, filepath2plots, counter)
+        labels_all = np.zeros((3, len(labels), 1))
+        # Labels
+        labels_all[0] = labels[:, 0][:, np.newaxis]
+        labels_all[1] = labels[:, 1][:, np.newaxis]
+        labels_all[2] = labels[:, 2][:, np.newaxis]
 
-    msg = 'Test CRT Step 2'
-    print(msg)
-    compute_metrics_matrix(row_header, column_header, my_dict, res_step_2, labels_all,
-                           msg, filepath2plots, counter)
+    # load results
+    if step_1 != 'None':
+        with open(step_1, 'r') as fh:
+            step_1_data = np.loadtxt(fh)
 
-    msg = 'Test CRT Step 2 scaled'
-    print(msg)
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_2, lab_scaled_step_2,
-                                  msg, filepath2plots, counter)
+        res_step_1 = np.zeros((3, len(step_1_data), 1))
+        res_step_1[0] = step_1_data[:, 0][:, np.newaxis]
+        res_step_1[1] = step_1_data[:, 1][:, np.newaxis]
+        res_step_1[2] = step_1_data[:, 2][:, np.newaxis]
+        diff_step_1 = labels_all - res_step_1
+        res_scaled_step_1, lab_scaled_step_1 = scale_results(res_step_1, labels_all)
 
-    msg = 'Test CRT Step 3'
-    print(msg)
-    compute_metrics_matrix(row_header, column_header, my_dict, res_step_3, labels_all,
-                           msg, filepath2plots, counter)
+        print('\n')
+        msg = 'Test CRT Step 1'
+        print(msg)
+        compute_metrics_matrix(row_header, column_header, my_dict, res_step_1, labels_all,
+                               msg, filepath2plots, counter)
 
-    msg = 'Test CRT Step 3 scaled'
-    print(msg)
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_3, lab_scaled_step_3,
-                                  msg, filepath2plots, counter)
+        msg = 'Test CRT Step 1 scaled'
+        print(msg)
+        compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_1, lab_scaled_step_1,
+                                      msg, filepath2plots, counter)
 
-    msg = 'Test CRT Step 4'
-    print(msg)
-    compute_metrics_matrix(row_header, column_header, my_dict, res_step_4, labels_all,
-                           msg, filepath2plots, counter)
+    if step_2 != 'None':
+        with open(step_2, 'r') as fh:
+            step_2_data = np.loadtxt(fh)
 
-    msg = 'Test CRT Step 4 scaled'
-    print(msg)
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_4, lab_scaled_step_4,
-                                  msg, filepath2plots, counter)
+        res_step_2 = np.zeros((3, len(step_2_data), 1))
+        res_step_2[0] = step_2_data[:, 0][:, np.newaxis]
+        res_step_2[1] = step_2_data[:, 1][:, np.newaxis]
+        res_step_2[2] = step_2_data[:, 2][:, np.newaxis]
+        diff_step_2 = labels_all - res_step_2
+        res_scaled_step_2, lab_scaled_step_2 = scale_results(res_step_2, labels_all)
+
+        msg = 'Test CRT Step 2'
+        print(msg)
+        compute_metrics_matrix(row_header, column_header, my_dict, res_step_2, labels_all,
+                               msg, filepath2plots, counter)
+
+        msg = 'Test CRT Step 2 scaled'
+        print(msg)
+        compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_2, lab_scaled_step_2,
+                                      msg, filepath2plots, counter)
+
+    if step_3 != 'None':
+        with open(step_3, 'r') as fh:
+            step_3_data = np.loadtxt(fh)
+
+        res_step_3 = np.zeros((3, len(step_3_data), 1))
+        res_step_3[0] = step_3_data[:, 0][:, np.newaxis]
+        res_step_3[1] = step_3_data[:, 1][:, np.newaxis]
+        res_step_3[2] = step_3_data[:, 2][:, np.newaxis]
+        diff_step_3 = labels_all - res_step_3
+        res_scaled_step_3, lab_scaled_step_3 = scale_results(res_step_3, labels_all)
+
+        msg = 'Test CRT Step 3'
+        print(msg)
+        compute_metrics_matrix(row_header, column_header, my_dict, res_step_3, labels_all,
+                               msg, filepath2plots, counter)
+
+        msg = 'Test CRT Step 3 scaled'
+        print(msg)
+        compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_3, lab_scaled_step_3,
+                                      msg, filepath2plots, counter)
+
+    if step_4 != 'None':
+        with open(step_4, 'r') as fh:
+            step_4_data = np.loadtxt(fh)
+
+        res_step_4 = np.zeros((3, len(step_4_data), 1))
+        res_step_4[0] = step_4_data[:, 0][:, np.newaxis]
+        res_step_4[1] = step_4_data[:, 1][:, np.newaxis]
+        res_step_4[2] = step_4_data[:, 2][:, np.newaxis]
+        diff_step_4 = labels_all - res_step_4
+        res_scaled_step_4, lab_scaled_step_4 = scale_results(res_step_4, labels_all)
+
+        msg = 'Test CRT Step 4'
+        print(msg)
+        compute_metrics_matrix(row_header, column_header, my_dict, res_step_4, labels_all,
+                               msg, filepath2plots, counter)
+
+        msg = 'Test CRT Step 4 scaled'
+        print(msg)
+        compute_metrics_matrix_scaled(row_header, column_header, my_dict, res_scaled_step_4, lab_scaled_step_4,
+                                      msg, filepath2plots, counter)
 
     # plot and save comparison between NN predicted and actual vehicle state
-    plot_and_save(res_step_1[0], res_step_2[0], res_step_3[0], res_step_4[0], labels_all[0], 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_test_' + str(counter) + '.png')
+    plot_and_save(res_step_1[0], res_step_2[0], res_step_3[0], res_step_4[0], labels_all[0], 'Yaw rate [rad/s]',
+                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
     plot_and_save(res_step_1[1], res_step_2[1], res_step_3[1], res_step_4[1], labels_all[1], 'Lat. vel. vy [m/s]',
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
-    plot_and_save(res_step_1[2], res_step_2[2], res_step_3[2], res_step_4[2], labels_all[2], 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
+    plot_and_save(res_step_1[2], res_step_2[2], res_step_3[2], res_step_4[2], labels_all[2], 'Long. vel. vx [m/s]',
+                  filepath2plots + 'vx_test_' + str(counter) + '.png')
 
     # Plot and save differences
-    plot_and_save(diff_step_1[0], diff_step_2[0], diff_step_3[0], diff_step_4[0], None, 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_diff_' + str(counter) + '.png')
+    plot_and_save(diff_step_1[0], diff_step_2[0], diff_step_3[0], diff_step_4[0], None, 'Yaw rate [rad/s]',
+                  filepath2plots + 'yaw_diff_' + str(counter) + '.png')
     plot_and_save(diff_step_1[1], diff_step_2[1], diff_step_3[1], diff_step_4[1], None, 'Lat. vel. vy [m/s]',
                   filepath2plots + 'vy_diff_' + str(counter) + '.png')
-    plot_and_save(diff_step_1[2], diff_step_2[2], diff_step_3[2], diff_step_4[2], None, 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_diff_' + str(counter) + '.png')
+    plot_and_save(diff_step_1[2], diff_step_2[2], diff_step_3[2], diff_step_4[2], None, 'Long. vel. vx [m/s]',
+                  filepath2plots + 'vx_diff_' + str(counter) + '.png')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -165,15 +168,6 @@ def plot_and_save(step_1, step_2, step_3, step_4, label, value, savename):
     plt.savefig(savename, format='png', dpi=300)
     plt.ion()
     plt.close()
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-def complete_path(path: str, num: int) -> str:
-    index_last_underscore = path.rfind('_')
-    path = path[:index_last_underscore + 1]
-    path += str(num) + '.csv'
-    return path
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -275,26 +269,35 @@ def save_to_csv(data, title, path_, counter):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+def complete_path(path: str, num: int) -> str:
+    index_last_underscore = path.rfind('_')
+    path = path[:index_last_underscore + 1]
+    path += str(num) + '.csv'
+    return path
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 
 stan_1 = 'results/step_1/callbacks/2024_05_10/09_39_23/results_test_'
-stan_2 = 'results/step_2/callbacks/2024_05_10/09_39_23/results_test_'
-stan_3 = 'results/step_3/callbacks/2024_05_10/09_39_23/results_test_'
-stan_4 = 'results/step_4/callbacks/2024_05_10/09_39_23/results_test_'
-TUM_path_to_data = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
+stan_2 = 'results/step_1/callbacks/2024_05_16/10_35_06/results_test_'
+stan_3 = 'results/step_1/callbacks/2024_05_16/11_25_29/results_test_'
+stan_4 = 'results/step_1/callbacks/2024_05_16/11_53_36/results_test_'
+path_to_data = 'data/CRT/test_set_1.csv'
 path_to_plots = '../../../stan combined/'
 
-for num_tests in range(1, 3):
+for num_tests in range(1, 2):
     stan_1 = complete_path(stan_1, num_tests)
     stan_2 = complete_path(stan_2, num_tests)
     stan_3 = complete_path(stan_3, num_tests)
     stan_4 = complete_path(stan_4, num_tests)
 
-    TUM_path_to_data = complete_path(TUM_path_to_data, num_tests)
+    # TUM_path_to_data = complete_path(path_to_data, num_tests)
 
     plot(step_1=stan_1,
          step_2=stan_2,
          step_3=stan_3,
          step_4=stan_4,
-         filepath2testdata=TUM_path_to_data,
+         filepath2testdata=path_to_data,
          filepath2plots=path_to_plots,
          counter=num_tests)
