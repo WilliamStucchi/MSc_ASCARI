@@ -4,6 +4,7 @@ from data_preprocessing.parameters.learning_params import *
 
 def run_test(path_to_test_data,
              loaded_model,
+             scaler,
              start_point: int,
              run_timespan: int,
              path_save: str,
@@ -26,7 +27,7 @@ def run_test(path_to_test_data,
         print(name + '[test dataset fully covered -> exit main script]')
         return 0
 
-    initial, delta, fx = dataset_separation(data, start_point, run_timespan)
+    initial, _, _, _, delta, fx = dataset_separation(data, start_point, run_timespan)
 
     # Initialize structures
     results = np.zeros((len(delta) + input_timesteps, input_shape))
@@ -34,6 +35,8 @@ def run_test(path_to_test_data,
     new_input = np.zeros((1, input_shape * input_timesteps))
     # print(name + '[New input shape: ', new_input.shape, ']')
     # print(name + 'Initial: ', initial)
+    ay = np.zeros(len(delta) + input_timesteps)
+    ax = np.zeros(len(delta) + input_timesteps)
 
     # print(name + 'Results: ')
     for i in range(0, input_timesteps):
@@ -50,9 +53,31 @@ def run_test(path_to_test_data,
             data_convert = new_input
 
         # Predict
-        result_process = loaded_model.predict(data_convert, verbose=0) * dt + data_convert[:, input_shape *
-                                                                                (input_timesteps - 1):input_shape * (
-                                                                                 input_timesteps - 1) + output_shape]
+        if scaler is not None:
+            prediction = loaded_model.predict(scaler.transform(data_convert), verbose=0)
+        else:
+            prediction = loaded_model.predict(data_convert, verbose=0)
+        """print(prediction.shape)
+        input('wait')"""
+        yaw_acc = prediction[:, 0]
+        ay[i_count] = prediction[:, 1]
+        ax[i_count] = prediction[:, 2]
+        """result_process = prediction * dt + data_convert[:, input_shape * (input_timesteps - 1):input_shape * (
+                input_timesteps - 1) + output_shape]"""
+
+        yaw_rate = yaw_acc * dt + data_convert[:, input_shape * (input_timesteps - 1):
+                                               input_shape * (input_timesteps - 1) + 1]
+        dvy = ay[i_count] - yaw_rate * data_convert[:, input_shape * (input_timesteps - 1) + 2:
+                                                    input_shape * (input_timesteps - 1) + 3]
+        dvx = ax[i_count] + yaw_rate * data_convert[:, input_shape * (input_timesteps - 1) + 1:
+                                                    input_shape * (input_timesteps - 1) + 2]
+
+        vy = dvy * dt + data_convert[:, input_shape * (input_timesteps - 1) + 1:
+                                     input_shape * (input_timesteps - 1) + 2]
+        vx = dvx * dt + data_convert[:, input_shape * (input_timesteps - 1) + 2:
+                                     input_shape * (input_timesteps - 1) + 3]
+
+        result_process = np.array([yaw_rate, vy, vx]).reshape(1, 3)
 
         if abs(result_process[:, 0]) > 1000 or abs(result_process[:, 1]) > 1000 or abs(result_process[:, 2]) > 1000:
             print(name + '[Error in computing the prediction. Values are too big!]')
@@ -88,17 +113,149 @@ def run_test(path_to_test_data,
         # input('Waiting...')
 
     results[:, output_shape:input_shape] = data[start_point:start_point + len(delta) + input_timesteps,
-                                                output_shape: input_shape]
+                                           output_shape: input_shape]
     """
     for element in results:
         print(element)
     """
-
+    # Save results
     print(name + '[Saving test results in: ' + path_save + ']')
     np.savetxt(path_save, results)
     # input('wait')
 
+    # Save Ax and Ay
+    index_last_slash = path_save.rfind('_')
+    save_accel = path_save[:index_last_slash + 2] + '_ax.csv'
+    print(name + '[Saving test results in: ' + save_accel + ']')
+    np.savetxt(save_accel, ax)
+
+    index_last_slash = path_save.rfind('_')
+    save_accel = path_save[:index_last_slash + 2] + '_ay.csv'
+    print(name + '[Saving test results in: ' + save_accel + ']')
+    np.savetxt(save_accel, ay)
+
     return 1, len(data)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def run_test_accel(path_to_test_data,
+                   loaded_model,
+                   start_point: int,
+                   run_timespan: int,
+                   path_save: str,
+                   name: str):
+    # Load data and model parameters
+    input_shape = Param['N_STATE_INPUT']
+    output_shape = Param['N_TARGETS']
+    input_timesteps = Param['T']
+    dt = Param['DT']
+    data = []
+
+    # Load test data
+    if path_to_test_data is not None:
+        data = np.loadtxt(path_to_test_data, delimiter=',')
+
+    if run_timespan == -1:
+        run_timespan = len(data)
+
+    if start_point + run_timespan > data.shape[0]:
+        print(name + '[test dataset fully covered -> exit main script]')
+        return 0
+
+    initial, _, _, _, delta, fx = dataset_separation(data, start_point, run_timespan)
+
+    # Initialize structures
+    results = np.zeros((len(delta) + input_timesteps, input_shape))
+    # print(name + '[Results shape: ', results.shape, ']')
+    new_input = np.zeros((1, input_shape * input_timesteps))
+    # print(name + '[New input shape: ', new_input.shape, ']')
+    # print(name + 'Initial: ', initial)
+    ay = np.zeros(len(delta) + input_timesteps)
+    ax = np.zeros(len(delta) + input_timesteps)
+
+    # print(name + 'Results: ')
+    for i in range(0, input_timesteps):
+        results[i, 0:1] = initial[:, i * input_shape:i * input_shape + 1]
+        # print(name + '[Results: ' + results + ']')
+        # print(name + '[Initials: ' + initial + ']')
+        # print('------------')
+
+        # Run test
+    for i_count in tqdm(range(0, len(delta))):
+        if i_count == 0:
+            data_convert = initial
+        else:
+            data_convert = new_input
+
+        # Predict
+        prediction = loaded_model.predict(data_convert, verbose=0)
+        """print(prediction.shape)
+        input('wait')"""
+        ay = prediction[:, 0]
+        result_process = prediction * dt + data_convert[:, input_shape * (input_timesteps - 1):input_shape * (
+                input_timesteps - 1) + 1]
+
+        if abs(result_process[:, 0]) > 1000:
+            print(name + '[Error in computing the prediction. Values are too big!]')
+            return 0, -1
+
+        """
+        print("Data: ", data_convert)
+        print("Data: ", data_convert[:, 0:5])
+        print("Data: ", data_convert[:, 5:10])
+        print("Data: ", data_convert[:, 10:15])
+        print("Data: ", data_convert[:, 15:20])
+        print("Pure prediction: ", loaded_model.predict(data_convert))
+        print("Corrected prediction: ", loaded_model.predict(data_convert) * dt)
+        print("Correction: ", result_process)
+        input('Waiting...')
+        """
+
+        results[i_count + input_timesteps, 0:1] = result_process
+
+        # Create next input with the previous prediction
+        temp = np.zeros((1, input_shape * input_timesteps))
+        temp[:, 0:input_shape * (input_timesteps - 1)] = data_convert[0, input_shape:input_shape * input_timesteps]
+
+        # Add prediction to the next input
+        temp[:, input_shape * (input_timesteps - 1):input_shape * (input_timesteps - 1) + 1] = result_process
+
+        # Add control signals
+        temp[:, input_shape * (input_timesteps - 1) + 1] = delta[i_count]
+        temp[:, input_shape * (input_timesteps - 1) + 1 + 1] = fx[i_count]
+
+        # print('Temp: ', temp)
+        new_input = temp
+        # input('Waiting...')
+
+    results[:, 1:input_shape] = data[start_point:start_point + len(delta) + input_timesteps,
+                                output_shape: input_shape]
+    """
+    for element in results:
+        print(element)
+    """
+    # Save results
+    print(name + '[Saving test results in: ' + path_save + ']')
+    np.savetxt(path_save, results)
+    # input('wait')
+
+    # Save Ax and Ay
+    index_last_slash = path_save.rfind('_')
+    save_accel = path_save[:index_last_slash + 2] + '_ax.csv'
+    print(name + '[Saving test results in: ' + save_accel + ']')
+    np.savetxt(save_accel, ax)
+
+    index_last_slash = path_save.rfind('_')
+    save_accel = path_save[:index_last_slash + 2] + '_ay.csv'
+    print(name + '[Saving test results in: ' + save_accel + ']')
+    np.savetxt(save_accel, ay)
+
+    return 1, len(data)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def dataset_separation(data_test: np.array, start: int, duration: int):
@@ -114,4 +271,9 @@ def dataset_separation(data_test: np.array, start: int, duration: int):
     delta = data_test[start + input_timesteps:start + duration, output_shape]
     fx = data_test[start + input_timesteps:start + duration, output_shape + 1]
 
-    return initials, delta, fx
+    # Others
+    vx = data_test[start + input_timesteps:start + duration, 2]
+    vy = data_test[start + input_timesteps:start + duration, 1]
+    yaw_rate = data_test[start + input_timesteps:start + duration, 0]
+
+    return initials, yaw_rate, vy, vx, delta, fx
