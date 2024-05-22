@@ -1,0 +1,4 @@
+3 layer da self.unit_first_layer, self.unit_second_layer e self.unit_second_layer
+regolarizzati con l2(0.02)
+
+vale anche per step2, 3 e 4
