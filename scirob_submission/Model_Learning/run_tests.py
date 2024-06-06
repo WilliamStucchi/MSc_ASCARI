@@ -1,3 +1,5 @@
+import sys
+
 from tqdm import tqdm
 from data_preprocessing.parameters.learning_params import *
 
@@ -14,11 +16,13 @@ def run_test(path_to_test_data,
     output_shape = Param['N_TARGETS']
     input_timesteps = Param['T']
     dt = Param['DT']
-    data = []
 
     # Load test data
     if path_to_test_data is not None:
         data = np.loadtxt(path_to_test_data, delimiter=',')
+    else:
+        print(name + '[No test set provided. Exiting.]')
+        return 0
 
     if run_timespan == -1:
         run_timespan = len(data)
@@ -65,13 +69,19 @@ def run_test(path_to_test_data,
         """result_process = prediction * dt + data_convert[:, input_shape * (input_timesteps - 1):input_shape * (
                 input_timesteps - 1) + output_shape]"""
 
+        # Euler integration
         yaw_rate = yaw_acc * dt + data_convert[:, input_shape * (input_timesteps - 1):
                                                input_shape * (input_timesteps - 1) + 1]
+
+        # vy_dot = ay - yaw_rate * vx
         dvy = ay[i_count] - yaw_rate * data_convert[:, input_shape * (input_timesteps - 1) + 2:
                                                     input_shape * (input_timesteps - 1) + 3]
+
+        # vx_dot = ax + yaw_rate * vy
         dvx = ax[i_count] + yaw_rate * data_convert[:, input_shape * (input_timesteps - 1) + 1:
                                                     input_shape * (input_timesteps - 1) + 2]
 
+        # Euler integration
         vy = dvy * dt + data_convert[:, input_shape * (input_timesteps - 1) + 1:
                                      input_shape * (input_timesteps - 1) + 2]
         vx = dvx * dt + data_convert[:, input_shape * (input_timesteps - 1) + 2:
