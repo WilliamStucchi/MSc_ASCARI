@@ -13,7 +13,7 @@ test_ax = []
 test_ay = []
 
 # Acquire training data
-directories = ['mid_low_perf/', 'mid_perf/', 'mid_high_perf/', 'high_perf/']
+directories = ['mid_perf/', 'mid_high_perf/', 'high_perf/']
 
 print('ACQUIRING TRAINING DATA')
 for k, dir_ in enumerate(directories):
@@ -42,13 +42,13 @@ for i in range(0, 4):
 print('ACQUIRING TEST DATA')
 for i in tqdm(range(0, 4, 1)):
     # Load set
-    data = np.loadtxt('NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_' + str(i) + '.csv',
-                      delimiter=',',
-                      dtype=object)
+    data = pd.read_csv('../CRT_data/test/test_' + str(i) + '/DemoSportsCar_mxp.csv', dtype=object)
+    data = data.drop(0, axis='rows')  # remove the row containing the measure units
+    data.reset_index(drop=True, inplace=True)
 
     # Accelerations
-    test_ax[i].append(data[:, 3].astype(float))
-    test_ay[i].append(data[:, 4].astype(float))
+    test_ax[i].append(data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float))
+    test_ay[i].append(data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float))
 
 print('END ACQUISITION TEST DATA')
 
@@ -69,36 +69,47 @@ for i in range(0, len(test_ax)):
     test_ax[i] = np.array(test_ax[i]) / 9.81
     test_ay[i] = np.array(test_ay[i]) / 9.81
 
+print('CREATION OF THE ELLIPSES')
 # Ellipses
-center_x, center_y = 0, 0
-a, b = 0.7, 0.7
+center_x, center_y = -1.155, 0.02
+a, b = 0.04, 0.1
 
 assert len(train_ax_g) == len(train_ay_g)
 
+df = pd.DataFrame({'x': test_ax[0].reshape(test_ax[0].shape[1]), 'y': test_ay[0].reshape(test_ay[0].shape[1])})
+count_test = 0
+for index, row in df.iterrows():
+    if ((row['y'] - center_y) ** 2 / b ** 2) + ((row['x'] - center_x) ** 2 / a ** 2) <= 1:
+        count_test += 1
+
 df = pd.DataFrame({'x': train_ax_g, 'y': train_ay_g})
-count = 0
+count_train = 0
 for index, row in df.iterrows():
     if ((row['y'] - center_y)**2 / b**2) + ((row['x'] - center_x)**2 / a**2) <= 1:
-        count += 1
+        count_train += 1
+
+
 
 print('Computing number of points inside ellipse...')
-print('The number of points inside the ellipse is ', count)
+print('The number of training points inside the ellipse is ', count_train)
+print('The number of test points inside the ellipse is ', count_test)
 print('The total number of elements is ', len(train_ax_g))
-print('The elements outside the ellipse are ', len(train_ax_g) - count)
+print('The elements outside the ellipse are ', len(train_ax_g) - count_train)
 
+print('PLOTTING')
 # Plot gg-plot
 plt.figure(figsize=(10, 8))
-plt.scatter(train_ay_g, train_ax_g, alpha=0.1, s=5, label='Training Data', color='blue')
 plt.scatter(test_ay[0], test_ax[0], alpha=0.1, s=30, label='high_perf Data', color='red')
-plt.scatter(test_ay[1], test_ax[1], alpha=0.1, s=30, label='mid_high_perf Data', color='black')
+plt.scatter(train_ay_g, train_ax_g, alpha=0.1, s=5, label='Training Data', color='blue')
+"""plt.scatter(test_ay[1], test_ax[1], alpha=0.1, s=30, label='mid_high_perf Data', color='black')
 plt.scatter(test_ay[2], test_ax[2], alpha=0.1, s=30, label='mid_perf Data', color='green')
-plt.scatter(test_ay[3], test_ax[3], alpha=0.1, s=30, label='mid_low_perf Data', color='yellow')
+plt.scatter(test_ay[3], test_ax[3], alpha=0.1, s=30, label='mid_low_perf Data', color='yellow')"""
 ellipse = plt.matplotlib.patches.Ellipse((center_x, center_y), 2*a, 2*b, edgecolor='lime', facecolor='none', linestyle='dashed')
 plt.gca().add_patch(ellipse)
 legend = plt.legend(loc='best')
 for lh in legend.legendHandles:
     lh.set_alpha(0.8)  # Increase opacity of legend items
-plt.title('gg-plot')
+plt.title('Portimao test')
 plt.ylabel('Longitudinal acceleration [g]')
 plt.xlabel('Lateral acceleration [g]')
 
@@ -109,4 +120,4 @@ plt.axvline(0, color='k', linewidth=0.5, linestyle='--')
 fig1 = plt.gcf()
 plt.show()
 plt.draw()
-fig1.savefig('../gg_plot.png', format='png')
+fig1.savefig('../gg_plots/Portimao_test.png', format='png')
