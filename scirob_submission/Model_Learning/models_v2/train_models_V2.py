@@ -1,5 +1,6 @@
 import os
 
+from matplotlib.ticker import MultipleLocator
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 from scirob_submission.Model_Learning.models_v2.models_V2 import *
@@ -15,15 +16,17 @@ from pathlib import Path
 # ----------------------------------------------------------------------------------------------------------------------
 
 def get_set(dataset, perc_valid):
-    train_feat, train_lab = get_training(dataset, perc_valid)
-    assert_creation(train_feat, train_lab)
-    val_feat, val_lab = get_validation(dataset, perc_valid)
-    assert_creation(val_feat, val_lab)
+    train_features, train_lab = get_training(dataset, perc_valid)
+    assert_creation(train_features, train_lab)
+    val_features, val_lab = get_validation(dataset, perc_valid)
+    assert_creation(val_features, val_lab)
 
-    scaler = StandardScaler()
-    scaler.fit(train_feat)
-    train_features = scaler.transform(train_feat)
-    val_features = scaler.transform(val_feat)
+    scaler = None
+    if APPLY_SCALER:
+        scaler = StandardScaler()
+        scaler.fit(train_features)
+        train_features = scaler.transform(train_features)
+        val_features = scaler.transform(val_features)
 
     return train_features, train_lab, val_features, val_lab, scaler
 
@@ -54,6 +57,7 @@ def assert_creation(features, labels):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+APPLY_SCALER = False
 TRAIN_S1 = True
 TRAIN_S2 = False
 TRAIN_S3 = False
@@ -65,16 +69,21 @@ save_path_initial = '../saved_models/'
 
 # GET TRAINING DATA
 dataset_step_1 = np.loadtxt('../data/new/train_data_step1.csv', delimiter=',')
-dataset_step_2 = np.loadtxt('../data/CRT/train_data_step2.csv', delimiter=',')
+print('TOTAL LENGTH OF THE DATASET: ', len(dataset_step_1))
+"""dataset_step_2 = np.loadtxt('../data/CRT/train_data_step2.csv', delimiter=',')
 dataset_step_3 = np.loadtxt('../data/CRT/train_data_step3.csv', delimiter=',')
-dataset_step_4 = np.loadtxt('../data/CRT/train_data_step4.csv', delimiter=',')
+dataset_step_4 = np.loadtxt('../data/CRT/train_data_step4.csv', delimiter=',')"""
 
 perc_validation = 0.2
 
 # 1 step
 train_features_step_1, train_labels_step_1, val_features_step_1, val_labels_step_1, scaler_1 = get_set(dataset_step_1,
                                                                                                        perc_validation)
-# 2 step
+
+np.savetxt('../../../train_feat.csv', train_features_step_1)
+np.savetxt('../../../val_feat.csv', val_features_step_1)
+
+"""# 2 step
 train_features_step_2, train_labels_step_2, val_features_step_2, val_labels_step_2, scaler_2 = get_set(dataset_step_2,
                                                                                                        perc_validation)
 # 3 step
@@ -82,7 +91,7 @@ train_features_step_3, train_labels_step_3, val_features_step_3, val_labels_step
                                                                                                        perc_validation)
 # 4 step
 train_features_step_4, train_labels_step_4, val_features_step_4, val_labels_step_4, scaler_4 = get_set(dataset_step_4,
-                                                                                                       perc_validation)
+                                                                                                       perc_validation)"""
 
 # Step 1 training
 if TRAIN_S1:
@@ -111,40 +120,50 @@ if TRAIN_S1:
 
     Path(save_path_initial + 'step_1/callbacks/' + path_day + '/' + path_datetime + "/").mkdir(parents=True,
                                                                                                exist_ok=True)
-    scaler_filename = save_path_initial + 'step_1/callbacks/' + path_day + '/' + path_datetime + '/scaler.plk'
-    dump(scaler_1, scaler_filename)
+    if APPLY_SCALER:
+        scaler_filename = save_path_initial + 'step_1/callbacks/' + path_day + '/' + path_datetime + '/scaler.plk'
+        dump(scaler_1, scaler_filename)
 
     with tf.device('/GPU:0'):
         history_mod = model_step_1.fit(x=train_features_step_1,
                                        y=train_labels_step_1,
-                                       batch_size=500,
+                                       batch_size=750,
                                        validation_data=(val_features_step_1, val_labels_step_1),
-                                       epochs=2000,
+                                       epochs=5000,
                                        verbose=1,
                                        shuffle=False,
-                                       callbacks=[reduce_lr_loss, es, mc],
+                                       callbacks=[es, mc],
                                        use_multiprocessing=True)
 
+    plt.figure(figsize=(25, 10))
+    """ax = plt.gca()
+    ax.yaxis.set_major_locator(MultipleLocator(0.01))"""
     plt.plot(history_mod.history['loss'])
     plt.plot(history_mod.history['val_loss'])
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
+    plt.grid()
     plt.show()
+    plt.close()
 
+    plt.figure(figsize=(25, 10))
+    """ax = plt.gca()
+    ax.yaxis.set_major_locator(MultipleLocator(0.01))"""
     plt.plot(history_mod.history['mse'])
     plt.plot(history_mod.history['val_mse'])
     plt.title('model mse')
     plt.ylabel('mse')
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
+    plt.grid()
     plt.show()
 
     plt.savefig(save_path_initial + 'step_1/callbacks/' + path_day + '/' + path_datetime, format='png')
     plt.close()
 
-if TRAIN_S2:
+"""if TRAIN_S2:
     mod = NN_Model_V2()
     model_step_2 = mod.build_model(seed=1)
 
@@ -178,9 +197,9 @@ if TRAIN_S2:
                                        verbose=1,
                                        shuffle=False,
                                        callbacks=[reduce_lr_loss, es, mc],
-                                       use_multiprocessing=True)
+                                       use_multiprocessing=True)"""
 
-if TRAIN_S3:
+"""if TRAIN_S3:
     mod = NN_Model_V2()
     model_step_3 = mod.build_model(seed=1)
 
@@ -214,9 +233,9 @@ if TRAIN_S3:
                                        verbose=1,
                                        shuffle=False,
                                        callbacks=[reduce_lr_loss, es, mc],
-                                       use_multiprocessing=True)
+                                       use_multiprocessing=True)"""
 
-if TRAIN_S4:
+"""if TRAIN_S4:
     mod = NN_Model_V2()
     model_step_4 = mod.build_model(seed=1)
 
@@ -250,4 +269,4 @@ if TRAIN_S4:
                                        verbose=1,
                                        shuffle=False,
                                        callbacks=[reduce_lr_loss, es, mc],
-                                       use_multiprocessing=True)
+                                       use_multiprocessing=True)"""
