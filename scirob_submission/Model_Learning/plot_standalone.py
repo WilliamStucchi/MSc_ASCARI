@@ -115,7 +115,7 @@ def plot_run_test_CRT(filepath2results: str,
                       filepath2resay: str,
                       filepath2labelsaccel: str,
                       filepath2plots: str,
-                      counter: int):
+                      counter: str):
     """Plots test results of comparison between neural network and provided vehicle data.
 
     :param counter:
@@ -183,12 +183,19 @@ def plot_run_test_CRT(filepath2results: str,
     ax_label_scaled = scaler_temp_label[:, 3]
     ay_label_scaled = scaler_temp_label[:, 4]
 
+    print('Saving diff files')
+    np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_vx_' + str(counter) + '.csv', vx_diff)
+    np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_vy_' + str(counter) + '.csv', vy_diff)
+    np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_yaw_' + str(counter) + '.csv', yaw_diff)
+    np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_ax_' + str(counter) + '.csv', ax_diff)
+    np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_ay_' + str(counter) + '.csv', ay_diff)
+
     # print deviation from label
 
     round_digits = 5
 
     print('\n')
-    print('MSE AND MAE OF UNSCALED VALUES: Test CRT')
+    print('MSE AND MAE OF UNSCALED VALUES: Test CRT ' + str(counter))
 
     data = np.asarray([mean_squared_error(yaw_label, yaw_result),
                        mean_squared_error(vx_label, vx_result),
@@ -268,7 +275,7 @@ def plot_and_save(inp_1, inp_2, inp_3, value, savename):
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
     if inp_1 is not None:
-        plt.plot(inp_1, label='Result', color='tab:orange')
+        plt.plot(inp_1, label='Result', color='tab:red')
 
     if inp_2 is not None:
         plt.plot(inp_2, label='Label', color='tab:blue')
@@ -305,15 +312,16 @@ path_to_plots = 'results/step_4/callbacks/2024_05_10/09_39_23/images/'
 path_to_results = 'results/step_1/callbacks/2024_05_17/12_29_37/results_test_'
 path_to_data = 'data/new/test_set_'
 path_to_plots = 'results/step_1/callbacks/2024_05_17/12_29_37/images/'
-path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
+path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
 
-for num_tests in range(0, 1):
+"""for num_tests in ['1', '08', '06']:
 
-    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '.csv'
-    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '_ax.csv'
-    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '_ay.csv'
-    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + str(num_tests) + '.csv'
-    path_to_labels_for_accel = path_to_labels_for_accel[:path_to_labels_for_accel.rfind('_') + 1] + str(num_tests) + '.csv'
+    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + num_tests + '.csv'
+    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + num_tests + '_ax.csv'
+    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + num_tests + '_ay.csv'
+    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + num_tests + '.csv'
+    path_to_labels_for_accel = (path_to_labels_for_accel[:path_to_labels_for_accel.rfind('_') + 1]
+                                + num_tests + '.csv')
 
     plot_run_test_CRT(filepath2results=path_to_results,
                       filepath2testdata=path_to_data,
@@ -321,7 +329,24 @@ for num_tests in range(0, 1):
                       filepath2resay=path_to_res_ay,
                       filepath2labelsaccel=path_to_labels_for_accel,
                       filepath2plots=path_to_plots,
-                      counter=num_tests)
+                      counter='mu_' + num_tests)"""
+
+for num_tests in range(0, 4):
+
+    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '.csv'
+    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '_ax.csv'
+    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '_ay.csv'
+    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + str(num_tests) + '.csv'
+    path_to_labels_for_accel = (path_to_labels_for_accel[:path_to_labels_for_accel.rfind('_') + 1]
+                                + str(num_tests) + '.csv')
+
+    plot_run_test_CRT(filepath2results=path_to_results,
+                      filepath2testdata=path_to_data,
+                      filepath2resax=path_to_res_ax,
+                      filepath2resay=path_to_res_ay,
+                      filepath2labelsaccel=path_to_labels_for_accel,
+                      filepath2plots=path_to_plots,
+                      counter='perf_' + str(num_tests))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # TEST TUM DATA

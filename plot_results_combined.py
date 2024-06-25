@@ -5,63 +5,67 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler
 
 
-def plot(TUM_filepath2results_ff: str,
-         TUM_filepath2results_rr: str,
-         STAN_filepath2results: str,
-         STAN_filepath2ax: str,
-         STAN_filepath2ay: str,
-         filepath2testdata: str,
+def plot(data1: str,
+         data2: str,
+         data3: str,
+         test_data: str,
          filepath2plots: str,
          counter: int):
     # load results
-    with open(TUM_filepath2results_ff, 'r') as fh:
-        TUM_data_ff = np.loadtxt(fh)
+    with open(data1 + str(counter) + '.csv', 'r') as fh:
+        data1_ = np.loadtxt(fh)
+    with open(data1 + str(counter) + '_ax.csv', 'r') as fh:
+        data1_ax = np.loadtxt(fh)
+    with open(data1 + str(counter) + '_ay.csv', 'r') as fh:
+        data1_ay = np.loadtxt(fh)
 
-    with open(TUM_filepath2results_rr, 'r') as fh:
-        TUM_data_rr = np.loadtxt(fh)
+    with open(data2 + str(counter) + '.csv', 'r') as fh:
+        data2_ = np.loadtxt(fh)
+    with open(data2 + str(counter) + '_ax.csv', 'r') as fh:
+        data2_ax = np.loadtxt(fh)
+    with open(data2 + str(counter) + '_ay.csv', 'r') as fh:
+        data2_ay = np.loadtxt(fh)
 
-    with open(STAN_filepath2results, 'r') as fh:
-        STAN_data = np.loadtxt(fh)
-
-    with open(STAN_filepath2ax, 'r') as fh:
-        STAN_ax = np.loadtxt(fh)
-
-    with open(STAN_filepath2ay, 'r') as fh:
-        STAN_ay = np.loadtxt(fh)
+    with open(data3 + str(counter) + '.csv', 'r') as fh:
+        data3_ = np.loadtxt(fh)
+    with open(data3 + str(counter) + '_ax.csv', 'r') as fh:
+        data3_ax = np.loadtxt(fh)
+    with open(data3 + str(counter) + '_ay.csv', 'r') as fh:
+        data3_ay = np.loadtxt(fh)
 
     # load label data
-    with open(filepath2testdata, 'r') as fh:
+    with open(test_data + str(counter) + '.csv', 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
 
-    results_TUM_ff = np.zeros((5, len(TUM_data_ff), 1))
-    results_TUM_rr = np.zeros((5, len(TUM_data_rr), 1))
-    results_STAN = np.zeros((5, len(STAN_data), 1))
+    res_data1 = np.zeros((5, len(data1_), 1))
+    res_data2 = np.zeros((5, len(data2_), 1))
+    res_data3 = np.zeros((5, len(data3_), 1))
     labels_all = np.zeros((5, len(labels), 1))
 
     # Vx
-    results_TUM_ff[0] = TUM_data_ff[:, 0][:, np.newaxis]
-    results_TUM_rr[0] = TUM_data_rr[:, 0][:, np.newaxis]
-    results_STAN[0] = STAN_data[:, 2][:, np.newaxis]
+    res_data1[0] = data1_[:, 0][:, np.newaxis]
+    res_data2[0] = data2_[:, 0][:, np.newaxis]
+    res_data3[0] = data3_[:, 2][:, np.newaxis]
 
     # Vy
-    results_TUM_ff[1] = TUM_data_ff[:, 1][:, np.newaxis]
-    results_TUM_rr[1] = TUM_data_rr[:, 1][:, np.newaxis]
-    results_STAN[1] = STAN_data[:, 1][:, np.newaxis]
+    res_data1[1] = data1_[:, 1][:, np.newaxis]
+    res_data2[1] = data2_[:, 1][:, np.newaxis]
+    res_data3[1] = data3_[:, 1][:, np.newaxis]
 
     # Yaw rate
-    results_TUM_ff[2] = TUM_data_ff[:, 2][:, np.newaxis]
-    results_TUM_rr[2] = TUM_data_rr[:, 2][:, np.newaxis]
-    results_STAN[2] = STAN_data[:, 0][:, np.newaxis]
+    res_data1[2] = data1_[:, 2][:, np.newaxis]
+    res_data2[2] = data2_[:, 2][:, np.newaxis]
+    res_data3[2] = data3_[:, 0][:, np.newaxis]
 
     # Ax
-    results_TUM_ff[3] = TUM_data_ff[:, 3][:, np.newaxis]
-    results_TUM_rr[3] = TUM_data_rr[:, 3][:, np.newaxis]
-    results_STAN[3] = STAN_ax[:][:, np.newaxis]
+    res_data1[3] = data1_ax[:][:, np.newaxis]
+    res_data2[3] = data2_ax[:][:, np.newaxis]
+    res_data3[3] = data3_ax[:][:, np.newaxis]
 
     # Ay
-    results_TUM_ff[4] = TUM_data_ff[:, 4][:, np.newaxis]
-    results_TUM_rr[4] = TUM_data_rr[:, 4][:, np.newaxis]
-    results_STAN[4] = STAN_ay[:][:, np.newaxis]
+    res_data1[4] = data1_ay[:][:, np.newaxis]
+    res_data2[4] = data2_ay[:][:, np.newaxis]
+    res_data3[4] = data3_ay[:][:, np.newaxis]
 
     # Labels
     labels_all[0] = labels[:, 0][:, np.newaxis]
@@ -71,16 +75,16 @@ def plot(TUM_filepath2results_ff: str,
     labels_all[4] = labels[:, 4][:, np.newaxis]
 
     # Differences
-    diff_TUM_ff = labels_all - results_TUM_ff
-    diff_TUM_rr = labels_all - results_TUM_rr
-    diff_STAN = labels_all - results_STAN
-
+    diff_data1 = labels_all - res_data1
+    diff_data2 = labels_all - res_data2
+    diff_data3 = labels_all - res_data3
+    """
     # Scaled results
-    results_scaled_TUM_ff, labels_scaled_TUM_ff = scale_results(results_TUM_ff, labels_all)
+    results_scaled_data1, labels_scaled_data1 = scale_results(res_data1, labels_all)
 
-    results_scaled_TUM_rr, labels_scaled_TUM_rr = scale_results(results_TUM_rr, labels_all)
+    results_scaled_data2, labels_scaled_data2 = scale_results(res_data2, labels_all)
 
-    results_scaled_STAN, labels_scaled_STAN = scale_results(results_STAN, labels_all)
+    results_scaled_data3, labels_scaled_data3 = scale_results(res_data3, labels_all)
 
     # Compute metrics
     row_header = ['MSE', 'RMSE', 'MAE', 'R2']
@@ -115,35 +119,35 @@ def plot(TUM_filepath2results_ff: str,
 
     print('Test CRT Stanford scaled')
     compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_STAN, labels_scaled_STAN,
-                                  'Test CRT Stanford scaled', filepath2plots, counter)
+                                  'Test CRT Stanford scaled', filepath2plots, counter)"""
 
     # plot and save comparison between NN predicted and actual vehicle state
-    plot_and_save(results_TUM_ff[0], results_TUM_rr[0], results_STAN[0], labels_all[0], 'Long. vel. vx [m/s]',
+    plot_and_save(res_data1[0], res_data2[0], res_data3[0], labels_all[0], 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[1], results_TUM_rr[1], results_STAN[1], labels_all[1], 'Lat. vel. vy [m/s]',
+    plot_and_save(res_data1[1], res_data2[1], res_data3[1], labels_all[1], 'Lat. vel. vy [m/s]',
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[2], results_TUM_rr[2], results_STAN[2], labels_all[2], 'Yaw rate [rad/s]',
+    plot_and_save(res_data1[2], res_data2[2], res_data3[2], labels_all[2], 'Yaw rate [rad/s]',
                   filepath2plots + 'yaw_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[3], results_TUM_rr[3], results_STAN[3], labels_all[3], 'Long. acc. ax [m/s2]',
+    plot_and_save(res_data1[3], res_data1[3], res_data3[3], labels_all[3], 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_test_' + str(counter) + '.png')
-    plot_and_save(results_TUM_ff[4], results_TUM_rr[4], results_STAN[4], labels_all[4], 'Lat. acc. ay [m/s2]',
+    plot_and_save(res_data1[4], res_data2[4], res_data3[4], labels_all[4], 'Lat. acc. ay [m/s2]',
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
 
     # Plot and save differences
-    plot_and_save(diff_TUM_ff[0], diff_TUM_rr[0], diff_STAN[0], None, 'Long. vel. vx [m/s]',
+    plot_and_save(diff_data1[0], diff_data2[0], diff_data3[0], None, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[1], diff_TUM_rr[1], diff_STAN[1], None, 'Lat. vel. vy [m/s]',
+    plot_and_save(diff_data1[1], diff_data2[1], diff_data2[1], None, 'Lat. vel. vy [m/s]',
                   filepath2plots + 'vy_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[2], diff_TUM_rr[2], diff_STAN[2], None, 'Yaw rate [rad/s]',
+    plot_and_save(diff_data1[2], diff_data2[2], diff_data2[2], None, 'Yaw rate [rad/s]',
                   filepath2plots + 'yaw_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[3], diff_TUM_rr[3], diff_STAN[3], None, 'Long. acc. ax [m/s2]',
+    plot_and_save(diff_data1[3], diff_data2[3], diff_data2[3], None, 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_diff_' + str(counter) + '.png')
-    plot_and_save(diff_TUM_ff[4], diff_TUM_rr[4], diff_STAN[4], None, 'Lat. acc. ay [m/s2]',
+    plot_and_save(diff_data1[4], diff_data2[4], diff_data2[4], None, 'Lat. acc. ay [m/s2]',
                   filepath2plots + 'ay_diff_' + str(counter) + '.png')
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def plot_and_save(TUM_ff, TUM_rr, STAN, label, value, savename):
+def plot_and_save(data1, data2, data3, label, value, savename):
     plt.figure(figsize=(25, 10))
     ax = plt.gca()
 
@@ -152,17 +156,17 @@ def plot_and_save(TUM_ff, TUM_rr, STAN, label, value, savename):
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
-    if TUM_ff is not None:
-        plt.plot(TUM_ff, label='TUM feedforward', color='tab:orange')
+    if data1 is not None:
+        plt.plot(data1, label='TUM feedforward', color='orange')
 
-    if TUM_rr is not None:
-        plt.plot(TUM_rr, label='TUM recurrent', color='tab:red')
+    if data2 is not None:
+        plt.plot(data2, label='TUM recurrent', color='red')
 
-    if STAN is not None:
-        plt.plot(STAN, label='Stanford', color='tab:green')
+    if data3 is not None:
+        plt.plot(data3, label='Stanford', color='green')
 
     if label is not None:
-        plt.plot(label, label='Ground Truth', color='tab:blue')
+        plt.plot(label, label='Ground Truth', color='blue')
 
     plt.ylabel(value)
     plt.xlabel('Time steps (10 ms)')
@@ -283,29 +287,17 @@ def save_to_csv(data, title, path_, counter):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-TUM_path_to_results_ff = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_13/11_47_38/matfiles/prediction_result_recurrent_CRT_'
-TUM_path_to_results_rr = 'NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_10/14_26_01/matfiles/prediction_result_recurrent_CRT_'
-STAN_path_to_results = 'scirob_submission/Model_Learning/results/step_4/callbacks/2024_05_13/16_50_36/results_test_'
-TUM_path_to_data = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
+training_cplt = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_05_17/12_29_37/results_test_'
+training_no_low = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_03/10_49_13/results_test_'
+training_no_low_no_mid = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_04/15_40_10/results_test_'
+TUM_path_to_data = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
 path_to_plots = '../test/'
 
-for num_tests in range(2, 3):
-    TUM_path_to_results_ff = complete_path(TUM_path_to_results_ff, num_tests)
-    TUM_path_to_results_rr = complete_path(TUM_path_to_results_rr, num_tests)
-    STAN_path_to_results = complete_path(STAN_path_to_results, num_tests)
-
-    index_last_slash = STAN_path_to_results.rfind('_')
-    STAN_ax_path = STAN_path_to_results[:index_last_slash + 2] + '_ax.csv'
-    STAN_ay_path = STAN_path_to_results[:index_last_slash + 2] + '_ay.csv'
-
-    TUM_path_to_data = complete_path(TUM_path_to_data, num_tests)
-
-    plot(TUM_filepath2results_ff=TUM_path_to_results_ff,
-         TUM_filepath2results_rr=TUM_path_to_results_rr,
-         STAN_filepath2results=STAN_path_to_results,
-         STAN_filepath2ax=STAN_ax_path,
-         STAN_filepath2ay=STAN_ay_path,
-         filepath2testdata=TUM_path_to_data,
+for num_tests in range(0, 4):
+    plot(data1=training_cplt,
+         data2=training_no_low,
+         data3=training_no_low_no_mid,
+         test_data=TUM_path_to_data,
          filepath2plots=path_to_plots,
          counter=num_tests)
 
