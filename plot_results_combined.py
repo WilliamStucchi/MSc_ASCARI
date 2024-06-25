@@ -5,80 +5,89 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler
 
 
-def plot(data1: str,
-         data2: str,
-         data3: str,
-         test_data: str,
+def plot(data: list,
+         titles: list,
+         label: str,
          filepath2plots: str,
          counter: int):
+
+    data_ = []
+    ax_ = []
+    ay_ = []
+    for el in data:
+        temp = []
+        data_.append(temp)
+        ax_.append(temp)
+        ay_.append(temp)
+
     # load results
-    with open(data1 + str(counter) + '.csv', 'r') as fh:
-        data1_ = np.loadtxt(fh)
-    with open(data1 + str(counter) + '_ax.csv', 'r') as fh:
-        data1_ax = np.loadtxt(fh)
-    with open(data1 + str(counter) + '_ay.csv', 'r') as fh:
-        data1_ay = np.loadtxt(fh)
-
-    with open(data2 + str(counter) + '.csv', 'r') as fh:
-        data2_ = np.loadtxt(fh)
-    with open(data2 + str(counter) + '_ax.csv', 'r') as fh:
-        data2_ax = np.loadtxt(fh)
-    with open(data2 + str(counter) + '_ay.csv', 'r') as fh:
-        data2_ay = np.loadtxt(fh)
-
-    with open(data3 + str(counter) + '.csv', 'r') as fh:
-        data3_ = np.loadtxt(fh)
-    with open(data3 + str(counter) + '_ax.csv', 'r') as fh:
-        data3_ax = np.loadtxt(fh)
-    with open(data3 + str(counter) + '_ay.csv', 'r') as fh:
-        data3_ay = np.loadtxt(fh)
+    for i, el in enumerate(data):
+        with open(el + str(counter) + '.csv', 'r') as fh:
+            data_[i] = np.loadtxt(fh)
+        with open(el + str(counter) + '_ax.csv', 'r') as fh:
+            ax_[i] = np.loadtxt(fh)
+        with open(el + str(counter) + '_ay.csv', 'r') as fh:
+            ay_[i] = np.loadtxt(fh)
 
     # load label data
-    with open(test_data + str(counter) + '.csv', 'r') as fh:
+    with open(label + str(counter) + '.csv', 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
 
-    res_data1 = np.zeros((5, len(data1_), 1))
-    res_data2 = np.zeros((5, len(data2_), 1))
-    res_data3 = np.zeros((5, len(data3_), 1))
-    labels_all = np.zeros((5, len(labels), 1))
+    # Extract results for each feature
+    res_vx = []
+    res_vy = []
+    res_yaw = []
+    res_ax = []
+    res_ay = []
+    for el in data:
+        temp = []
+        res_vx.append(temp)
+        res_vy.append(temp)
+        res_yaw.append(temp)
+        res_ax.append(temp)
+        res_ay.append(temp)
 
-    # Vx
-    res_data1[0] = data1_[:, 0][:, np.newaxis]
-    res_data2[0] = data2_[:, 0][:, np.newaxis]
-    res_data3[0] = data3_[:, 2][:, np.newaxis]
-
-    # Vy
-    res_data1[1] = data1_[:, 1][:, np.newaxis]
-    res_data2[1] = data2_[:, 1][:, np.newaxis]
-    res_data3[1] = data3_[:, 1][:, np.newaxis]
-
-    # Yaw rate
-    res_data1[2] = data1_[:, 2][:, np.newaxis]
-    res_data2[2] = data2_[:, 2][:, np.newaxis]
-    res_data3[2] = data3_[:, 0][:, np.newaxis]
+    for i, el in enumerate(data_):
+        # Yaw rate
+        res_yaw[i] = el[:, 0]
+        # Vy
+        res_vy[i] = el[:, 1]
+        # Vx
+        res_vx[i] = el[:, 2]
 
     # Ax
-    res_data1[3] = data1_ax[:][:, np.newaxis]
-    res_data2[3] = data2_ax[:][:, np.newaxis]
-    res_data3[3] = data3_ax[:][:, np.newaxis]
+    for i, el in enumerate(ax_):
+        res_ax[i] = el[:]
 
     # Ay
-    res_data1[4] = data1_ay[:][:, np.newaxis]
-    res_data2[4] = data2_ay[:][:, np.newaxis]
-    res_data3[4] = data3_ay[:][:, np.newaxis]
+    for i, el in enumerate(ay_):
+        res_ay[i] = el[:]
 
     # Labels
-    labels_all[0] = labels[:, 0][:, np.newaxis]
-    labels_all[1] = labels[:, 1][:, np.newaxis]
-    labels_all[2] = labels[:, 2][:, np.newaxis]
-    labels_all[3] = labels[:, 3][:, np.newaxis]
-    labels_all[4] = labels[:, 4][:, np.newaxis]
+    labels_vx = labels[:, 0]
+    labels_vy = labels[:, 1]
+    labels_yaw = labels[:, 2]
+    labels_ax = labels[:, 3]
+    labels_ay = labels[:, 4]
 
+    # plot and save comparison between NN predicted and actual vehicle state
+    plot_and_save(res_vx, labels_vx, titles, 'Long. vel. vx [m/s]',
+                  filepath2plots + 'vx_test_' + str(counter) + '.png')
+    plot_and_save(res_vy, labels_vy, titles, 'Lat. vel. vy [m/s]',
+                  filepath2plots + 'vy_test_' + str(counter) + '.png')
+    plot_and_save(res_yaw, labels_yaw, titles, 'Yaw rate [rad/s]',
+                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
+    plot_and_save(res_ax, labels_ax, titles, 'Long. acc. ax [m/s2]',
+                  filepath2plots + 'ax_test_' + str(counter) + '.png')
+    plot_and_save(res_ay, labels_ay, titles, 'Lat. acc. ay [m/s2]',
+                  filepath2plots + 'ay_test_' + str(counter) + '.png')
+
+    """
     # Differences
     diff_data1 = labels_all - res_data1
     diff_data2 = labels_all - res_data2
     diff_data3 = labels_all - res_data3
-    """
+   
     # Scaled results
     results_scaled_data1, labels_scaled_data1 = scale_results(res_data1, labels_all)
 
@@ -121,19 +130,8 @@ def plot(data1: str,
     compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_STAN, labels_scaled_STAN,
                                   'Test CRT Stanford scaled', filepath2plots, counter)"""
 
-    # plot and save comparison between NN predicted and actual vehicle state
-    plot_and_save(res_data1[0], res_data2[0], res_data3[0], labels_all[0], 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_test_' + str(counter) + '.png')
-    plot_and_save(res_data1[1], res_data2[1], res_data3[1], labels_all[1], 'Lat. vel. vy [m/s]',
-                  filepath2plots + 'vy_test_' + str(counter) + '.png')
-    plot_and_save(res_data1[2], res_data2[2], res_data3[2], labels_all[2], 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
-    plot_and_save(res_data1[3], res_data1[3], res_data3[3], labels_all[3], 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_test_' + str(counter) + '.png')
-    plot_and_save(res_data1[4], res_data2[4], res_data3[4], labels_all[4], 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_test_' + str(counter) + '.png')
 
-    # Plot and save differences
+    """# Plot and save differences
     plot_and_save(diff_data1[0], diff_data2[0], diff_data3[0], None, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_diff_' + str(counter) + '.png')
     plot_and_save(diff_data1[1], diff_data2[1], diff_data2[1], None, 'Lat. vel. vy [m/s]',
@@ -143,11 +141,12 @@ def plot(data1: str,
     plot_and_save(diff_data1[3], diff_data2[3], diff_data2[3], None, 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_diff_' + str(counter) + '.png')
     plot_and_save(diff_data1[4], diff_data2[4], diff_data2[4], None, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_diff_' + str(counter) + '.png')
+                  filepath2plots + 'ay_diff_' + str(counter) + '.png')"""
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def plot_and_save(data1, data2, data3, label, value, savename):
+def plot_and_save(res, label, titles, value, savename):
+    colors = ['xkcd:red', 'xkcd:green', 'xkcd:purple', 'xkcd:orange', 'xkcd:lawngreen', 'xkcd:black']
     plt.figure(figsize=(25, 10))
     ax = plt.gca()
 
@@ -156,21 +155,15 @@ def plot_and_save(data1, data2, data3, label, value, savename):
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
-    if data1 is not None:
-        plt.plot(data1, label='TUM feedforward', color='orange')
-
-    if data2 is not None:
-        plt.plot(data2, label='TUM recurrent', color='red')
-
-    if data3 is not None:
-        plt.plot(data3, label='Stanford', color='green')
+    for i, el in enumerate(res):
+        plt.plot(res[i], label=titles[i], color=colors[i])
 
     if label is not None:
-        plt.plot(label, label='Ground Truth', color='blue')
+        plt.plot(label, label='Ground Truth', color='xkcd:blue')
 
     plt.ylabel(value)
     plt.xlabel('Time steps (10 ms)')
-    plt.legend()
+    plt.legend(loc='best')
     plt.grid()
 
     plt.savefig(savename, format='png', dpi=300)
@@ -287,17 +280,27 @@ def save_to_csv(data, title, path_, counter):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-training_cplt = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_05_17/12_29_37/results_test_'
-training_no_low = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_03/10_49_13/results_test_'
-training_no_low_no_mid = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_04/15_40_10/results_test_'
-TUM_path_to_data = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_05_17/12_29_37/results_test_'
+title_1 = 'car_perf high_midhigh_mid_midlow'
+result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_03/10_49_13/results_test_'
+title_2 = 'car_perf high_midhigh_mid'
+result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_04/15_40_10/results_test_'
+title_3 = 'car_perf high_midhigh'
+result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_12/13_00_14/results_test_'
+title_4 = 'road_grip high_mid_low'
+
+path_to_results = [result_1, result_2, result_3, result_4]
+titles = [title_1, title_2, title_3, title_4]
+
+path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+
 path_to_plots = '../test/'
 
-for num_tests in range(0, 4):
-    plot(data1=training_cplt,
-         data2=training_no_low,
-         data3=training_no_low_no_mid,
-         test_data=TUM_path_to_data,
+tot_num_tests = 4
+for num_tests in range(0, tot_num_tests):
+    plot(data=path_to_results,
+         titles=titles,
+         label=path_to_labels,
          filepath2plots=path_to_plots,
          counter=num_tests)
 
