@@ -55,14 +55,17 @@ if params_dict['NeuralNetwork_Settings']['model_mode'] == 2:
 print('---------------------------------------------------------------------------------------------------------------')
 print('Car Real Time Test Running...')
 
-for count in range(1, 3):
+path_to_data = 'inputs/trainingdata/test_set_'
+
+for count in range(0, 4):
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
         print('STARTING RUN FEEDFORWARD NETWORK')
 
         src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
                                            params_dict=params_dict,
-                                           path_to_model='',
+                                           path_to_model=None,
+                                           path_to_data=path_to_data + str(count) + '.csv',
                                            nn_mode="feedforward",
                                            counter=count)
 
@@ -71,7 +74,8 @@ for count in range(1, 3):
 
         src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
                                            params_dict=params_dict,
-                                           path_to_model='',
+                                           path_to_model=None,
+                                           path_to_data=path_to_data + str(count) + '.csv',
                                            nn_mode='recurrent',
                                            counter=count)
 
@@ -82,7 +86,7 @@ for count in range(1, 3):
                                                  counter=count)
 
 print('---------------------------------------------------------------------------------------------------------------')
-
+"""
 # exit python if evaluation is disabled (NeuralNetwork_Settings.run_file_mode == 0)
 if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 0:
     sys.exit('SYSTEM EXIT: exit due to run_file_mode is set to zero to avoid testing the neural network against '
@@ -118,4 +122,4 @@ for i_count in range(0, params_dict['Test']['n_test']):
                                         path_to_results='',
                                         counter=i_count,
                                         start=idx_start)
-
+"""
