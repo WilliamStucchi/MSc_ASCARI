@@ -97,7 +97,7 @@ def step_dynamics(r_t, Uy_t, Ux_t, del_t, Fxf, Fxr, Param, Veh, mu, a_f_in, a_r_
         a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
         a_r = np.arctan((Uy_t - b * r_t) / Ux_t)
 
-        # We dont use next slips in this case.
+        # We don't use next slips in this case.
         a_f_t1 = 0
         a_r_t1 = 0
 
