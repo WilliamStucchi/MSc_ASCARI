@@ -82,8 +82,15 @@ def data_to_run(input_shape: int, normalize_values: bool):
 
 def run_plot_save_v2(test_path_, model_path_, save_data_path_, scaler_present, name_):
     # Load NN model
+
+    """# Old version of model
+    loaded_model = build_model()
+    loaded_model.load_weights('saved_models/step_1/test_old/model.ckpt')"""
+
+    # New version of model
     print(name_ + '[Loading model from: ' + model_path_ + 'keras_model.h5 ]')
     loaded_model = tf.keras.models.load_model(model_path_ + 'keras_model.h5')
+
     if scaler_present is not None:
         print(name_ + '[Loading scaler]')
         scaler = load(model_path_ + 'scaler.plk')
@@ -93,7 +100,7 @@ def run_plot_save_v2(test_path_, model_path_, save_data_path_, scaler_present, n
 
     print(name_ + '[START TEST]')
     # Run test
-    outcome, len_data = run_test(test_path_, loaded_model, scaler, 0, -1, save_data_path_, name_)
+    outcome, len_data = run_test_no_vy(test_path_, loaded_model, scaler, 0, -1, save_data_path_, name_)
 
     print(name_ + '[TEST ENDED]')
     print(name_ + '[PLOTTING]')
@@ -177,20 +184,19 @@ plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/s
 
 # Step 1
 # Callbacks
-save_path = 'results/step_1/callbacks/2024_06_12/13_00_14/'
-model_path = 'saved_models/step_1/callbacks/2024_06_12/13_00_14/'
+save_path = 'results/step_1/callbacks/2024_07_03/13_02_39/'
+model_path = 'saved_models/step_1/callbacks/2024_07_03/13_02_39/'
 p0 = create_thread('t0', test_set_mu_1, model_path, save_path + 'results_test_mu_1.csv', None)
-p1 = create_thread('t1', test_set_mass_0, model_path, save_path + 'results_test_mass_0.csv', None)
-p2 = create_thread('t2', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
-p3 = create_thread('t3', test_set_mass_1, model_path, save_path + 'results_test_mass_1.csv', None)
-p4 = create_thread('t4', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
-p5 = create_thread('t5', test_set_mass_2, model_path, save_path + 'results_test_mass_2.csv', None)
-p6 = create_thread('t6', test_set_mass_3, model_path, save_path + 'results_test_mass_3.csv', None)
-p7 = create_thread('t7', test_set_mass_4, model_path, save_path + 'results_test_mass_4.csv', None)
-p8 = create_thread('t8', test_set_mass_5, model_path, save_path + 'results_test_mass_5.csv', None)
+p1 = create_thread('t2', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
+p2 = create_thread('t4', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
+p3 = create_thread('t1', test_set_1, model_path, save_path + 'results_test_perf_1.csv', None)
+p4 = create_thread('t3', test_set_2, model_path, save_path + 'results_test_perf_2.csv', None)
+p5 = create_thread('t5', test_set_3, model_path, save_path + 'results_test_perf_3.csv', None)
+p6 = create_thread('t6', test_set_mass_1, model_path, save_path + 'results_test_mass_1.csv', None)
+p7 = create_thread('t7', test_set_mass_2, model_path, save_path + 'results_test_mass_2.csv', None)
+p8 = create_thread('t8', test_set_mass_3, model_path, save_path + 'results_test_mass_3.csv', None)
 
-
-# start_parallel_threads([p0, p2, p4])
-# start_parallel_threads([p1, p3, p5])
-start_parallel_threads([p7, p8])
+start_parallel_threads([p0, p1, p2])
+# start_parallel_threads([p3, p4, p5])
+# start_parallel_threads([p6, p7])
 

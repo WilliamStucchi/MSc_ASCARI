@@ -95,7 +95,7 @@ def show_kde_car_perf(title, data, folder):
 
         sns.despine()
         plt.xlabel(title)
-        plt.legend()
+        plt.legend(loc='best')
         plt.title(title)
         plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', format='png')
 
@@ -124,7 +124,7 @@ def show_kde_road_grip(title, data, folder):
 
         sns.despine()
         plt.xlabel(title)
-        plt.legend()
+        plt.legend(loc='best')
         plt.title(title)
         plt.savefig(folder + 'grip_' + grip_lev.replace('.', '') + '/' + save_name + '.png', format='png')
 
