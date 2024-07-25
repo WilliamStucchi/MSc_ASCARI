@@ -1,11 +1,7 @@
-import tensorflow as tf
-import numpy as np
-import pandas as pd
 from scirob_submission.Model_Learning.models_v2.models_V2 import *
-import datetime
 import math
-from pathlib import Path
 from tqdm import tqdm
+import random
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -45,36 +41,36 @@ def assert_creation(features, labels):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def train_step(x, y, model, input_shape, input_timesteps, dt):
+def train_step(x, y, model, input_shape_, input_timesteps_, dt, loss_fn_, optimizer_, epsilon_):
     cumulative_loss = 0.0
-    loss_fn = tf.keras.losses.MeanSquaredError()
-    optimizer = tf.keras.optimizers.Adam()
     bs = tf.shape(x)[0]
-    # y = tf.reshape(y, [bs, 3])
+    evaluation = random.choices([0, 1], weights=[1 - epsilon_, epsilon_], k=bs)
 
     yaw_rate = np.zeros(bs)
     vy = np.zeros(bs)
     vx = np.zeros(bs)
 
     mod_x = np.array(x)
-    # mod_x = np.zeros((bs, input_shape * input_timesteps))
 
-    with (tf.device('/GPU:0')):
-        for k in range(5):
+    with ((tf.device('/GPU:0'))):
+        for k in range(tf.shape(x)[1]):
             with tf.GradientTape() as tape:
                 if k != 0:
-                    # print(mod_x[:, k])
-                    for t in range(bs):
-                        mod_x[t, k, input_shape * (input_timesteps - 1):input_shape * (input_timesteps - 1) + 1] = yaw_rate[t]
-                        mod_x[t, k, input_shape * (input_timesteps - 1) + 1:input_shape * (input_timesteps - 1) + 2] = vy[t]
-                        mod_x[t, k, input_shape * (input_timesteps - 1) + 2:input_shape * (input_timesteps - 1) + 3] = vx[t]
+                    for b in range(bs):
+                        if evaluation[b] == 1:
+                            mod_x[b, k, :input_shape_ * (input_timesteps_ - 1)] = mod_x[b, k - 1, input_shape_:]
+
+                            mod_x[b, k,
+                                  input_shape_ * (input_timesteps_ - 1):input_shape_ * (input_timesteps_ - 1) + 1] = yaw_rate[b]
+                            mod_x[b, k,
+                                  input_shape_ * (input_timesteps_ - 1) + 1:input_shape_ * (input_timesteps_ - 1) + 2] = vy[b]
+                            mod_x[b, k,
+                                  input_shape_ * (input_timesteps_ - 1) + 2:input_shape_ * (input_timesteps_ - 1) + 3] = vx[b]
 
                 new_x = tf.convert_to_tensor(mod_x)
                 inp = new_x[:, k]
-                """print(inp)
-                input('wait')"""
 
-                prediction = model(inp, training=True)
+                prediction = model(inp, training=False)
 
                 for j in range(bs):
                     corresponding_input = np.array(new_x[j:j + 1, k])
@@ -85,43 +81,30 @@ def train_step(x, y, model, input_shape, input_timesteps, dt):
                     ax = float(bs_prediction[:, 2])
 
                     # Euler integration
-                    yaw_rate[j] = yaw_acc * dt + corresponding_input[:, input_shape * (input_timesteps - 1):
-                                                              input_shape * (input_timesteps - 1) + 1]
+                    yaw_rate[j] = yaw_acc * dt + corresponding_input[:, input_shape_ * (input_timesteps_ - 1):
+                                                                     input_shape_ * (input_timesteps_ - 1) + 1].item()
 
                     # vy_dot = ay - yaw_rate * vx
-                    dvy = ay - yaw_rate[j] * corresponding_input[:, input_shape * (input_timesteps - 1) + 2:
-                                                                   input_shape * (input_timesteps - 1) + 3]
-                    # print('dvy ', dvy)
+                    dvy = ay - yaw_rate[j] * corresponding_input[:, input_shape_ * (input_timesteps_ - 1) + 2:
+                                                                 input_shape_ * (input_timesteps_ - 1) + 3]
 
                     # vx_dot = ax + yaw_rate * vy
-                    dvx = ax + yaw_rate[j] * corresponding_input[:, input_shape * (input_timesteps - 1) + 1:
-                                                                   input_shape * (input_timesteps - 1) + 2]
-                    # print('dvx ', dvx)
+                    dvx = ax + yaw_rate[j] * corresponding_input[:, input_shape_ * (input_timesteps_ - 1) + 1:
+                                                                 input_shape_ * (input_timesteps_ - 1) + 2]
 
                     # Euler integration
-                    vy[j] = dvy * dt + corresponding_input[:, input_shape * (input_timesteps - 1) + 1:
-                                                    input_shape * (input_timesteps - 1) + 2]
-                    vx[j] = dvx * dt + corresponding_input[:, input_shape * (input_timesteps - 1) + 2:
-                                                    input_shape * (input_timesteps - 1) + 3]
+                    vy[j] = dvy.item() * dt + corresponding_input[:, input_shape_ * (input_timesteps_ - 1) + 1:
+                                                                  input_shape_ * (input_timesteps_ - 1) + 2].item()
+                    vx[j] = dvx.item() * dt + corresponding_input[:, input_shape_ * (input_timesteps_ - 1) + 2:
+                                                                  input_shape_ * (input_timesteps_ - 1) + 3].item()
 
-                    """if j == 0:
-                        print('Shape ', corresponding_input.shape)
-                        print('Input ', corresponding_input)
-                        print('Prediction ', bs_prediction)
-    
-                        print('yaw rate ', yaw_rate[j])
-                        print('vy ', vy[j])
-                        print('vx ', vx[j])
-                        input('wait')"""
-
-
-                loss_sampling = loss_fn(y[:, k], prediction)
+                loss_sampling = loss_fn_(y[:, k], prediction)
                 cumulative_loss += loss_sampling
 
                 gradients = tape.gradient(loss_sampling, model.trainable_variables)
-                optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+                optimizer_.apply_gradients(zip(gradients, model.trainable_variables))
 
-    return cumulative_loss / 5
+    return cumulative_loss / float(tf.shape(x)[1])
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -129,8 +112,9 @@ def train_step(x, y, model, input_shape, input_timesteps, dt):
 input_shape = 5
 input_timesteps = 4
 dt = 0.01
+steps = 5
 
-model_path = 'saved_models/step_1/callbacks/2024_07_18/13_02_33/'
+model_path = 'saved_models/step_1/callbacks/2024_07_24/18_50_11/'
 model = tf.keras.models.load_model(model_path + 'keras_model.h5')
 
 # GET SCHEDULED SAMPLING DATA
@@ -140,25 +124,17 @@ print(dataset_scheduling.shape)
 
 sequences = []
 labels = []
-for i in range(len(dataset_scheduling) - 4):
+for i in range(len(dataset_scheduling) - steps):
     temp = []
     temp2 = []
     sequences.append(temp)
     labels.append(temp2)
 
 for i in range(len(dataset_scheduling)):
-    if i + 4 < len(dataset_scheduling):
-        sequences[i].append(dataset_scheduling[i, :-3])
-        sequences[i].append(dataset_scheduling[i + 1, :-3])
-        sequences[i].append(dataset_scheduling[i + 2, :-3])
-        sequences[i].append(dataset_scheduling[i + 3, :-3])
-        sequences[i].append(dataset_scheduling[i + 4, :-3])
-
-        labels[i].append(dataset_scheduling[i, -3:])
-        labels[i].append(dataset_scheduling[i + 1, -3:])
-        labels[i].append(dataset_scheduling[i + 2, -3:])
-        labels[i].append(dataset_scheduling[i + 3, -3:])
-        labels[i].append(dataset_scheduling[i + 4, -3:])
+    if i + steps < len(dataset_scheduling):
+        for t in range(steps):
+            sequences[i].append(dataset_scheduling[i + t, :-3])
+            labels[i].append(dataset_scheduling[i + t, -3:])
 
 sequences = np.array(sequences)
 labels = np.array(labels)
@@ -171,12 +147,25 @@ labels = labels[indices]
 batch_size = 1000
 dataset = tf.data.Dataset.from_tensor_slices((sequences, labels)).batch(batch_size)
 
-epochs = 10
+learning_rate = 5e-8
+optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+loss_fn = tf.keras.losses.MeanSquaredError()
+epsilon = 0.1
+
+epochs = 5
 sum_losses = 0.0
 for epoch in tqdm(range(epochs)):
     for x_batch, y_batch in tqdm(dataset):
-        sum_losses += train_step(x_batch, y_batch, model, input_shape, input_timesteps, dt)
-    print(f'Epoch {epoch + 1}, Loss: {sum_losses.numpy() / len(dataset)}')
+        sum_losses += train_step(x_batch, y_batch, model, input_shape, input_timesteps, dt, loss_fn, optimizer, epsilon)
 
-tf.keras.models.save_model(model, 'saved_models/step_1/callbacks/2024_07_18/13_02_33/keras_scheduled.h5')
-tf.keras.models.save_model(model, 'saved_models/step_1/callbacks/2024_07_18/13_02_33/keras_scheduled.keras')
+    print(f'Epoch {epoch + 1}, Loss: {sum_losses.numpy() / len(dataset)}')
+    learning_rate = learning_rate - 0.25e-8
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+
+    tf.keras.models.save_model(model,
+                               'saved_models/step_1/callbacks/2024_07_24/18_50_11/keras_scheduled_' + str(epoch) + '.h5')
+    tf.keras.models.save_model(model,
+                               'saved_models/step_1/callbacks/2024_07_24/18_50_11/keras_scheduled_' + str(epoch) + '.keras')
+
+    epsilon = epsilon + 0.2
+
