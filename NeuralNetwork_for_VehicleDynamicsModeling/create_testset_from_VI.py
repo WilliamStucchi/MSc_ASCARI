@@ -58,7 +58,7 @@ def create_test_set(path_to_test_set, path_to_input_set, number_of_tests):
 
 def create_test_set_mu(path_to_test_set, path_to_input_set, number_of_tests):
     print('CREATING TEST DATA')
-    mu_list = ['1', '09', '08', '07', '06']
+    mu_list = ['1', '08', '06', '0806', '0804', '06045', '0603']
 
     for i in tqdm(range(0, number_of_tests, 1)):
         # Load test set
@@ -283,7 +283,7 @@ create_piste_training_complete(path_to_test_set, path_to_input_set, 32)"""
 path_to_test_set = '../../CRT_data/test_mass/'
 path_to_input_set = 'inputs/trainingdata/new/'
 # create_test_set(path_to_test_set, path_to_input_set, 5)
-create_test_set_mass(path_to_test_set, path_to_input_set, 6)
+# create_test_set_mass(path_to_test_set, path_to_input_set, 6)
 
 # Create training datasets
 """path_to_training_set = '../../CRT_data/'
@@ -291,8 +291,8 @@ path_to_input_set = path_to_input_set
 create_training_set(path_to_training_set, path_to_input_set, 17)"""
 
 # mu test
-"""path_to_test_set = '../../CRT_data/test_road_grip/'
+path_to_test_set = '../../CRT_data/test_road_grip/'
 path_to_input_set = 'inputs/trainingdata/new/'
-create_test_set_mu(path_to_test_set, path_to_input_set, 5)"""
+create_test_set_mu(path_to_test_set, path_to_input_set, 7)
 
 

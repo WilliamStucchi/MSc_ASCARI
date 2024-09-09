@@ -78,16 +78,16 @@ def get_set(dataset, perc_valid):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def get_training(dataset, perc_valid):
-    features = dataset[:math.floor(len(dataset) * (1 - perc_valid)), :-3]
-    labels = dataset[:math.floor(len(dataset) * (1 - perc_valid)), -3:]
+    features = dataset[:math.floor(len(dataset) * (1 - perc_valid)), :-4]
+    labels = dataset[:math.floor(len(dataset) * (1 - perc_valid)), -4:]
     return features, labels
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def get_validation(dataset, perc_valid):
-    features = dataset[math.floor(len(dataset) * (1 - perc_valid)):, :-3]
-    labels = dataset[math.floor(len(dataset) * (1 - perc_valid)):, -3:]
+    features = dataset[math.floor(len(dataset) * (1 - perc_valid)):, :-4]
+    labels = dataset[math.floor(len(dataset) * (1 - perc_valid)):, -4:]
     return features, labels
 
 
@@ -101,7 +101,7 @@ def assert_creation(features, labels):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def compute_sample_weights(acc, th, base_weight=1.0, scale_factor=2.0):
+def compute_sample_weights(acc, th=0, base_weight=1.0, scale_factor=2.0):
     """
     Compute custom weights for samples based on lateral acceleration.
 
@@ -117,9 +117,14 @@ def compute_sample_weights(acc, th, base_weight=1.0, scale_factor=2.0):
     # Initialize weights with the base weight
     weights = np.full_like(acc, base_weight, dtype=float)
 
+    # Set threshold
+    th = max(acc) * 0.8
+    print('MAX: ', max(acc))
+    print('TH: ', th)
+
     # Scale weights for samples with lateral acceleration greater than the threshold
-    above_threshold = abs(acc) >= th
-    weights[above_threshold] = base_weight + scale_factor * (abs(acc[above_threshold]) - th)
+    above_threshold = (np.abs(acc) >= th)
+    weights[above_threshold] = base_weight + scale_factor * (np.abs(acc[above_threshold]) - th)
     # weights[above_threshold] = base_weight + np.exp(scale_factor * (abs(acc[above_threshold]) - th))
 
     # Normalize the weights to balance the dataset
@@ -127,7 +132,7 @@ def compute_sample_weights(acc, th, base_weight=1.0, scale_factor=2.0):
     weights_normalized = weights / weights_sum * len(weights)
 
     print('Total length of training set: ', len(weights))
-    print('Total number of elements above 5 m/s2: ', sum(el is True for el in above_threshold))
+    print('Total number of elements above ' + str(th) + ' m/s2: ', np.sum(above_threshold))
 
     return weights_normalized
 
@@ -142,7 +147,7 @@ path_datetime = datetime.datetime.now().strftime('%H_%M_%S')
 save_path_initial = '../saved_models/'
 
 # GET TRAINING DATA
-dataset_step_1 = np.loadtxt('../data/new/train_data_step1_mu.csv', delimiter=',')
+dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_gripest.csv', delimiter=',')
 print('TOTAL LENGTH OF THE DATASET: ', len(dataset_step_1))
 
 perc_validation = 0.2
@@ -150,6 +155,7 @@ perc_validation = 0.2
 # 1 step
 train_features_step_1, train_labels_step_1, val_features_step_1, val_labels_step_1, scaler_1 = get_set(dataset_step_1,
                                                                                                        perc_validation)
+"""
 # custom weight
 lateral_accelerations = train_labels_step_1[:, 1]
 threshold = 5.0
@@ -157,6 +163,50 @@ scale_factor = 2.0
 
 # Compute sample weights
 sample_weights = compute_sample_weights(lateral_accelerations, threshold, scale_factor=scale_factor)
+"""
+
+"""
+set1 = np.loadtxt('../data/single_sets/train_data_step_1_mu_0.csv', delimiter=',')
+set2 = np.loadtxt('../data/single_sets/train_data_step_1_mu_1.csv', delimiter=',')
+set3 = np.loadtxt('../data/single_sets/train_data_step_1_mu_2.csv', delimiter=',')
+
+perc_validation = 0.2
+
+# 1 step
+train_features_set1, train_labels_set1, val_features_set1, val_labels_set1, _ = get_set(set1, perc_validation)
+train_features_set2, train_labels_set2, val_features_set2, val_labels_set2, _ = get_set(set2, perc_validation)
+train_features_set3, train_labels_set3, val_features_set3, val_labels_set3, _ = get_set(set3, perc_validation)
+
+# custom weight
+ay_set1 = train_labels_set1[:, 1]
+ay_set2 = train_labels_set2[:, 1]
+ay_set3 = train_labels_set3[:, 1]
+scale_factor = 2.0
+
+# Compute sample weights
+w_set1 = compute_sample_weights(ay_set1, scale_factor=scale_factor)
+w_set2 = compute_sample_weights(ay_set2, scale_factor=scale_factor)
+w_set3 = compute_sample_weights(ay_set3, scale_factor=scale_factor)
+input('wait')
+
+train_features_step1 = np.concatenate((train_features_set1, train_features_set2, train_features_set3))
+train_labels_step1 = np.concatenate((train_labels_set1, train_labels_set2, train_labels_set3))
+val_features_step1 = np.concatenate((val_features_set1, val_features_set2, val_features_set3))
+val_labels_step1 = np.concatenate((val_labels_set1, val_labels_set2, val_labels_set3))
+sample_weights = np.concatenate((w_set1, w_set2, w_set3))
+
+# random shuffle
+indices = np.random.permutation(len(train_features_step1))
+
+train_features_step1 = train_features_step1[indices]
+train_labels_step1 = train_labels_step1[indices]
+sample_weights = sample_weights[indices]
+
+indices = np.random.permutation(len(val_features_step1))
+
+val_features_step1 = val_features_step1[indices]
+val_labels_step1 = val_labels_step1[indices]
+"""
 
 """print('Funziona?')
 for i in range(11):
@@ -166,6 +216,10 @@ for i in range(11):
     print(sample_weights[i])
     print('}')
 input('wait')"""
+
+"""# change input shape for lstm layer
+train_features_step_1 = np.reshape(train_features_step_1, (train_labels_step_1.shape[0], 4, 4))
+val_features_step_1 = np.reshape(val_features_step_1, (val_labels_step_1.shape[0], 4, 4))"""
 
 # Step 1 training
 if TRAIN_S1:
@@ -194,9 +248,9 @@ if TRAIN_S1:
 
     Path(save_path_initial + 'step_1/callbacks/' + path_day + '/' + path_datetime + "/").mkdir(parents=True,
                                                                                                exist_ok=True)
-    if APPLY_SCALER:
+    """if APPLY_SCALER:
         scaler_filename = save_path_initial + 'step_1/callbacks/' + path_day + '/' + path_datetime + '/scaler.plk'
-        dump(scaler_1, scaler_filename)
+        dump(scaler_1, scaler_filename)"""
 
     with tf.device('/GPU:0'):
         history_mod = model_step_1.fit(x=train_features_step_1,
@@ -204,7 +258,7 @@ if TRAIN_S1:
                                        # sample_weight=sample_weights,
                                        batch_size=1000,
                                        validation_data=(val_features_step_1, val_labels_step_1),
-                                       epochs=1500,
+                                       epochs=2000,
                                        verbose=1,
                                        shuffle=False,
                                        callbacks=[reduce_lr_loss, es, mc],

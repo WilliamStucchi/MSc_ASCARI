@@ -88,8 +88,9 @@ def run_plot_save_v2(test_path_, model_path_, save_data_path_, scaler_present, n
     loaded_model.load_weights('saved_models/step_1/test_old/model.ckpt')"""
 
     # New version of model
-    print(name_ + '[Loading model from: ' + model_path_ + 'keras_model.h5 ]')
-    loaded_model = tf.keras.models.load_model(model_path_ + 'keras_model.h5')
+    print(name_ + '[Loading model from: ' + model_path_ + ']')
+    # loaded_model = tf.keras.models.load_model(model_path_ + 'keras_model.h5')
+    loaded_model = tf.keras.models.load_model(model_path_)
 
     if scaler_present is not None:
         print(name_ + '[Loading scaler]')
@@ -100,7 +101,7 @@ def run_plot_save_v2(test_path_, model_path_, save_data_path_, scaler_present, n
 
     print(name_ + '[START TEST]')
     # Run test
-    outcome, len_data = run_test_no_vy(test_path_, loaded_model, scaler, 0, -1, save_data_path_, name_)
+    outcome, len_data = run_test(test_path_, loaded_model, scaler, 0, -1, save_data_path_, name_)
 
     print(name_ + '[TEST ENDED]')
     print(name_ + '[PLOTTING]')
@@ -156,20 +157,26 @@ for i in [1, 2, 3, 5, 6]:
 test_set_0 = 'data/new/test_set_0.csv'
 test_set_1 = 'data/new/test_set_1.csv'
 test_set_2 = 'data/new/test_set_2.csv'
+test_set_1_rrff= 'data/new/test_set_1_rrff.csv'
+test_set_2_rrff = 'data/new/test_set_2_rrff.csv'
+test_set_3_rrff = 'data/new/test_set_3_rrff.csv'
 test_set_3 = 'data/new/test_set_3.csv'
 test_set_4 = 'data/new/test_set_4.csv'
 test_set_mu_1 = 'data/new/test_set_mu_1.csv'
-test_set_mu_09 = 'data/new/test_set_mu_09.csv'
 test_set_mu_08 = 'data/new/test_set_mu_08.csv'
-test_set_mu_07 = 'data/new/test_set_mu_07.csv'
+test_set_mu_0806 = 'data/new/test_set_mu_0806.csv'
+test_set_mu_0804 = 'data/new/test_set_mu_0804.csv'
 test_set_mu_06 = 'data/new/test_set_mu_06.csv'
+test_set_mu_06045 = 'data/new/test_set_mu_06045.csv'
+test_set_mu_0603 = 'data/new/test_set_mu_0603.csv'
 test_set_mass_0 = 'data/new/test_set_mass_0.csv'
 test_set_mass_1 = 'data/new/test_set_mass_1.csv'
 test_set_mass_2 = 'data/new/test_set_mass_2.csv'
 test_set_mass_3 = 'data/new/test_set_mass_3.csv'
 test_set_mass_4 = 'data/new/test_set_mass_4.csv'
 test_set_mass_5 = 'data/new/test_set_mass_5.csv'
-
+test_set_cplt_1 = 'data/piste_training_complete/test_set_1.csv'
+test_set_steer_eq = 'data/new/test_set_steer_equilibria.csv'
 
 """
 checkpoint_path = "saved_models/step_4/v1/model.ckpt"
@@ -184,19 +191,34 @@ plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/s
 
 # Step 1
 # Callbacks
-save_path = 'results/step_1/callbacks/2024_07_03/13_02_39/'
-model_path = 'saved_models/step_1/callbacks/2024_07_03/13_02_39/'
+save_path = 'results/step_1/callbacks/2024_08_30/12_10_48/'
+model_path = 'saved_models/step_1/callbacks/2024_08_30/12_10_48/keras_model.h5'
 p0 = create_thread('t0', test_set_mu_1, model_path, save_path + 'results_test_mu_1.csv', None)
-p1 = create_thread('t2', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
-p2 = create_thread('t4', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
-p3 = create_thread('t1', test_set_1, model_path, save_path + 'results_test_perf_1.csv', None)
-p4 = create_thread('t3', test_set_2, model_path, save_path + 'results_test_perf_2.csv', None)
+p1 = create_thread('t1', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
+p2 = create_thread('t2', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
+p3 = create_thread('t3', test_set_1, model_path, save_path + 'results_test_perf_1.csv', None)
+p4 = create_thread('t4', test_set_2, model_path, save_path + 'results_test_perf_2.csv', None)
 p5 = create_thread('t5', test_set_3, model_path, save_path + 'results_test_perf_3.csv', None)
-p6 = create_thread('t6', test_set_mass_1, model_path, save_path + 'results_test_mass_1.csv', None)
-p7 = create_thread('t7', test_set_mass_2, model_path, save_path + 'results_test_mass_2.csv', None)
-p8 = create_thread('t8', test_set_mass_3, model_path, save_path + 'results_test_mass_3.csv', None)
+p6 = create_thread('t6', test_set_mu_0806, model_path, save_path + 'results_test_mu_0806.csv', None)
+p7 = create_thread('t7', test_set_mu_0804, model_path, save_path + 'results_test_mu_0804.csv', None)
+p8 = create_thread('t8', test_set_mu_06045, model_path, save_path + 'results_test_mu_06045.csv', None)
+p9 = create_thread('t9', test_set_mu_0603, model_path, save_path + 'results_test_mu_0603.csv', None)
+p10 = create_thread('t10', test_set_steer_eq, model_path, save_path + 'results_test_steer_eq.csv', None)
 
-start_parallel_threads([p0, p1, p2])
+# start_parallel_threads([p0, p1, p2])
 # start_parallel_threads([p3, p4, p5])
 # start_parallel_threads([p6, p7])
+# start_parallel_threads([p8, p9])
+start_parallel_threads([p10])
 
+"""save_path = 'results/step_1/callbacks/2024_07_22/13_34_22/eps_0/'
+model_path = 'saved_models/step_1/callbacks/2024_07_22/13_34_22/keras_scheduled_eps_0.keras'
+t1 = create_thread('t1', test_set_mu_0806, model_path, save_path + 'results_test_mu_0806.csv', None)
+save_path = 'results/step_1/callbacks/2024_07_22/13_34_22/eps_1/'
+model_path = 'saved_models/step_1/callbacks/2024_07_22/13_34_22/keras_scheduled_eps_1.keras'
+t2 = create_thread('t2', test_set_mu_0806, model_path, save_path + 'results_test_mu_0806.csv', None)
+save_path = 'results/step_1/callbacks/2024_07_22/13_34_22/eps_2/'
+model_path = 'saved_models/step_1/callbacks/2024_07_22/13_34_22/keras_scheduled_eps_2.keras'
+t3 = create_thread('t3', test_set_mu_0806, model_path, save_path + 'results_test_mu_0806.csv', None)
+
+start_parallel_threads([t1, t2, t3])"""

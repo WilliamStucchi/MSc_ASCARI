@@ -129,21 +129,6 @@ def create_model_feedforward(path_dict: dict,
     if params_dict['NeuralNetwork_Settings']['bool_use_dropout']:
         model_create.add(keras.layers.Dropout(params_dict['NeuralNetwork_Settings']['drop_2']))
 
-    if params_dict['NeuralNetwork_Settings']['active_layer_3']:
-        model_create.add(
-            keras.layers.Dense(units=params_dict['NeuralNetwork_Settings']['Feedforward']['neurons_third_layer'],
-                               bias_initializer='zeros',
-                               use_bias=True,
-                               kernel_initializer=kernel_init,
-                               # activation=params_dict['NeuralNetwork_Settings']['Feedforward']['activation_3'],
-                               kernel_regularizer=reg_dense))
-
-        if params_dict['NeuralNetwork_Settings']['Feedforward']['leakyrelu'] == 1:
-            model_create.add(keras.layers.LeakyReLU(alpha=0.2))
-
-        if params_dict['NeuralNetwork_Settings']['bool_use_dropout']:
-            model_create.add(keras.layers.Dropout(params_dict['NeuralNetwork_Settings']['drop_1']))
-
     model_create.add(
         keras.layers.Dense(units=params_dict['NeuralNetwork_Settings']['output_shape'], activation='linear'))
 
@@ -196,13 +181,11 @@ def create_model_recurrent(path_dict: dict,
 
     model_create.add(
         recurrent_mode(units=params_dict['NeuralNetwork_Settings']['Recurrent']['neurons_first_layer_recurrent'],
-                       input_shape=(params_dict['NeuralNetwork_Settings']['input_timesteps'],
-                                    params_dict['NeuralNetwork_Settings']['input_shape']),
                        return_sequences=False,
                        use_bias=True,
                        bias_initializer='zeros',
                        kernel_initializer=kernel_init,
-                       kernel_regularizer=reg_layer,
+                       # kernel_regularizer=reg_layer,
                        activation=params_dict['NeuralNetwork_Settings']['Recurrent']['activation_1_recurrent']))
 
     if params_dict['NeuralNetwork_Settings']['bool_use_dropout']:
@@ -213,13 +196,23 @@ def create_model_recurrent(path_dict: dict,
                            use_bias=True,
                            bias_initializer='zeros',
                            kernel_initializer=kernel_init,
-                           activation=params_dict['NeuralNetwork_Settings']['Recurrent']['activation_dense_recurrent'],
-                           kernel_regularizer=reg_layer))
+                           activation=params_dict['NeuralNetwork_Settings']['Recurrent']['activation_dense_recurrent']))
+                           # kernel_regularizer=reg_layer
 
     if params_dict['NeuralNetwork_Settings']['bool_use_dropout']:
         model_create.add(keras.layers.Dropout(params_dict['NeuralNetwork_Settings']['drop_2']))
 
     model_create.add(
+        keras.layers.Dense(
+            units=params_dict['NeuralNetwork_Settings']['Recurrent']['neurons_second_layer_recurrent'],
+            use_bias=True,
+            bias_initializer='zeros',
+            kernel_initializer=kernel_init,
+            activation=params_dict['NeuralNetwork_Settings']['Recurrent']['activation_dense_recurrent']))
+            # kernel_regularizer=reg_layer
+
+    model_create.add(
         keras.layers.Dense(units=params_dict['NeuralNetwork_Settings']['output_shape'], activation='linear'))
+
 
     return model_create

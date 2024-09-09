@@ -9,16 +9,18 @@ def plot(data: list,
          titles: list,
          label: str,
          filepath2plots: str,
-         counter: int):
+         counter: str):
 
     data_ = []
     ax_ = []
     ay_ = []
     for el in data:
         temp = []
+        temp1 = []
+        temp2 = []
         data_.append(temp)
-        ax_.append(temp)
-        ay_.append(temp)
+        ax_.append(temp1)
+        ay_.append(temp2)
 
     # load results
     for i, el in enumerate(data):
@@ -30,7 +32,7 @@ def plot(data: list,
             ay_[i] = np.loadtxt(fh)
 
     # load label data
-    with open(label + str(counter) + '.csv', 'r') as fh:
+    with open(label + '.csv', 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
 
     # Extract results for each feature
@@ -146,7 +148,7 @@ def plot(data: list,
 # ----------------------------------------------------------------------------------------------------------------------
 
 def plot_and_save(res, label, titles, value, savename):
-    colors = ['xkcd:red', 'xkcd:green', 'xkcd:purple', 'xkcd:orange', 'xkcd:lawngreen', 'xkcd:black']
+    colors = ['xkcd:red', 'xkcd:green', 'xkcd:purple', 'xkcd:orange', 'xkcd:black']
     plt.figure(figsize=(25, 10))
     ax = plt.gca()
 
@@ -155,11 +157,11 @@ def plot_and_save(res, label, titles, value, savename):
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
-    for i, el in enumerate(res):
-        plt.plot(res[i], label=titles[i], color=colors[i])
-
     if label is not None:
-        plt.plot(label, label='Ground Truth', color='xkcd:blue')
+            plt.plot(label, label='Ground Truth', color='xkcd:blue', alpha=0.5)
+
+    for i, el in enumerate(res):
+        plt.plot(res[i], label=titles[i], color=colors[i], alpha=0.75)
 
     plt.ylabel(value)
     plt.xlabel('Time steps (10 ms)')
@@ -280,29 +282,42 @@ def save_to_csv(data, title, path_, counter):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_05_17/12_29_37/results_test_'
-title_1 = 'car_perf high_midhigh_mid_midlow'
-result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_03/10_49_13/results_test_'
-title_2 = 'car_perf high_midhigh_mid'
-result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_04/15_40_10/results_test_'
-title_3 = 'car_perf high_midhigh'
-result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_06_12/13_00_14/results_test_'
-title_4 = 'road_grip high_mid_low'
+result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_07_22/13_34_22/results_test_'
+title_1 = 'base'
+result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_08_30/12_10_48/results_test_'
+title_2 = 'corners+'
+result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_07_22/13_34_22/eps_1/results_test_'
+title_3 = 'esp1'
+result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_07_22/13_34_22/eps_2/results_test_'
+title_4 = 'esp2'
 
-path_to_results = [result_1, result_2, result_3, result_4]
-titles = [title_1, title_2, title_3, title_4]
+path_to_results = [result_1, result_2]
+titles = [title_1, title_2]
 
-path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_mu_'
 
-path_to_plots = '../test/'
+path_to_plots = '../stan combined/'
 
-tot_num_tests = 4
-for num_tests in range(0, tot_num_tests):
+tests = ['1', '08', '06', '0806', '0804', '06045', '0603']
+for test in tests:
+    print('Printing results for test ' + test)
+    path_to_labels = path_to_labels[:path_to_labels.rfind('_') + 1] + test
+
     plot(data=path_to_results,
          titles=titles,
          label=path_to_labels,
          filepath2plots=path_to_plots,
-         counter=num_tests)
+         counter='mu_' + test)
+
+"""tot_num_tests = 4
+for num_tests in range(1, tot_num_tests):
+    print('Printing results for test ' + num_tests)
+    path_to_labels = path_to_labels[:path_to_labels.rfind('_') + 1] + str(num_tests)
+    plot(data=path_to_results,
+         titles=titles,
+         label=path_to_labels,
+         filepath2plots=path_to_plots,
+         counter='perf_' + str(num_tests))"""
 
 
 # ----------------------------------------------------------------------------------------------------------------------

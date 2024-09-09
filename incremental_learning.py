@@ -52,5 +52,5 @@ if data_path is not None:
     data = np.loadtxt(data_path, delimiter=',')
 
 for i, row in tqdm(enumerate(data)):
-    incremental_update(loaded_model, np.array(row[:-3]), np.array(row[-3:]), initial_learning_rate=0.001, reduction_factor=0.1,
-                       epochs=1, batch_size=5)
+    incremental_update(loaded_model, np.array(row[:-3]), np.array(row[-3:]), initial_learning_rate=0.001,
+                       reduction_factor=0.1, epochs=1, batch_size=5)

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
-
+from scipy.signal import butter, filtfilt
 
 def plot_run(filepath2results: str,
              filepath2testdata: str,
@@ -108,11 +108,22 @@ def plot_run(filepath2results: str,
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+def moving_average(signal, window_size):
+    return np.convolve(signal, np.ones(window_size)/window_size, mode='same')
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def smooth(noisy_data):
+    return moving_average(noisy_data, window_size=2000)
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 def plot_run_test_CRT(filepath2results: str,
                       filepath2testdata: str,
                       filepath2resax: str,
                       filepath2resay: str,
+                      filepath2resgrip: str,
                       filepath2labelsaccel: str,
                       filepath2plots: str,
                       counter: str):
@@ -135,6 +146,9 @@ def plot_run_test_CRT(filepath2results: str,
     with open(filepath2resay, 'r') as fh:
         res_ay = np.loadtxt(fh)
 
+    with open(filepath2resgrip, 'r') as fh:
+        res_grip = np.loadtxt(fh)
+
     with open(filepath2labelsaccel, 'r') as fh:
         label_accel = np.loadtxt(fh, delimiter=',')
 
@@ -148,11 +162,22 @@ def plot_run_test_CRT(filepath2results: str,
     ax_result = res_ax[:, np.newaxis]
     ay_result = res_ay[:, np.newaxis]
 
+    grip_result = res_grip[:, np.newaxis]
+    grip_result_smooth = smooth(res_grip)
+    grip_result_smooth = grip_result_smooth[:, np.newaxis]
+
     vx_label = labels[:, 2][:, np.newaxis]
     vy_label = labels[:, 1][:, np.newaxis]
     yaw_label = labels[:, 0][:, np.newaxis]
     ax_label = label_accel[:, 3][:, np.newaxis]
     ay_label = label_accel[:, 4][:, np.newaxis]
+
+    if '06' in filepath2results and '08' not in filepath2results:
+        grip_label = np.full((ay_label.shape[0]), 0.6, dtype=float)
+    elif '08' in filepath2results:
+        grip_label = np.full((ay_label.shape[0]), 0.8, dtype=float)
+    else:
+        grip_label = np.full((ay_label.shape[0]), 1.0, dtype=float)
 
     yaw_diff = yaw_label - yaw_result
     vy_diff = vy_label - vy_result
@@ -249,6 +274,10 @@ def plot_run_test_CRT(filepath2results: str,
                   filepath2plots + 'ax_test_' + str(counter) + '.png')
     plot_and_save(ay_result, ay_label, None, 'Lat. accel. ay [m/s^2]',
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
+    plot_and_save(grip_result, grip_label, None, 'Grip level',
+                  filepath2plots + 'grip_test_' + str(counter) + '.png')
+    plot_and_save(grip_result_smooth, grip_label, None, 'Grip level smooth',
+                  filepath2plots + 'grip_test_smooth_' + str(counter) + '.png')
 
     # Difference
     plot_and_save(None, None, yaw_diff, 'Yaw rate [rad/s]',
@@ -269,10 +298,12 @@ def plot_and_save(inp_1, inp_2, inp_3, value, savename):
     plt.figure(figsize=(25, 10))
     ax = plt.gca()
 
-    if 'yaw' not in savename:
-        ax.yaxis.set_major_locator(MultipleLocator(2.5))
-    else:
+    if 'yaw' in savename:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
+    elif 'grip' in savename:
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+    else:
+        ax.yaxis.set_major_locator(MultipleLocator(2.5))
 
     if inp_1 is not None:
         plt.plot(inp_1, label='Result', color='tab:red')
@@ -284,7 +315,7 @@ def plot_and_save(inp_1, inp_2, inp_3, value, savename):
         plt.plot(inp_3, label='Difference', color='tab:blue', linewidth=1.0)
 
     plt.ylabel(value)
-    plt.xlabel('Time steps (8 ms)')
+    plt.xlabel('Time steps (10 ms)')
     plt.legend()
     plt.grid()
 
@@ -309,44 +340,48 @@ path_to_results = 'results/step_4/callbacks/2024_05_10/09_39_23/results_test_'
 path_to_data = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/test_set_'
 path_to_plots = 'results/step_4/callbacks/2024_05_10/09_39_23/images/'
 """
-path_to_results = 'results/step_1/callbacks/2024_05_17/12_29_37/results_test_'
-path_to_data = 'data/new/test_set_'
-path_to_plots = 'results/step_1/callbacks/2024_05_17/12_29_37/images/'
-path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+path_to_results = 'results/step_1/callbacks/2024_09_02/16_42_37/results_test_mu_'
+path_to_data = 'data/new/test_set_mu_'
+path_to_plots = 'results/step_1/callbacks/2024_09_02/16_42_37/images/'
+path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_mu_'
 
-"""for num_tests in ['1', '08', '06']:
+for num_test in ['1', '08', '06', '0806', '0804', '06045', '0603']:
 
-    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + num_tests + '.csv'
-    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + num_tests + '_ax.csv'
-    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + num_tests + '_ay.csv'
-    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + num_tests + '.csv'
+    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '.csv'
+    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '_ax.csv'
+    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '_ay.csv'
+    path_to_res_grip = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '_grip.csv'
+    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + num_test + '.csv'
     path_to_labels_for_accel = (path_to_labels_for_accel[:path_to_labels_for_accel.rfind('_') + 1]
-                                + num_tests + '.csv')
+                                + num_test + '.csv')
 
     plot_run_test_CRT(filepath2results=path_to_results,
                       filepath2testdata=path_to_data,
                       filepath2resax=path_to_res_ax,
                       filepath2resay=path_to_res_ay,
+                      filepath2resgrip=path_to_res_grip,
                       filepath2labelsaccel=path_to_labels_for_accel,
                       filepath2plots=path_to_plots,
-                      counter='mu_' + num_tests)"""
+                      counter='mu_' + num_test)
 
-for num_tests in range(0, 4):
+"""for num_test in range(1, 4):
 
-    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '.csv'
-    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '_ax.csv'
-    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + str(num_tests) + '_ay.csv'
-    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + str(num_tests) + '.csv'
+    path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + str(num_test) + '.csv'
+    path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + str(num_test) + '_ax.csv'
+    path_to_res_ay = path_to_results[:path_to_results.rfind('_') + 1] + str(num_test) + '_ay.csv'
+    path_to_res_grip = path_to_results[:path_to_results.rfind('_') + 1] + str(num_test) + '_grip.csv'
+    path_to_data = path_to_data[:path_to_data.rfind('_') + 1] + str(num_test) + '.csv'
     path_to_labels_for_accel = (path_to_labels_for_accel[:path_to_labels_for_accel.rfind('_') + 1]
-                                + str(num_tests) + '.csv')
+                                + str(num_test) + '.csv')
 
     plot_run_test_CRT(filepath2results=path_to_results,
                       filepath2testdata=path_to_data,
                       filepath2resax=path_to_res_ax,
                       filepath2resay=path_to_res_ay,
+                      filepath2resgrip=path_to_res_grip,
                       filepath2labelsaccel=path_to_labels_for_accel,
                       filepath2plots=path_to_plots,
-                      counter='perf_' + str(num_tests))
+                      counter='perf_' + str(num_test))"""
 
 # ----------------------------------------------------------------------------------------------------------------------
 # TEST TUM DATA

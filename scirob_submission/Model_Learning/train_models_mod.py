@@ -438,15 +438,27 @@ with tf.device('/GPU:0'):
 ##########################################################################
 # Experiment 6
 ##########################################################################
+data = np.loadtxt('data/new/train_data_step_1_old.csv', delimiter=',')
+train_perc = 0.8
+dev_perc = 0.15
 
+features = data[:, :-3]
+targets = data[:, -3:]
 
-# first Load in the data
+train_ind = int(train_perc * features.shape[0])
+dev_ind = int((train_perc + dev_perc) * features.shape[0])
+
+train_data = (features[0:train_ind, :], targets[0:train_ind, :])
+dev_data = (features[train_ind:dev_ind, :], targets[train_ind:dev_ind, :])
+test_data = (features[dev_ind:, :], targets[dev_ind:, :])
+
+"""# first Load in the data
 data = np.load("data/gen/train_data_step4.npz")
 
 # Output the Data From the Experiment
 train_data = (data["train_f"], data["train_t"])
 dev_data = (data["dev_f"], data["dev_t"])
-test_data = (data["test_f"], data["test_t"])
+test_data = (data["test_f"], data["test_t"])"""
 
 # Define Number of batches per epoch
 n_batches = len(train_data[0]) // Param["BATCH_SIZE"] + 1
@@ -462,17 +474,11 @@ x, y = tf.placeholder(tf.float64, shape=[None, Param["N_FEATURES"]]), tf.placeho
 # Create a placeholder to dyn switch between batch sizes for test and train...
 batch_size = tf.placeholder(tf.int64)
 
-bike_dataset = tf.data.Dataset.from_tensor_slices((x, y)).batch(batch_size).repeat()
-bike_iter = bike_dataset.make_initializable_iterator()
-bike_inputs, bike_labels = bike_iter.get_next()
-
 nn_dataset = tf.data.Dataset.from_tensor_slices((x, y)).batch(batch_size).repeat()
 nn_iter = nn_dataset.make_initializable_iterator()
 nn_inputs, nn_labels = nn_iter.get_next()
 
 # Create Models first
-bike_6 = Bike_Model(Param, Veh, bike_inputs, bike_labels)
-
 NN_6 = NN_Model_mod(Param, nn_inputs, nn_labels)
 
 # Add ops to save and restore all the variables
@@ -482,53 +488,34 @@ with tf.device('/GPU:0'):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
-        if Param["RESTORE"]:
-            saver.restore(sess, "saved_models/exp_6/model.ckpt")
-            print("Model restored from saved model! ")
-
-        print("The Initial Cf Values is: " + str(sess.run(bike_6.Ca_f)))
-        print("The Initial Cr Values is: " + str(sess.run(bike_6.Ca_r)))
-        print("The Initial mu Values is: " + str(sess.run(bike_6.mu_tf)))
-
         for i in tqdm(range(Param["EPOCHS"])):
             # initialize iterator with train data
-            sess.run(bike_iter.initializer,
-                     feed_dict={x: train_data[0], y: train_data[1], batch_size: train_data[0].shape[0]})
+
             sess.run(nn_iter.initializer,
                      feed_dict={x: train_data[0], y: train_data[1], batch_size: train_data[0].shape[0]})
-            train_cost[i] = sess.run([bike_6.mse(), NN_6.mse()])
-            sess.run(bike_iter.initializer,
-                     feed_dict={x: dev_data[0], y: dev_data[1], batch_size: dev_data[0].shape[0]})
-            sess.run(nn_iter.initializer, feed_dict={x: dev_data[0], y: dev_data[1], batch_size: dev_data[0].shape[0]})
-            dev_cost[i] = sess.run([bike_6.mse(), NN_6.mse()])
+            train_cost[i] = sess.run([NN_6.mse()])
 
-            sess.run(bike_iter.initializer,
-                     feed_dict={x: train_data[0], y: train_data[1], batch_size: Param["BATCH_SIZE"]})
+            sess.run(nn_iter.initializer, feed_dict={x: dev_data[0], y: dev_data[1], batch_size: dev_data[0].shape[0]})
+            dev_cost[i] = sess.run([NN_6.mse()])
+
             sess.run(nn_iter.initializer,
                      feed_dict={x: train_data[0], y: train_data[1], batch_size: Param["BATCH_SIZE"]})
             for _ in range(n_batches):
-                _ = sess.run([bike_6.optimize(), NN_6.optimize()])
-
-        print("The Oracle has spoken!")
-        print("The Final Cf Values is: " + str(sess.run(bike_6.Ca_f)) + " And the Actual is: " + str(Veh["Cf"]))
-        print("The Final Cr Values is: " + str(sess.run(bike_6.Ca_r)) + " And the Actual is: " + str(Veh["Cr"]))
-        print("The Final mu Values is: " + str(sess.run(bike_6.mu_tf)) + " And the Actual is: " + str(Veh["mu"]))
-        print("The Final Izz Values is: " + str(sess.run(bike_6.I_tf)) + " And the Actual is: " + str(Veh["Izz"]))
+                _ = sess.run([NN_6.optimize()])
 
         # test
-        sess.run(bike_iter.initializer, feed_dict={x: test_data[0], y: test_data[1], batch_size: test_data[0].shape[0]})
         sess.run(nn_iter.initializer, feed_dict={x: test_data[0], y: test_data[1], batch_size: test_data[0].shape[0]})
-        test_mse_b, test_mse_nn = sess.run([bike_6.mse(), NN_6.mse()])
+        test_mse_nn = sess.run([NN_6.mse()])
 
         # write out Experimental Results
-        np.savez("results/step_4/v1",
-                 test_mse=(test_mse_b, test_mse_nn),
+        np.savez("results/step_1/test_old",
+                 test_mse=(test_mse_nn),
                  delay_states=Param["T_MODEL"],
                  train_cost=train_cost,
                  dev_cost=dev_cost)
 
         # And save the session!
-        saver.save(sess, "saved_models/step_4/v1/model.ckpt")
+        saver.save(sess, "saved_models/step_1/test_old/model.ckpt")
         print("Model for Exp 6 Saved")
 
         # Close and reset the session

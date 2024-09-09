@@ -7,8 +7,8 @@ import numpy as np
 # gg-plot of the dataset created in VI-Grade CarRealTime
 # ----------------------------------------------------------------------------------------------------------------------
 
-train_x = []
-train_y = []
+train_ax = []
+train_ay = []
 test_ax = []
 test_ay = []
 
@@ -25,8 +25,8 @@ for k, dir_ in enumerate(directories):
         data.reset_index(drop=True, inplace=True)
 
         # Accelerations
-        train_x.append(data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float))
-        train_y.append(data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float))
+        train_ax.append(data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float))
+        train_ay.append(data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float))
 
     print('END ACQUISITION TRAINING DATA from ' + dir_)
 
@@ -54,11 +54,11 @@ print('END ACQUISITION TEST DATA')
 
 # Manipulate data
 flat_train_ax = []
-for row in train_x:
+for row in train_ax:
     flat_train_ax.extend(row)
 
 flat_train_ay = []
-for row in train_y:
+for row in train_ay:
     flat_train_ay.extend(row)
 
 # g-scaled data

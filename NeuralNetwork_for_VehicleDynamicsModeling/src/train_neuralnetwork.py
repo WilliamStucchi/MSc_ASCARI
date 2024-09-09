@@ -1,5 +1,7 @@
 import os.path
 import shutil
+
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TerminateOnNaN
 
@@ -49,6 +51,10 @@ def train_neuralnetwork(path_dict: dict,
                                                                       params_dict=params_dict,
                                                                       data=data,
                                                                       nn_mode=nn_mode)
+
+    """temp = np.array(train_data[0])
+    print(temp.shape)
+    input('Waiting...')"""
 
     """ print the set of data used for training and validation """
     """
@@ -101,6 +107,7 @@ def train_neuralnetwork(path_dict: dict,
     model = src.neural_network_fcn.create_nnmodel(path_dict=path_dict,
                                                   params_dict=params_dict,
                                                   nn_mode=nn_mode)
+
     with tf.device('/GPU:0'):
         history_mod = model.fit(x=train_data[0],
                                 y=train_data[1],
