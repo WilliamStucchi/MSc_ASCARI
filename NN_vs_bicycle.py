@@ -26,7 +26,8 @@ def plot(NN_res: str,
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
         data.reset_index(drop=True, inplace=True)
 
-        bicycle_res_ = np.array(data)
+        bicycle_res_ = np.array(data, dtype=float)
+        bicycle_res_[np.isnan(bicycle_res_)] = 0
 
     # load label data
     with open(labels, 'r') as fh:
