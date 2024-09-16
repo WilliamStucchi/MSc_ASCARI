@@ -177,6 +177,12 @@ test_set_mass_4 = 'data/new/test_set_mass_4.csv'
 test_set_mass_5 = 'data/new/test_set_mass_5.csv'
 test_set_cplt_1 = 'data/piste_training_complete/test_set_1.csv'
 test_set_steer_eq = 'data/new/test_set_steer_equilibria.csv'
+test_paramstudy_grip_1_perf_100 = 'data/new/test_set_paramstudy_grip_1_perf_100.csv'
+test_paramstudy_grip_1_perf_75 = 'data/new/test_set_paramstudy_grip_1_perf_75.csv'
+test_paramstudy_grip_1_perf_50 = 'data/new/test_set_paramstudy_grip_1_perf_50.csv'
+test_paramstudy_grip_06_perf_100 = 'data/new/test_set_paramstudy_grip_06_perf_100.csv'
+test_paramstudy_grip_06_perf_75 = 'data/new/test_set_paramstudy_grip_06_perf_75.csv'
+test_paramstudy_grip_06_perf_50 = 'data/new/test_set_paramstudy_grip_06_perf_50.csv'
 
 """
 checkpoint_path = "saved_models/step_4/v1/model.ckpt"
@@ -203,13 +209,23 @@ p6 = create_thread('t6', test_set_mu_0806, model_path, save_path + 'results_test
 p7 = create_thread('t7', test_set_mu_0804, model_path, save_path + 'results_test_mu_0804.csv', None)
 p8 = create_thread('t8', test_set_mu_06045, model_path, save_path + 'results_test_mu_06045.csv', None)
 p9 = create_thread('t9', test_set_mu_0603, model_path, save_path + 'results_test_mu_0603.csv', None)
+
 p10 = create_thread('t10', test_set_steer_eq, model_path, save_path + 'results_test_steer_eq.csv', None)
+
+p11 = create_thread('t11', test_paramstudy_grip_1_perf_100, model_path, save_path + 'results_test_grip_1_perf_100.csv', None)
+p12 = create_thread('t12', test_paramstudy_grip_1_perf_75, model_path, save_path + 'results_test_grip_1_perf_75.csv', None)
+p13 = create_thread('t13', test_paramstudy_grip_1_perf_50, model_path, save_path + 'results_test_grip_1_perf_50.csv', None)
+p14 = create_thread('t14', test_paramstudy_grip_06_perf_100, model_path, save_path + 'results_test_grip_06_perf_100.csv', None)
+p15 = create_thread('t15', test_paramstudy_grip_06_perf_75, model_path, save_path + 'results_test_grip_06_perf_75.csv', None)
+p16 = create_thread('t16', test_paramstudy_grip_06_perf_50, model_path, save_path + 'results_test_grip_06_perf_50.csv', None)
 
 # start_parallel_threads([p0, p1, p2])
 # start_parallel_threads([p3, p4, p5])
 # start_parallel_threads([p6, p7])
 # start_parallel_threads([p8, p9])
-start_parallel_threads([p10])
+# start_parallel_threads([p10])
+# start_parallel_threads([p11, p12, p13])
+start_parallel_threads([p14, p15, p16])
 
 """save_path = 'results/step_1/callbacks/2024_07_22/13_34_22/eps_0/'
 model_path = 'saved_models/step_1/callbacks/2024_07_22/13_34_22/keras_scheduled_eps_0.keras'

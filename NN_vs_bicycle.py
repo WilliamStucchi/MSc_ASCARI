@@ -4,6 +4,7 @@ from matplotlib.ticker import MultipleLocator
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
+from tqdm import tqdm
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -141,20 +142,22 @@ def plot_and_save(nn_res, bicycle_res, label, titles, value, savename):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
+               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
 
-path_to_NN_res = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_08_30/12_10_48/results_test_perf_'
-path_to_bicycle_res = '../matlab/test_perf_'
-path_to_plots = '../test/NN_vs_bicycle/'
-path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+path_to_NN_res = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_08_30/12_10_48/results_test_'
+path_to_bicycle_res = '../matlab/sim_test_'
+path_to_plots = '../test/NN_vs_bicycle/paths/'
+path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
 titles = ['Neural Network model', 'Bicycle model']
 
-for num_test in range(1, 4):
+for num_test, dir_ in tqdm(enumerate(directories)):
 
-    path_to_NN_res = path_to_NN_res[:path_to_NN_res.rfind('_') + 1] + str(num_test) + '.csv'
-    path_to_NN_res_ay = path_to_NN_res[:path_to_NN_res.rfind('_') + 1] + str(num_test) + '_ay.csv'
-    path_to_labels = (path_to_labels[:path_to_labels.rfind('_') + 1] + str(num_test) + '.csv')
+    path_to_NN_res = path_to_NN_res[:path_to_NN_res.rfind('results_test_') + 13] + dir_.replace('/', '') + '.csv'
+    path_to_NN_res_ay = path_to_NN_res[:path_to_NN_res.rfind('.')] + '_ay.csv'
+    path_to_labels = (path_to_labels[:path_to_labels.rfind('paramstudy_') + 11] + dir_.replace('/', '') + '.csv')
 
-    path_to_bicycle_res = path_to_bicycle_res[:path_to_bicycle_res.rfind('_') + 1] + str(num_test) + '.csv'
+    path_to_bicycle_res = path_to_bicycle_res[:path_to_bicycle_res.rfind('sim_test_') + 9] + dir_.replace('/', '') + '.csv'
 
     plot(NN_res=path_to_NN_res,
          NN_res_ay=path_to_NN_res_ay,
@@ -162,5 +165,5 @@ for num_test in range(1, 4):
          titles=titles,
          filepath2plots=path_to_plots,
          labels=path_to_labels,
-         counter=str(num_test))
+         counter=dir_.replace('/', ''))
 

@@ -743,7 +743,7 @@ def create_test_static_equilibrium(path_to_output_, seconds_of_test):
     uy = np.full(test_length, 0.0)
     ux = np.full(test_length, 0.0)
     steer = np.full(test_length, 0.0)
-    fx = np.full(test_length, 10)
+    fx = np.full(test_length, 1)
 
     # Save test set
     test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
@@ -753,6 +753,49 @@ def create_test_static_equilibrium(path_to_output_, seconds_of_test):
     dataframe.to_csv(path_to_output_ + 'test_set_steer_equilibria.csv', index=False, header=False)
     print('END CREATION STEERING EQUILIBRA TEST')
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def create_test_set_param_study(path_to_data, path_to_output_):
+    directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
+                   '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+
+    print('CREATION TEST DATA')
+    for i, dir_ in tqdm(enumerate(directories)):
+        data = pd.read_csv(path_to_data + 'parameters_study/' + dir_ + '/DemoSportsCar_mxp.csv', dtype=object)
+        data = data.drop(0, axis='rows')  # remove the row containing the measure units
+        data.reset_index(drop=True, inplace=True)
+
+        # Yaw rate
+        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
+
+        # Vy
+        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
+
+        # Vx
+        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+
+        # Delta
+        steer = data['driver_demands.steering'].to_numpy().astype(float)
+
+        # Fx
+        frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
+        frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
+        fr = (frl + frr) / 2
+        ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
+        ffr = data['Tire.Ground_Surface_Force_X.R1'].to_numpy().astype(float)
+        ff = (ffl + ffr) / 2
+        fx = (fr + ff) / 2
+
+        # Save test set
+        # Create test_set
+        test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
+
+        # Save test_set
+        dataframe = pd.DataFrame(test_set)
+        dataframe.to_csv(path_to_output_ + 'test_set_paramstudy_' + dir_.replace('/', '') + '.csv', index=False, header=False)
+
+    print('END CREATION TEST DATA')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
