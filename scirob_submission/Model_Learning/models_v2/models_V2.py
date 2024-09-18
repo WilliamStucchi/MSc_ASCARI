@@ -9,7 +9,7 @@ class NN_Model_V2():
         self.units_first_layer = Param['N1']
         self.units_second_layer = Param['N2']
         self.input_dim = Param['N_STATE_INPUT'] * Param['T']
-        self.output_dim = Param['N_TARGETS'] + 1
+        self.output_dim = Param['N_TARGETS']
         self.LR = Param["LEARNING_RATE"]
 
     def build_model(self, seed):

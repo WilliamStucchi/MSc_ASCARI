@@ -229,7 +229,8 @@ def create_training_set(path_to_training_set, path_to_input_set, number_of_sets)
 
 def create_test_set_param_study(path_to_data, path_to_output_):
     directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
-                   '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+                   '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/',
+                   '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/']
 
     print('CREATING TEST DATA')
     for i, dir_ in tqdm(enumerate(directories)):

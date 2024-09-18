@@ -2,15 +2,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
+from tqdm import tqdm
 
 
 spindle = False
 forces = True
 
 directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
-               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/',
+               '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/']
 
-for k, dir_ in enumerate(directories):
+for k, dir_ in tqdm(enumerate(directories)):
     data = pd.read_csv('../CRT_data/parameters_study/' + dir_ + '/DemoSportsCar_mxp.csv', dtype=object)
     data = data.drop(0, axis='rows')  # remove the row containing the measure units
     data.reset_index(drop=True, inplace=True)
@@ -108,7 +110,7 @@ for k, dir_ in enumerate(directories):
         # Display the plot
         plt.grid(True)
         # plt.show()
-        plt.savefig('../test/NN_vs_bicycle/tires/front_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
+        plt.savefig('../test/NN_vs_bicycle/tires_with_vx_computed/front_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
         plt.close()
 
         #PLOT
@@ -143,7 +145,7 @@ for k, dir_ in enumerate(directories):
         # Display the plot
         plt.grid(True)
         # plt.show()
-        plt.savefig('../test/NN_vs_bicycle/tires/rear_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
+        plt.savefig('../test/NN_vs_bicycle/tires_with_vx_computed/rear_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
         plt.close()
 
         # PLOT

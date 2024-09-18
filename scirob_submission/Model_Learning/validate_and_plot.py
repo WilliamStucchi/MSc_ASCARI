@@ -162,6 +162,7 @@ test_set_2_rrff = 'data/new/test_set_2_rrff.csv'
 test_set_3_rrff = 'data/new/test_set_3_rrff.csv'
 test_set_3 = 'data/new/test_set_3.csv'
 test_set_4 = 'data/new/test_set_4.csv'
+
 test_set_mu_1 = 'data/new/test_set_mu_1.csv'
 test_set_mu_08 = 'data/new/test_set_mu_08.csv'
 test_set_mu_0806 = 'data/new/test_set_mu_0806.csv'
@@ -169,20 +170,33 @@ test_set_mu_0804 = 'data/new/test_set_mu_0804.csv'
 test_set_mu_06 = 'data/new/test_set_mu_06.csv'
 test_set_mu_06045 = 'data/new/test_set_mu_06045.csv'
 test_set_mu_0603 = 'data/new/test_set_mu_0603.csv'
+
 test_set_mass_0 = 'data/new/test_set_mass_0.csv'
 test_set_mass_1 = 'data/new/test_set_mass_1.csv'
 test_set_mass_2 = 'data/new/test_set_mass_2.csv'
 test_set_mass_3 = 'data/new/test_set_mass_3.csv'
 test_set_mass_4 = 'data/new/test_set_mass_4.csv'
 test_set_mass_5 = 'data/new/test_set_mass_5.csv'
+
 test_set_cplt_1 = 'data/piste_training_complete/test_set_1.csv'
-test_set_steer_eq = 'data/new/test_set_steer_equilibria.csv'
+
+test_set_steereq_fx1 = 'data/new/test_set_steereq_fx1.csv'
+test_set_steereq_fx10 = 'data/new/test_set_steereq_fx10.csv'
+test_set_steereq_fx10_5deg = 'data/new/test_set_steereq_fx10_5deg.csv'
+test_set_steereq_fx10_10deg = 'data/new/test_set_steereq_fx10_10deg.csv'
+test_set_steereq_fx10_15deg = 'data/new/test_set_steereq_fx10_15deg.csv'
+test_set_steereq_fx100 = 'data/new/test_set_steereq_fx100.csv'
+test_set_steereq_fx300 = 'data/new/test_set_steereq_fx300.csv'
+
 test_paramstudy_grip_1_perf_100 = 'data/new/test_set_paramstudy_grip_1_perf_100.csv'
 test_paramstudy_grip_1_perf_75 = 'data/new/test_set_paramstudy_grip_1_perf_75.csv'
 test_paramstudy_grip_1_perf_50 = 'data/new/test_set_paramstudy_grip_1_perf_50.csv'
 test_paramstudy_grip_06_perf_100 = 'data/new/test_set_paramstudy_grip_06_perf_100.csv'
 test_paramstudy_grip_06_perf_75 = 'data/new/test_set_paramstudy_grip_06_perf_75.csv'
 test_paramstudy_grip_06_perf_50 = 'data/new/test_set_paramstudy_grip_06_perf_50.csv'
+test_paramstudy_grip_08_perf_100 = 'data/new/test_set_paramstudy_grip_08_perf_100.csv'
+test_paramstudy_grip_08_perf_75 = 'data/new/test_set_paramstudy_grip_08_perf_75.csv'
+test_paramstudy_grip_08_perf_50 = 'data/new/test_set_paramstudy_grip_08_perf_50.csv'
 
 """
 checkpoint_path = "saved_models/step_4/v1/model.ckpt"
@@ -197,8 +211,8 @@ plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/s
 
 # Step 1
 # Callbacks
-save_path = 'results/step_1/callbacks/2024_08_30/12_10_48/'
-model_path = 'saved_models/step_1/callbacks/2024_08_30/12_10_48/keras_model.h5'
+save_path = 'results/step_1/callbacks/2024_09_17/17_41_36/'
+model_path = 'saved_models/step_1/callbacks/2024_09_17/17_41_36/keras_model.h5'
 p0 = create_thread('t0', test_set_mu_1, model_path, save_path + 'results_test_mu_1.csv', None)
 p1 = create_thread('t1', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
 p2 = create_thread('t2', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
@@ -210,7 +224,10 @@ p7 = create_thread('t7', test_set_mu_0804, model_path, save_path + 'results_test
 p8 = create_thread('t8', test_set_mu_06045, model_path, save_path + 'results_test_mu_06045.csv', None)
 p9 = create_thread('t9', test_set_mu_0603, model_path, save_path + 'results_test_mu_0603.csv', None)
 
-p10 = create_thread('t10', test_set_steer_eq, model_path, save_path + 'results_test_steer_eq.csv', None)
+p10 = create_thread('t10', test_set_steereq_fx100, model_path, save_path + 'results_test_steereq_fx100.csv', None)
+p101 = create_thread('t101', test_set_steereq_fx10_5deg, model_path, save_path + 'results_test_steereq_fx10_5deg.csv', None)
+p102 = create_thread('t102', test_set_steereq_fx10_10deg, model_path, save_path + 'results_test_steereq_fx10_10deg.csv', None)
+p103 = create_thread('t103', test_set_steereq_fx10_15deg, model_path, save_path + 'results_test_steereq_fx10_15deg.csv', None)
 
 p11 = create_thread('t11', test_paramstudy_grip_1_perf_100, model_path, save_path + 'results_test_grip_1_perf_100.csv', None)
 p12 = create_thread('t12', test_paramstudy_grip_1_perf_75, model_path, save_path + 'results_test_grip_1_perf_75.csv', None)
@@ -218,14 +235,18 @@ p13 = create_thread('t13', test_paramstudy_grip_1_perf_50, model_path, save_path
 p14 = create_thread('t14', test_paramstudy_grip_06_perf_100, model_path, save_path + 'results_test_grip_06_perf_100.csv', None)
 p15 = create_thread('t15', test_paramstudy_grip_06_perf_75, model_path, save_path + 'results_test_grip_06_perf_75.csv', None)
 p16 = create_thread('t16', test_paramstudy_grip_06_perf_50, model_path, save_path + 'results_test_grip_06_perf_50.csv', None)
+p17 = create_thread('t17', test_paramstudy_grip_08_perf_100, model_path, save_path + 'results_test_grip_08_perf_100.csv', None)
+p18 = create_thread('t18', test_paramstudy_grip_08_perf_75, model_path, save_path + 'results_test_grip_08_perf_75.csv', None)
+p19 = create_thread('t19', test_paramstudy_grip_08_perf_50, model_path, save_path + 'results_test_grip_08_perf_50.csv', None)
 
 # start_parallel_threads([p0, p1, p2])
 # start_parallel_threads([p3, p4, p5])
 # start_parallel_threads([p6, p7])
 # start_parallel_threads([p8, p9])
-# start_parallel_threads([p10])
+start_parallel_threads([p10])
 # start_parallel_threads([p11, p12, p13])
-start_parallel_threads([p14, p15, p16])
+# start_parallel_threads([p14, p15, p16])
+# start_parallel_threads([p17, p18, p19])
 
 """save_path = 'results/step_1/callbacks/2024_07_22/13_34_22/eps_0/'
 model_path = 'saved_models/step_1/callbacks/2024_07_22/13_34_22/keras_scheduled_eps_0.keras'

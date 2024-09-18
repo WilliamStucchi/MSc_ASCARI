@@ -11,21 +11,21 @@ from tqdm import tqdm
 
 def plot(NN_res: str,
          NN_res_ay: str,
+         NN_res_ax: str,
          bicycle_res: str,
          titles: list,
          labels: str,
          filepath2plots: str,
          counter: str):
-
     # load results
     with open(NN_res, 'r') as fh:
         nn_res_ = np.loadtxt(fh)
     with open(NN_res_ay, 'r') as fh:
         nn_res_ay_ = np.loadtxt(fh)
+    with open(NN_res_ax, 'r') as fh:
+        nn_res_ax_ = np.loadtxt(fh)
     with open(bicycle_res, 'r') as fh:
         data = pd.read_csv(bicycle_res, dtype=object)
-        data = data.drop(0, axis='rows')  # remove the row containing the measure units
-        data.reset_index(drop=True, inplace=True)
 
         bicycle_res_ = np.array(data, dtype=float)
         bicycle_res_[np.isnan(bicycle_res_)] = 0
@@ -36,13 +36,22 @@ def plot(NN_res: str,
 
     # Extract results for each feature
     nn_res_yaw = nn_res_[:, 0][:, np.newaxis]
+    nn_res_vy = nn_res_[:, 1][:, np.newaxis]
+    nn_res_vx = nn_res_[:, 2][:, np.newaxis]
     nn_res_ay = nn_res_ay_[:, np.newaxis]
+    nn_res_ax = nn_res_ax_[:, np.newaxis]
 
-    bicycle_res_yaw = bicycle_res_[:, 1][:, np.newaxis]
+    bicycle_res_ax = bicycle_res_[:, 1][:, np.newaxis]
     bicycle_res_ay = bicycle_res_[:, 2][:, np.newaxis]
+    bicycle_res_vy = bicycle_res_[:, 3][:, np.newaxis]
+    bicycle_res_yaw = bicycle_res_[:, 4][:, np.newaxis]
+    bicycle_res_vx = bicycle_res_[:, 5][:, np.newaxis]
 
     # Labels
+    labels_vx = labels_[:, 0]
+    labels_vy = labels_[:, 1]
     labels_yaw = labels_[:, 2]
+    labels_ax = labels_[:, 3]
     labels_ay = labels_[:, 4]
 
     # plot and save comparison between NN predicted and actual vehicle state
@@ -50,66 +59,65 @@ def plot(NN_res: str,
                   filepath2plots + 'yaw_test_' + str(counter) + '.png')
     plot_and_save(nn_res_ay, bicycle_res_ay, labels_ay, titles, 'Lat. acc. ay [m/s2]',
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
+    plot_and_save(nn_res_ax, bicycle_res_ax, labels_ax, titles, 'Long. acc. ax [m/s2]',
+                  filepath2plots + 'ax_test_' + str(counter) + '.png')
+    plot_and_save(nn_res_vx, bicycle_res_vx, labels_vx, titles, 'Lat. vel. vx [m/s2]',
+                  filepath2plots + 'vx_test_' + str(counter) + '.png')
+    plot_and_save(nn_res_vy, bicycle_res_vy, labels_vy, titles, 'Lat. vel. vy [m/s2]',
+                  filepath2plots + 'vy_test_' + str(counter) + '.png')
 
-    """
-    # Differences
-    diff_data1 = labels_all - res_data1
-    diff_data2 = labels_all - res_data2
-    diff_data3 = labels_all - res_data3
+    print('\n MSE AND MAE OF UNSCALED VALUES: Test CRT Neural Network ' + str(counter))
 
-    # Scaled results
-    results_scaled_data1, labels_scaled_data1 = scale_results(res_data1, labels_all)
+    data = np.asarray([mean_squared_error(labels_yaw, nn_res_yaw),
+                       mean_squared_error(labels_vx, nn_res_vx),
+                       mean_squared_error(labels_vy, nn_res_vy),
+                       mean_squared_error(labels_ax, nn_res_ax),
+                       mean_squared_error(labels_ay, nn_res_ay),
+                       mean_absolute_error(labels_yaw, nn_res_yaw),
+                       mean_absolute_error(labels_vx, nn_res_vx),
+                       mean_absolute_error(labels_vy, nn_res_vy),
+                       mean_absolute_error(labels_ax, nn_res_ax),
+                       mean_absolute_error(labels_ay, nn_res_ay)]).reshape(2, 5).round(5)
 
-    results_scaled_data2, labels_scaled_data2 = scale_results(res_data2, labels_all)
+    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy', 'long. acc. ax', 'lat. acc. ay']
+    row_header = ['MSE', 'MAE']
 
-    results_scaled_data3, labels_scaled_data3 = scale_results(res_data3, labels_all)
+    row_format = "{:>15}" * (len(column_header) + 1)
+    print(row_format.format("", *column_header))
+    for row_head, row_data in zip(row_header, data):
+        print(row_format.format(row_head, *row_data))
 
-    # Compute metrics
-    row_header = ['MSE', 'RMSE', 'MAE', 'R2']
-    column_header = ['long. vel. vx', 'lat. vel. vy', 'yaw rate', 'long. acc. ax', 'lat. acc. ay']
+    save_to_csv(data, 'MSE AND MAE OF UNSCALED VALUES Test CRT Neural Network', filepath2plots, counter)
 
-    my_dict = {'MSE': mean_squared_error,
-               'RMSE': mean_squared_error,
-               'MAE': mean_absolute_error,
-               'R2': r2_score
-               }
+    print('MSE AND MAE OF UNSCALED VALUES: Test CRT Bicyle Model ' + str(counter))
 
-    print('\n')
-    print('Test CRT TUM FeedForward')
-    compute_metrics_matrix(row_header, column_header, my_dict, results_TUM_ff, labels_all,
-                           'Test CRT TUM FeedForward', filepath2plots, counter)
+    data = np.asarray([mean_squared_error(labels_yaw, bicycle_res_yaw),
+                       mean_squared_error(labels_vx, bicycle_res_vx),
+                       mean_squared_error(labels_vy, bicycle_res_vy),
+                       mean_squared_error(labels_ax, bicycle_res_ax),
+                       mean_squared_error(labels_ay, bicycle_res_ay),
+                       mean_absolute_error(labels_yaw, bicycle_res_yaw),
+                       mean_absolute_error(labels_vx, bicycle_res_vx),
+                       mean_absolute_error(labels_vy, bicycle_res_vy),
+                       mean_absolute_error(labels_ax, bicycle_res_ax),
+                       mean_absolute_error(labels_ay, bicycle_res_ay)]).reshape(2, 5).round(5)
 
-    print('Test CRT TUM FeedForward scaled')
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_TUM_ff, labels_scaled_TUM_ff,
-                                  'Test CRT TUM FeedForward scaled', filepath2plots, counter)
+    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy', 'long. acc. ax', 'lat. acc. ay']
+    row_header = ['MSE', 'MAE']
 
-    print('Test CRT TUM Recurrent')
-    compute_metrics_matrix(row_header, column_header, my_dict, results_TUM_rr, labels_all,
-                           'Test CRT TUM Recurrent', filepath2plots, counter)
+    row_format = "{:>15}" * (len(column_header) + 1)
+    print(row_format.format("", *column_header))
+    for row_head, row_data in zip(row_header, data):
+        print(row_format.format(row_head, *row_data))
 
-    print('Test CRT TUM Recurrent scaled')
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_TUM_rr, labels_scaled_TUM_rr,
-                                  'Test CRT TUM Recurrent scaled', filepath2plots, counter)
+    save_to_csv(data, 'MSE AND MAE OF UNSCALED VALUES Test CRT Bicycle Model', filepath2plots, counter)
 
-    print('Test CRT Stanford')
-    compute_metrics_matrix(row_header, column_header, my_dict, results_STAN, labels_all,
-                           'Test CRT Stanford', filepath2plots, counter)
 
-    print('Test CRT Stanford scaled')
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_STAN, labels_scaled_STAN,
-                                  'Test CRT Stanford scaled', filepath2plots, counter)"""
+# ----------------------------------------------------------------------------------------------------------------------
 
-    """# Plot and save differences
-    plot_and_save(diff_data1[0], diff_data2[0], diff_data3[0], None, 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[1], diff_data2[1], diff_data2[1], None, 'Lat. vel. vy [m/s]',
-                  filepath2plots + 'vy_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[2], diff_data2[2], diff_data2[2], None, 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[3], diff_data2[3], diff_data2[3], None, 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[4], diff_data2[4], diff_data2[4], None, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_diff_' + str(counter) + '.png')"""
+def save_to_csv(data, title, path_, counter):
+    np.savetxt(path_ + title + ' ' + str(counter) + '.csv', data,
+               header='long. vel. vx, lat. vel. vy, yaw rate, long. acc. ax, lat. acc. ay', delimiter=',')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -125,7 +133,7 @@ def plot_and_save(nn_res, bicycle_res, label, titles, value, savename):
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
     if label is not None:
-            plt.plot(label, label='Ground Truth', color='xkcd:blue', alpha=0.5)
+        plt.plot(label, label='Ground Truth', color='xkcd:blue', alpha=0.5)
 
     plt.plot(nn_res, label=titles[0], color=colors[0], alpha=0.75)
     plt.plot(bicycle_res, label=titles[1], color=colors[1], alpha=0.75)
@@ -143,27 +151,29 @@ def plot_and_save(nn_res, bicycle_res, label, titles, value, savename):
 # ----------------------------------------------------------------------------------------------------------------------
 
 directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
-               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/',
+               '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/']
 
 path_to_NN_res = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_08_30/12_10_48/results_test_'
-path_to_bicycle_res = '../matlab/sim_test_'
+path_to_bicycle_res = '../matlab/paths/sim_test_'
 path_to_plots = '../test/NN_vs_bicycle/paths/'
 path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
 titles = ['Neural Network model', 'Bicycle model']
 
 for num_test, dir_ in tqdm(enumerate(directories)):
-
     path_to_NN_res = path_to_NN_res[:path_to_NN_res.rfind('results_test_') + 13] + dir_.replace('/', '') + '.csv'
     path_to_NN_res_ay = path_to_NN_res[:path_to_NN_res.rfind('.')] + '_ay.csv'
+    path_to_NN_res_ax = path_to_NN_res[:path_to_NN_res.rfind('.')] + '_ax.csv'
     path_to_labels = (path_to_labels[:path_to_labels.rfind('paramstudy_') + 11] + dir_.replace('/', '') + '.csv')
 
-    path_to_bicycle_res = path_to_bicycle_res[:path_to_bicycle_res.rfind('sim_test_') + 9] + dir_.replace('/', '') + '.csv'
+    path_to_bicycle_res = path_to_bicycle_res[:path_to_bicycle_res.rfind('sim_test_') + 9] + dir_.replace('/',
+                                                                                                          '') + '.csv'
 
     plot(NN_res=path_to_NN_res,
          NN_res_ay=path_to_NN_res_ay,
+         NN_res_ax=path_to_NN_res_ax,
          bicycle_res=path_to_bicycle_res,
          titles=titles,
          filepath2plots=path_to_plots,
          labels=path_to_labels,
          counter=dir_.replace('/', ''))
-

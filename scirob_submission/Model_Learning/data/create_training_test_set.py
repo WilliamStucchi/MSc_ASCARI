@@ -10,11 +10,11 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     output_shape = 3
 
     sum_ = 0
-    directories = ['/train_car_perf/mid_perf/',
-                   '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
-                   '/train_road_grip/grip_06/', '/train_road_grip/grip_06_perf_045/',
-                   '/train_road_grip/grip_06_perf_03/']
+    directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
+                   '/train_road_grip/grip_06/', '/train_road_grip/grip_06_perf_045/', '/train_road_grip/grip_06_perf_03/',
+                   '/const_speed/']
     number_of_sets_ = number_of_sets  # fixed number of sets for when I want to change the number of sets manually here
+    filename = 'DemoSportsCar_mxp.csv'
 
     result = []
     for i in range(number_of_sets_ * len(directories)):
@@ -30,9 +30,13 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
         steer = np.zeros(timesteps_back)
         fx = np.zeros(timesteps_back)
 
+        if 'const_speed' in dir_:
+            number_of_sets = 6
+            filename = 'DemoSportsCar_mnt.csv'
+
         for i in tqdm(range(0, number_of_sets)):
             # print('Opening: ' + path_to_data + '/flat/test_' + str(i) + '/DemoSportsCar_mxp.csv')
-            data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/DemoSportsCar_mxp.csv', dtype=object)
+            data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
             data = data.drop(0, axis='rows')  # remove the row containing the measure units
             data.reset_index(drop=True, inplace=True)
 
@@ -118,27 +122,27 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
         print('END CREATION TRAINING DATA ' + dir_)
 
     print('SAVING ACCELERATIONS')
-    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_gripest.csv', ax_to_plot, delimiter=',')
-    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_gripest.csv', ay_to_plot, delimiter=',')
+    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_cpltspd.csv', ax_to_plot, delimiter=',')
+    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_cpltspd.csv', ay_to_plot, delimiter=',')
 
     print('FLATTENING')
     # Put together all data extracted
     result_flat = flatten_extend(result)
-    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_gripest.csv', result_flat, delimiter=',')
+    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_cpltspd.csv', result_flat, delimiter=',')
 
     # Flatten to obtain a list of lists (200000+, 23)
     result_flat = np.array(result_flat)
 
     # Remove all lists of all-zero elements
     result_filtered = result_flat[~np.all(result_flat == 0, axis=1)]
-    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_gripest.csv', result_filtered, delimiter=',')
+    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_cpltspd.csv', result_filtered, delimiter=',')
 
     # Shuffle input
     print('SHUFFLING')
     np.random.seed(1)
     np.random.shuffle(result_filtered)
-    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_gripest.csv', result_filtered, delimiter=',')
-    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_gripest.csv')
+    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_cpltspd.csv', result_filtered, delimiter=',')
+    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_cpltspd.csv')
 
     print('END CREATION TRAINING DATA')
     print('sum = ' + str(sum_))
@@ -743,14 +747,14 @@ def create_test_static_equilibrium(path_to_output_, seconds_of_test):
     uy = np.full(test_length, 0.0)
     ux = np.full(test_length, 0.0)
     steer = np.full(test_length, 0.0)
-    fx = np.full(test_length, 1)
+    fx = np.full(test_length, 100)
 
     # Save test set
     test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
 
     # Save test set
     dataframe = pd.DataFrame(test_set)
-    dataframe.to_csv(path_to_output_ + 'test_set_steer_equilibria.csv', index=False, header=False)
+    dataframe.to_csv(path_to_output_ + 'test_set_steereq_fx100.csv', index=False, header=False)
     print('END CREATION STEERING EQUILIBRA TEST')
 
 
@@ -758,11 +762,12 @@ def create_test_static_equilibrium(path_to_output_, seconds_of_test):
 
 def create_test_set_param_study(path_to_data, path_to_output_):
     directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
-                   '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+                   '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/',
+                   '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/']
 
     print('CREATION TEST DATA')
     for i, dir_ in tqdm(enumerate(directories)):
-        data = pd.read_csv(path_to_data + 'parameters_study/' + dir_ + '/DemoSportsCar_mxp.csv', dtype=object)
+        data = pd.read_csv(path_to_data + 'parameters_study/' + dir_ + 'DemoSportsCar_mxp.csv', dtype=object)
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
         data.reset_index(drop=True, inplace=True)
 

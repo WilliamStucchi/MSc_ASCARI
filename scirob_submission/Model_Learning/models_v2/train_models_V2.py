@@ -78,16 +78,16 @@ def get_set(dataset, perc_valid):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def get_training(dataset, perc_valid):
-    features = dataset[:math.floor(len(dataset) * (1 - perc_valid)), :-4]
-    labels = dataset[:math.floor(len(dataset) * (1 - perc_valid)), -4:]
+    features = dataset[:math.floor(len(dataset) * (1 - perc_valid)), :-3]
+    labels = dataset[:math.floor(len(dataset) * (1 - perc_valid)), -3:]
     return features, labels
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def get_validation(dataset, perc_valid):
-    features = dataset[math.floor(len(dataset) * (1 - perc_valid)):, :-4]
-    labels = dataset[math.floor(len(dataset) * (1 - perc_valid)):, -4:]
+    features = dataset[math.floor(len(dataset) * (1 - perc_valid)):, :-3]
+    labels = dataset[math.floor(len(dataset) * (1 - perc_valid)):, -3:]
     return features, labels
 
 
@@ -147,7 +147,7 @@ path_datetime = datetime.datetime.now().strftime('%H_%M_%S')
 save_path_initial = '../saved_models/'
 
 # GET TRAINING DATA
-dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_gripest.csv', delimiter=',')
+dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_cpltspd.csv', delimiter=',')
 print('TOTAL LENGTH OF THE DATASET: ', len(dataset_step_1))
 
 perc_validation = 0.2
@@ -258,7 +258,7 @@ if TRAIN_S1:
                                        # sample_weight=sample_weights,
                                        batch_size=1000,
                                        validation_data=(val_features_step_1, val_labels_step_1),
-                                       epochs=2000,
+                                       epochs=1500,
                                        verbose=1,
                                        shuffle=False,
                                        callbacks=[reduce_lr_loss, es, mc],
