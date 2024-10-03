@@ -417,7 +417,7 @@ def gen_data_mod(Param, Veh):
                     gen_data[i, 1] = Uy_t
                     gen_data[i, 2] = Ux_t
                     gen_data[i, 3] = del_t
-                    gen_data[i, 4] = Fxf_t / Fx_norm
+                    gen_data[i, 4] = Fxf_t # / Fx_norm
                     print(gen_data[i, 4])
 
                     # Calculate the initial slip from SS assumptions
@@ -436,6 +436,9 @@ def gen_data_mod(Param, Veh):
 
                     # Sample the next set of controls!
                     _, _, _, del_t, Fxf_t, Fxr_t = sample(Param, Veh, mu)
+
+                    print('Force front: ', Fxf_t / Fx_norm)
+                    print('Force rear: ', Fxr_t / Fx_norm)
 
                     # Then Cache them in the data!
                     gen_data[i, (N_STATE_INPUT * j) + 3] = del_t

@@ -6,7 +6,7 @@ plot_mse = true
 save_figures = true
 
 min_scale_plot = 0
-max_scale_plot = 0.01
+max_scale_plot = 0.001
 
 # LOAD AN ALREADY EXISTING MODEL FOR RETRAINING
 bool_load_existingmodel = false
@@ -28,7 +28,7 @@ save_scaling = true
 
 # 0 --> NO EXECUTION, 1 --> EXECUTION WITH FEEDFORWARD MODEL, 2 --> EXECUTION WITH RECURRENT MODEL
 model_mode = 2     # training of the neural network
-run_file_mode = 2   # vehicle data (ground trouth) replay and evaluation, comparsion of the neural network
+run_file_mode = 2  # vehicle data (ground trouth) replay and evaluation, comparsion of the neural network
 
 # THESE ARE THE TRAIN PARAMETERS OF THE NEURAL NETWORK
 batch_size = 1000
@@ -44,7 +44,7 @@ learning_rate = 0.0004  # should not exceed 0.0005
 
 # WEIGHT REGULARIZATION
 l2regularization = 0.001
-l1regularization = 0.0
+l1regularization = 0.00
 
 # Early Stopping Patience
 earlystopping_patience = 60
@@ -56,7 +56,7 @@ patience_LR = 10
 # DROPOUT PARAMS
 bool_use_dropout = false # true: apply dropout, false: do not apply dropout
 drop_1 = 0.2 # 0
-drop_2 = 0.2 # 0
+drop_2 = 0 # 0.2
 drop_3 = 0.2 # 0 (new field)
 
 # Initializer ["glorot", "he"]
@@ -67,8 +67,8 @@ active_layer_3 = false # new field
 [NeuralNetwork_Settings.Feedforward]
 
 # NUMBER OF NEURONS FIRST AND SECOND LAYER
-neurons_first_layer = 50 # 128
-neurons_second_layer = 50 # 128
+neurons_first_layer = 20 # 40, 30, 50, 128
+neurons_second_layer = 20 # 40 ,30, 50, 128
 neurons_third_layer = 64 # new field
 
 # ACTIVATION FUNCTIONS OF THE LAYERS
@@ -81,15 +81,15 @@ activation_3 = 'None' # new field
 [NeuralNetwork_Settings.Recurrent]
 
 # from tensorflow.keras.layers [LSTM, GRU, SimpleRNN, ConvLSTM2D, RNN]
-recurrent_mode = 'GRU'
+recurrent_mode = 'LSTM'
 
 # NUMBER OF NEURONS OF FIRST AND SECOND LAYER
-neurons_first_layer_recurrent = 150 # 75
-neurons_second_layer_recurrent = 150 # 75
+neurons_first_layer_recurrent = 20 # 150, 75
+neurons_second_layer_recurrent = 50 # 75
 
 # ACTIVATION FUNCTIONS OF THE RECURRENT LAYERS
-activation_1_recurrent = 'relu'
-activation_dense_recurrent = 'relu'
+activation_1_recurrent = 'None' # relu maybe, tanh less maybe
+activation_dense_recurrent = 'None' # relu, tanh
 
 
 [NeuralNetwork_Settings.Optimizer]
@@ -99,6 +99,7 @@ optimizer_set = 'Nesterov-ADAM'
 clipnorm = 1.0
 
 # LOSS FUNCTION
+# loss_function = 'mean_squared_error'
 loss_function = 'mean_squared_error'
 
 # THE FINAL LAYER SHOULD BE ACTIVIZED LINEARLY

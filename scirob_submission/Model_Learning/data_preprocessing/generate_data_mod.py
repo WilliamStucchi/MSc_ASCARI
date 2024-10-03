@@ -4,7 +4,7 @@
 # Generate Data from Bike model for a variety of cases
 
 # Run all required imports
-from data_generation_functions import *
+from new_data_generation_functions import *
 from parameters.learning_params import *
 import numpy as np
 
@@ -18,30 +18,30 @@ print('Generating experiment 1 data!')
 # Generate Data
 data = gen_data_mod(Param, Veh)
 
-input('waiting')
 print(data.shape)
 
-for elem in data:
+"""for elem in data:
     print(len(elem))
     print(elem[0:5])
     print(elem[5:10])
     print(elem[10:15])
     print(elem[15:20])
-    input('Waiting....')
+    input('Waiting....')"""
 
+np.savetxt('../data/new/bicycle_model_360.csv', data, delimiter=',')
 
 # Shuffle and Divide into datasets
 # train, dev, test = shuffle_and_divide(data, Param)
-train, dev, test = shuffle_and_divide_modified(data, Param)
+# train, dev, test = shuffle_and_divide_modified(data, Param)
 
 # Write out the first generated dataset , dev=dev, test=test
-np.savez("../data/gen/exp_1_mod", train_f=train[0],
+"""np.savez("../data/gen/exp_1_mod", train_f=train[0],
          train_t=train[1],
          dev_f=dev[0],
          dev_t=dev[1],
          test_f=test[0],
-         test_t=test[1])
-# input('Waiting....')
+         test_t=test[1])"""
+exit('Creation completed')
 #######################################################################
 # Case 2: Longitudinal WT
 #######################################################################

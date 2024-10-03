@@ -3,6 +3,7 @@ from run_tests import *
 from plot_tests import *
 import threading as th
 from joblib import load
+import tensorflow as tf
 
 
 def build_model():
@@ -82,6 +83,7 @@ def data_to_run(input_shape: int, normalize_values: bool):
 
 def run_plot_save_v2(test_path_, model_path_, save_data_path_, scaler_present, name_):
     # Load NN model
+    tf.compat.v1.disable_eager_execution()
 
     """# Old version of model
     loaded_model = build_model()
@@ -180,13 +182,37 @@ test_set_mass_5 = 'data/new/test_set_mass_5.csv'
 
 test_set_cplt_1 = 'data/piste_training_complete/test_set_1.csv'
 
-test_set_steereq_fx1 = 'data/new/test_set_steereq_fx1.csv'
-test_set_steereq_fx10 = 'data/new/test_set_steereq_fx10.csv'
-test_set_steereq_fx10_5deg = 'data/new/test_set_steereq_fx10_5deg.csv'
-test_set_steereq_fx10_10deg = 'data/new/test_set_steereq_fx10_10deg.csv'
-test_set_steereq_fx10_15deg = 'data/new/test_set_steereq_fx10_15deg.csv'
-test_set_steereq_fx100 = 'data/new/test_set_steereq_fx100.csv'
-test_set_steereq_fx300 = 'data/new/test_set_steereq_fx300.csv'
+test_set_stepsteer_fx100_0deg = 'data/new/test_set_stepsteer_fx100_0deg.csv'
+test_set_stepsteer_fx100_1deg = 'data/new/test_set_stepsteer_fx100_1deg.csv'
+test_set_stepsteer_fx100_2deg = 'data/new/test_set_stepsteer_fx100_2deg.csv'
+test_set_stepsteer_fx100_3deg = 'data/new/test_set_stepsteer_fx100_3deg.csv'
+test_set_stepsteer_fx100_4deg = 'data/new/test_set_stepsteer_fx100_4deg.csv'
+test_set_stepsteer_fx100_5deg = 'data/new/test_set_stepsteer_fx100_5deg.csv'
+test_set_stepsteer_fx100_10deg = 'data/new/test_set_stepsteer_fx100_10deg.csv'
+test_set_stepsteer_fx100_15deg = 'data/new/test_set_stepsteer_fx100_15deg.csv'
+test_set_stepsteer_fx100_20deg = 'data/new/test_set_stepsteer_fx100_20deg.csv'
+test_set_stepsteer_fx100_25deg = 'data/new/test_set_stepsteer_fx100_25deg.csv'
+test_set_stepsteer_fx100_30deg = 'data/new/test_set_stepsteer_fx100_30deg.csv'
+test_set_stepsteer_fx100_45deg = 'data/new/test_set_stepsteer_fx100_45deg.csv'
+test_set_stepsteer_fx100_60deg = 'data/new/test_set_stepsteer_fx100_60deg.csv'
+test_set_stepsteer_fx300 = 'data/new/test_set_stepsteer_fx300.csv'
+
+test_set_rampsteer_fx100_0 = 'data/new/test_set_rampsteer_fx100_0.csv'
+test_set_rampsteer_fx100_1 = 'data/new/test_set_rampsteer_fx100_1.csv'
+test_set_rampsteer_fx100_2 = 'data/new/test_set_rampsteer_fx100_2.csv'
+test_set_rampsteer_fx100_3 = 'data/new/test_set_rampsteer_fx100_3.csv'
+
+test_set_impulsesteer_fx100_0 = 'data/new/test_set_impulsesteer_fx100_0.csv'
+test_set_impulsesteer_fx100_1 = 'data/new/test_set_impulsesteer_fx100_1.csv'
+test_set_impulsesteer_fx100_2 = 'data/new/test_set_impulsesteer_fx100_2.csv'
+test_set_impulsesteer_fx100_3 = 'data/new/test_set_impulsesteer_fx100_3.csv'
+test_set_impulsesteer_fx100_4 = 'data/new/test_set_impulsesteer_fx100_4.csv'
+test_set_impulsesteer_fx100_5 = 'data/new/test_set_impulsesteer_fx100_5.csv'
+
+test_set_sinesteer_fx100_0 = 'data/new/test_set_sinesteer_fx100_0.csv'
+test_set_sinesteer_fx100_1 = 'data/new/test_set_sinesteer_fx100_1.csv'
+
+test_set_sweepsteer_fx100_0 = 'data/new/test_set_sweepsteer_fx100_0.csv'
 
 test_paramstudy_grip_1_perf_100 = 'data/new/test_set_paramstudy_grip_1_perf_100.csv'
 test_paramstudy_grip_1_perf_75 = 'data/new/test_set_paramstudy_grip_1_perf_75.csv'
@@ -211,8 +237,8 @@ plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/s
 
 # Step 1
 # Callbacks
-save_path = 'results/step_1/callbacks/2024_09_17/17_41_36/'
-model_path = 'saved_models/step_1/callbacks/2024_09_17/17_41_36/keras_model.h5'
+save_path = 'results/step_1/callbacks/2024_10_02/16_30_34/'
+model_path = 'saved_models/step_1/callbacks/2024_10_02/16_30_34/keras_model.h5'
 p0 = create_thread('t0', test_set_mu_1, model_path, save_path + 'results_test_mu_1.csv', None)
 p1 = create_thread('t1', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
 p2 = create_thread('t2', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
@@ -224,10 +250,11 @@ p7 = create_thread('t7', test_set_mu_0804, model_path, save_path + 'results_test
 p8 = create_thread('t8', test_set_mu_06045, model_path, save_path + 'results_test_mu_06045.csv', None)
 p9 = create_thread('t9', test_set_mu_0603, model_path, save_path + 'results_test_mu_0603.csv', None)
 
-p10 = create_thread('t10', test_set_steereq_fx100, model_path, save_path + 'results_test_steereq_fx100.csv', None)
-p101 = create_thread('t101', test_set_steereq_fx10_5deg, model_path, save_path + 'results_test_steereq_fx10_5deg.csv', None)
-p102 = create_thread('t102', test_set_steereq_fx10_10deg, model_path, save_path + 'results_test_steereq_fx10_10deg.csv', None)
-p103 = create_thread('t103', test_set_steereq_fx10_15deg, model_path, save_path + 'results_test_steereq_fx10_15deg.csv', None)
+p10 = create_thread('t10', test_set_stepsteer_fx100_30deg, model_path, save_path + 'results_test_stepsteer_fx100_30deg.csv', None)
+p101 = create_thread('t101', test_set_stepsteer_fx100_45deg, model_path, save_path + 'results_test_stepsteer_fx100_45deg.csv', None)
+p102 = create_thread('t102', test_set_stepsteer_fx100_60deg, model_path, save_path + 'results_test_stepsteer_fx100_60deg.csv', None)
+p103 = create_thread('t103', test_set_stepsteer_fx100_3deg, model_path, save_path + 'results_test_stepsteer_fx100_3deg.csv', None)
+p104 = create_thread('t104', test_set_stepsteer_fx100_4deg, model_path, save_path + 'results_test_stepsteer_fx100_4deg.csv', None)
 
 p11 = create_thread('t11', test_paramstudy_grip_1_perf_100, model_path, save_path + 'results_test_grip_1_perf_100.csv', None)
 p12 = create_thread('t12', test_paramstudy_grip_1_perf_75, model_path, save_path + 'results_test_grip_1_perf_75.csv', None)
@@ -243,7 +270,7 @@ p19 = create_thread('t19', test_paramstudy_grip_08_perf_50, model_path, save_pat
 # start_parallel_threads([p3, p4, p5])
 # start_parallel_threads([p6, p7])
 # start_parallel_threads([p8, p9])
-start_parallel_threads([p10])
+start_parallel_threads([p10, p101, p102])
 # start_parallel_threads([p11, p12, p13])
 # start_parallel_threads([p14, p15, p16])
 # start_parallel_threads([p17, p18, p19])
