@@ -21,24 +21,30 @@ def plot(NN_res: str,
     # load results
     with open(NN_res, 'r') as fh:
         nn_res_ = np.loadtxt(fh)
+        nn_res_ = nn_res_[:-4]
     with open(NN_res_ay, 'r') as fh:
         nn_res_ay_ = np.loadtxt(fh)
+        nn_res_ay_ = nn_res_ay_[:-4]
     with open(NN_res_ax, 'r') as fh:
         nn_res_ax_ = np.loadtxt(fh)
+        nn_res_ax_ = nn_res_ax_[:-4]
     with open(bicycle_res, 'r') as fh:
         data = pd.read_csv(bicycle_res, dtype=object)
 
         bicycle_res_ = np.array(data, dtype=float)
         bicycle_res_[np.isnan(bicycle_res_)] = 0
+        bicycle_res_ = bicycle_res_[:-4]
     with open(bicycle_vx_computed_res, 'r') as fh:
         data = pd.read_csv(bicycle_vx_computed_res, dtype=object)
 
         bicycle_vx_res_ = np.array(data, dtype=float)
         bicycle_vx_res_[np.isnan(bicycle_vx_res_)] = 0
+        bicycle_vx_res_ = bicycle_vx_res_[:-4]
 
     # load label data
     with open(labels, 'r') as fh:
         labels_ = np.loadtxt(fh, delimiter=',')
+        labels_ = labels_[:-4]
 
     # Extract results for each feature
     # NN model
@@ -76,9 +82,9 @@ def plot(NN_res: str,
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
     plot_and_save(nn_res_ax, bicycle_res_ax, bicycle_vx_res_ax, labels_ax, titles, 'Long. acc. ax [m/s2]',
                   filepath2plots + 'ax_test_' + str(counter) + '.png')
-    plot_and_save(nn_res_vx, bicycle_res_vx, bicycle_vx_res_vx, labels_vx, titles, 'Lat. vel. vx [m/s2]',
+    plot_and_save(nn_res_vx, bicycle_res_vx, bicycle_vx_res_vx, labels_vx, titles, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_test_' + str(counter) + '.png')
-    plot_and_save(nn_res_vy, bicycle_res_vy, bicycle_vx_res_vy, labels_vy, titles, 'Lat. vel. vy [m/s2]',
+    plot_and_save(nn_res_vy, bicycle_res_vy, bicycle_vx_res_vy, labels_vy, titles, 'Lat. vel. vy [m/s]',
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
 
     # print('\n MSE AND MAE OF UNSCALED VALUES: Test CRT Neural Network ' + str(counter))
@@ -172,12 +178,12 @@ def plot_and_save(nn_res, bicycle_res, bicycle_vx_res, label, titles, value, sav
     colors = ['xkcd:red', 'xkcd:green', 'xkcd:orange', 'xkcd:purple', 'xkcd:black']
     plt.figure(figsize=(25, 10))
     # Aumentare il font size per tutto il grafico
-    plt.rc('font', size=14)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=16)  # Titolo degli assi
-    plt.rc('axes', labelsize=14)  # Etichette degli assi
-    plt.rc('xtick', labelsize=12)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=12)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=14)  # Legenda
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)   # Titolo degli assi
+    plt.rc('axes', labelsize=25)   # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     ax = plt.gca()
 
     if 'yaw' not in savename:
@@ -185,15 +191,16 @@ def plot_and_save(nn_res, bicycle_res, bicycle_vx_res, label, titles, value, sav
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
-    plt.plot(nn_res, label=titles[0], color=colors[0], alpha=1.0, linewidth=1.5)
-    plt.plot(bicycle_res, label=titles[1], color=colors[1], alpha=1.0, linewidth=1.5)
-    plt.plot(bicycle_vx_res, label=titles[2], color=colors[2], alpha=1.0, linewidth=1.5)
+    time_values = np.linspace(0, len(nn_res) / 100, len(nn_res))
+    plt.plot(time_values, nn_res, label=titles[0], color=colors[0], alpha=1.0, linewidth=1.5)
+    plt.plot(time_values, bicycle_res, label=titles[1], color=colors[1], alpha=1.0, linewidth=1.5)
+    plt.plot(time_values, bicycle_vx_res, label=titles[2], color=colors[2], alpha=1.0, linewidth=1.5)
 
     if label is not None:
-        plt.plot(label, label='Ground Truth', color='xkcd:blue', alpha=1.0, linewidth=1.5)
+        plt.plot(time_values, label, label='Ground Truth', color='xkcd:blue', alpha=1.0, linewidth=1.5)
 
     plt.ylabel(value)
-    plt.xlabel('Time steps (10 ms)')
+    plt.xlabel('Time steps [s]')
     plt.legend(loc='best')
     plt.grid()
 

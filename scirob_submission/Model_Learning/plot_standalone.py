@@ -25,10 +25,12 @@ def plot_run(filepath2results: str,
     # load results
     with open(filepath2results, 'r') as fh:
         results = np.loadtxt(fh)
+        results = results[:-4]
 
     # load label data
     with open(filepath2testdata, 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
+        labels = labels[:-4]
 
     vx_result = results[:, 0][:, np.newaxis]
     vy_result = results[:, 1][:, np.newaxis]
@@ -296,12 +298,13 @@ def plot_run_test_CRT(filepath2results: str,
 
 def plot_and_save(inp_1, inp_2, inp_3, value, savename):
     plt.figure(figsize=(25, 10))
-    plt.rc('font', size=14)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=16)  # Titolo degli assi
-    plt.rc('axes', labelsize=14)  # Etichette degli assi
-    plt.rc('xtick', labelsize=12)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=12)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=14)  # Legenda
+    # Aumentare il font size per tutto il grafico
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=25)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     ax = plt.gca()
 
     if 'yaw' in savename:
@@ -312,16 +315,19 @@ def plot_and_save(inp_1, inp_2, inp_3, value, savename):
         ax.yaxis.set_major_locator(MultipleLocator(2.5))
 
     if inp_1 is not None:
-        plt.plot(inp_1, label='Result', color='red', linewidth=1.5)
+        time_values = np.linspace(0, len(inp_1) / 100, len(inp_1))
+        plt.plot(time_values, inp_1, label='Result', color='red', linewidth=1.5)
 
     if inp_2 is not None:
-        plt.plot(inp_2, label='Label', color='blue', linewidth=1.5)
+        time_values = np.linspace(0, len(inp_2) / 100, len(inp_2))
+        plt.plot(time_values, inp_2, label='Label', color='blue', linewidth=1.5)
 
     if inp_3 is not None:
-        plt.plot(inp_3, label='Difference', color='tab:blue', linewidth=1.5)
+        time_values = np.linspace(0, len(inp_3) / 100, len(inp_3))
+        plt.plot(time_values, inp_3, label='Difference', color='tab:blue', linewidth=1.5)
 
     plt.ylabel(value)
-    plt.xlabel('Time steps (10 ms)')
+    plt.xlabel('Time steps [s]')
     plt.legend()
     plt.grid()
 

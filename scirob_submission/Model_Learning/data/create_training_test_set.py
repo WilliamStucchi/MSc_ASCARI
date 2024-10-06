@@ -15,6 +15,16 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     max_delta = float('-inf')
     min_fx = float('inf')
     max_fx = float('-inf')
+    last_delta = float('-inf')
+    max_delta_difference = float('-inf')
+    last_Fx = float('-inf')
+    max_Fx_difference = float('-inf')
+    file_max_delta = ''
+    file_max_fx = ''
+    pos_max_delta = ''
+    pos_max_fx = ''
+    couple_delta = ''
+    couple_fx = ''
 
     input_shape = 5
     output_shape = 3
@@ -89,6 +99,26 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
                 if min_fx > fx[0]: min_fx = fx[0]
                 if max_fx < fx[0]: max_fx = fx[0]
 
+                for y in range(0, timesteps_back):
+                    if last_delta != float('-inf'):
+                        if abs(steer[y] - last_delta) > max_delta_difference:
+                            max_delta_difference = abs(steer[y] - last_delta)
+                            file_max_delta = dir_ + 'test_' + str(i)
+                            pos_max_delta = str(idx + (y-1)) + ' vs ' + str(idx + y)
+                            couple_delta = str(steer[y]) + ' - ' + str(last_delta)
+                    last_delta = steer[y]
+
+                    if last_Fx != float('-inf'):
+                        if abs(fx[y] - last_Fx) > max_Fx_difference:
+                            max_Fx_difference = abs(fx[y] - last_Fx)
+                            file_max_fx = dir_ + 'test_' + str(i)
+                            pos_max_fx = str(idx + (y-1)) + ' vs ' + str(idx + y)
+                            couple_fx = str(fx[y]) + ' - ' + str(last_Fx)
+                    last_Fx = fx[y]
+
+                last_delta = steer[1]
+                last_Fx = fx[1]
+
                 if vy_estimation:
                     for obj in range(0, timesteps_back):
                         result[k * number_of_sets_ + i][count, obj * input_shape] = yaw_rate[obj]
@@ -140,6 +170,10 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
                     for j in range(0, timesteps_back):
                         ax_to_plot[j], ay_to_plot[j] = pick_acc_idx(data, idx + j)
 
+            last_delta = float('-inf')
+            last_Fx = float('-inf')
+
+
         print('END CREATION TRAINING DATA ' + dir_)
 
     print('MIN_r: ', min_r)
@@ -152,8 +186,12 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     print('MAX_delta: ', max_delta)
     print('MIN_fx: ', min_fx)
     print('MAX_fx: ', max_fx)
+    print('MAX_DIFF_DELTA: ', max_delta_difference)
+    print('POS_MAX_DELTA: ' + file_max_delta + ' -> IDX: ' + str(pos_max_delta) + ' -> ' + couple_delta)
+    print('MAX_DIFF_FX: ', max_Fx_difference)
+    print('POS_MAX_FX: ' + file_max_fx + ' -> IDX: ' + str(pos_max_fx) + ' -> ' + couple_fx)
 
-    print('SAVING ACCELERATIONS')
+    """print('SAVING ACCELERATIONS')
     np.savetxt(path_to_output + 'train_ax_' + str(step) + '_cplt.csv', ax_to_plot, delimiter=',')
     np.savetxt(path_to_output + 'train_ay_' + str(step) + '_cplt.csv', ay_to_plot, delimiter=',')
 
@@ -163,13 +201,13 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_cplt.csv', result_flat, delimiter=',')
 
     # Flatten to obtain a list of lists (200000+, 23)
-    result_flat = np.array(result_flat)
+    result_flat = np.array(result_flat)"""
 
     """# Load bicycle data
     bicycle_data = np.loadtxt('../data/new/bicycle_model.csv', delimiter=',')
     result_flat = np.concatenate((result_flat, bicycle_data), axis=0)"""
 
-    # Remove all lists of all-zero elements
+    """# Remove all lists of all-zero elements
     result_filtered = result_flat[~np.all(result_flat == 0, axis=1)]
     np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_cplt.csv', result_filtered,
                delimiter=',')
@@ -182,7 +220,7 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_cplt.csv')
 
     print('END CREATION TRAINING DATA')
-    print('sum = ' + str(sum_))
+    print('sum = ' + str(sum_))"""
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -778,27 +816,40 @@ def create_test_set_road_grip(path_to_data, path_to_output_, number_of_sets):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def create_test_step_steer(path_to_output_, seconds_of_test):
-    degs = [0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 45, 60]
+def create_test_step_steer(path_to_data, path_to_output_, number_of_tests, seconds_of_test):
+    dir_ = 'step_steering/'
+    filename = 'DemoSportsCar_step.csv'
 
-    test_length = seconds_of_test * 100
-
-    # Creating steering tests
+    # Creating ramp steering tests
     print('CREATING STEP STEERING TEST')
-    for deg in degs:
-        yaw_rate = np.full(test_length, 0.0)
-        uy = np.full(test_length, 0.0)
-        ux = np.full(test_length, 29.0)
-        steer = np.zeros(test_length)
-        steer[10000:] = deg * np.pi / 180
-        fx = np.full(test_length, 100)
+    for i in range(number_of_tests):
+        data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
+        data = data.drop(0, axis='rows')  # remove the row containing the measure units
+        data.reset_index(drop=True, inplace=True)
+
+        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
+        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
+        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+
+        # Delta
+        steer = data['driver_demands.steering'].to_numpy().astype(float)
+
+        # Fx
+        frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
+        frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
+        fr = (frl + frr) / 2
+        ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
+        ffr = data['Tire.Ground_Surface_Force_X.R1'].to_numpy().astype(float)
+        ff = (ffl + ffr) / 2
+        fx = (fr + ff) / 2
 
         # Save test set
         test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx100_' + str(deg).replace('-', '') + 'deg.csv', index=False, header=False)
+        dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
+                         header=False)
     print('END CREATION STEP STEERING TEST')
 
 
@@ -830,7 +881,8 @@ def create_test_ramp_steer(path_to_data, path_to_output_, number_of_tests, secon
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_rampsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False, header=False)
+        dataframe.to_csv(path_to_output_ + 'test_set_rampsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
+                         header=False)
     print('END CREATION RAMP STEERING TEST')
 
 
@@ -862,7 +914,8 @@ def create_test_impulse_steer(path_to_data, path_to_output_, number_of_tests, se
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_impulsesteer_fx100_' + str(i).replace('-', '') + '.csv', index=False, header=False)
+        dataframe.to_csv(path_to_output_ + 'test_set_impulsesteer_fx100_' + str(i).replace('-', '') + '.csv',
+                         index=False, header=False)
     print('END CREATION IMPULSE STEERING TEST')
 
 
@@ -894,7 +947,8 @@ def create_test_sine_steer(path_to_data, path_to_output_, number_of_tests, secon
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx100_' + str(i).replace('-', '') + '.csv', index=False, header=False)
+        dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
+                         header=False)
     print('END CREATION SINE STEERING TEST')
 
 
@@ -926,7 +980,8 @@ def create_test_sweep_steer(path_to_data, path_to_output_, number_of_tests, seco
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_sweepsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False, header=False)
+        dataframe.to_csv(path_to_output_ + 'test_set_sweepsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
+                         header=False)
     print('END CREATION SWEEP STEERING TEST')
 
 

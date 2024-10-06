@@ -237,8 +237,8 @@ plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/s
 
 # Step 1
 # Callbacks
-save_path = 'results/step_1/callbacks/2024_10_02/16_30_34/'
-model_path = 'saved_models/step_1/callbacks/2024_10_02/16_30_34/keras_model.h5'
+save_path = 'results/step_1/callbacks/2024_10_06/16_37_55/'
+model_path = 'saved_models/step_1/callbacks/2024_10_06/16_37_55/keras_model.h5'
 p0 = create_thread('t0', test_set_mu_1, model_path, save_path + 'results_test_mu_1.csv', None)
 p1 = create_thread('t1', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
 p2 = create_thread('t2', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
@@ -250,9 +250,9 @@ p7 = create_thread('t7', test_set_mu_0804, model_path, save_path + 'results_test
 p8 = create_thread('t8', test_set_mu_06045, model_path, save_path + 'results_test_mu_06045.csv', None)
 p9 = create_thread('t9', test_set_mu_0603, model_path, save_path + 'results_test_mu_0603.csv', None)
 
-p10 = create_thread('t10', test_set_stepsteer_fx100_30deg, model_path, save_path + 'results_test_stepsteer_fx100_30deg.csv', None)
-p101 = create_thread('t101', test_set_stepsteer_fx100_45deg, model_path, save_path + 'results_test_stepsteer_fx100_45deg.csv', None)
-p102 = create_thread('t102', test_set_stepsteer_fx100_60deg, model_path, save_path + 'results_test_stepsteer_fx100_60deg.csv', None)
+p10 = create_thread('t10', test_set_stepsteer_fx100_10deg, model_path, save_path + 'results_test_stepsteer_fx100_10deg.csv', None)
+p101 = create_thread('t101', test_set_stepsteer_fx100_15deg, model_path, save_path + 'results_test_stepsteer_fx100_15deg.csv', None)
+p102 = create_thread('t102', test_set_stepsteer_fx100_2deg, model_path, save_path + 'results_test_stepsteer_fx100_2deg.csv', None)
 p103 = create_thread('t103', test_set_stepsteer_fx100_3deg, model_path, save_path + 'results_test_stepsteer_fx100_3deg.csv', None)
 p104 = create_thread('t104', test_set_stepsteer_fx100_4deg, model_path, save_path + 'results_test_stepsteer_fx100_4deg.csv', None)
 
@@ -270,7 +270,7 @@ p19 = create_thread('t19', test_paramstudy_grip_08_perf_50, model_path, save_pat
 # start_parallel_threads([p3, p4, p5])
 # start_parallel_threads([p6, p7])
 # start_parallel_threads([p8, p9])
-start_parallel_threads([p10, p101, p102])
+start_parallel_threads([p102])
 # start_parallel_threads([p11, p12, p13])
 # start_parallel_threads([p14, p15, p16])
 # start_parallel_threads([p17, p18, p19])

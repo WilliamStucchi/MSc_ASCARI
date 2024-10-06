@@ -36,6 +36,8 @@ Veh['rear_normal_load']  = 8420.4
 Veh["mu"]                = 1.0     #Nominal Friction value
 Veh["mu_2"]              = 0.6     #Low Friction value
 Veh["del_lim"]           = 360 * np.pi / 180.0
+Veh["max_delta_diff"]    = 0.43
+Veh['max_fx_diff']       = 2500
 Veh['SW_rate']           = 15.56
 
 Veh["p_lim"]             = 147*1e3 #Engine Power Limit

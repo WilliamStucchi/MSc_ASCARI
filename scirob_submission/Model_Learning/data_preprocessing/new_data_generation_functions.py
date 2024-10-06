@@ -41,7 +41,7 @@ def pacejka_magic_formula(a, b, c, e, alpha, Fz):
     return - c / b / a * Fz * np.sin(b * np.arctan(a * (1 - e) * np.tan(alpha) + e * np.arctan(a * np.tan(alpha))))
 
 
-def sample(Param, Veh, mu):
+def sample(Param, Veh, mu, last_delta, last_fx):
     Ux_lim = Param["UX_LIM"]
     a = Veh["a"]
     b = Veh["b"]
@@ -49,13 +49,39 @@ def sample(Param, Veh, mu):
     Cr = Veh["Cr"] * Veh['rear_normal_load']
     del_lim = Veh["del_lim"]
 
+    max_delta_diff = Veh["max_delta_diff"]
+    max_fx_diff = Veh["max_fx_diff"]
     p_lim = Veh["p_lim"]
     b_bias = Veh["b_bias"]
 
-    # Could use Power and friction limits
-    # Fx = np.random.uniform(low = -(mu*m*9.81) , high = p_lim/ux) #8640
-    # empirical force limits
-    Fx = np.random.uniform(low=-(4700), high=3700)
+    if last_delta is None or last_fx is None:
+        delta = np.random.uniform(low=-del_lim, high=del_lim)
+
+        # Could use Power and friction limits
+        # Fx = np.random.uniform(low = -(mu*m*9.81) , high = p_lim/ux) #8640
+        # empirical force limits
+        Fx = np.random.uniform(low=-4700, high=3700)
+
+    else:
+        if last_delta - max_delta_diff >= -del_lim:
+            lower_lim_delta = last_delta - max_delta_diff
+        else:
+            lower_lim_delta = -del_lim
+        if last_fx + max_delta_diff <= del_lim:
+            upper_lim_delta = last_fx + max_delta_diff
+        else:
+            upper_lim_delta = del_lim
+        delta = np.random.uniform(low=lower_lim_delta, high=upper_lim_delta)
+
+        if last_fx - max_fx_diff >= -4700:
+            lower_lim_fx = last_fx - max_fx_diff
+        else:
+            lower_lim_fx = -4700
+        if last_fx + max_delta_diff <= 3700:
+            upper_lim_fx = last_fx + max_fx_diff
+        else:
+            upper_lim_fx = 3700
+        Fx = np.random.uniform(low=lower_lim_fx, high=upper_lim_fx)
 
     # First sample Ux to ensure dynamically feasible uy and r! This was a mistake before.
     Ux = np.random.uniform(low=1.0, high=Ux_lim)
@@ -65,7 +91,8 @@ def sample(Param, Veh, mu):
 
     r = np.random.uniform(low=-r_lim, high=r_lim)
     Uy = np.random.uniform(low=-Uy_lim, high=Uy_lim)
-    delta = np.random.uniform(low=-del_lim, high=del_lim)
+
+
 
     return r, Uy, Ux, delta, Fx
 
@@ -197,12 +224,14 @@ def gen_data_mod(Param, Veh):
     print("Starting Data Generation: ")
     # print("else")
     for i in tqdm(range(N_SAMPLES)):
+        last_delta = None
+        last_fx = None
 
         # run a single simulation for one trajectory of length T
         for j in range(T):
             # FIll out the delay states!
             if j == 0:
-                r_t, Uy_t, Ux_t, del_t, Fx_t = sample(Param, Veh, mu)
+                r_t, Uy_t, Ux_t, del_t, Fx_t = sample(Param, Veh, mu, last_delta, last_fx)
                 gen_data[i, 0] = r_t
                 gen_data[i, 1] = Uy_t
                 gen_data[i, 2] = Ux_t
@@ -225,7 +254,9 @@ def gen_data_mod(Param, Veh):
                 gen_data[i, (N_STATE_INPUT * j) + 2] = Ux_t
 
                 # Sample the next set of controls!
-                _, _, _, del_t, Fx_t = sample(Param, Veh, mu)
+                last_delta = gen_data[i, (N_STATE_INPUT * (j - 1)) + 3] / SW_rate
+                last_fx = gen_data[i, (N_STATE_INPUT * (j - 1)) + 4]
+                _, _, _, del_t, Fx_t = sample(Param, Veh, mu, last_delta, last_fx)
 
                 # Then Cache them in the data!
                 gen_data[i, (N_STATE_INPUT * j) + 3] = del_t * SW_rate

@@ -28,7 +28,7 @@ print(data.shape)
     print(elem[15:20])
     input('Waiting....')"""
 
-np.savetxt('../data/new/bicycle_model_360.csv', data, delimiter=',')
+np.savetxt('../data/new/bicycle_model_deltafx.csv', data, delimiter=',')
 
 # Shuffle and Divide into datasets
 # train, dev, test = shuffle_and_divide(data, Param)
