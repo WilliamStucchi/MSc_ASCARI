@@ -816,9 +816,10 @@ def create_test_set_road_grip(path_to_data, path_to_output_, number_of_sets):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def create_test_step_steer(path_to_data, path_to_output_, number_of_tests, seconds_of_test):
+def create_test_step_steer(path_to_data, path_to_output_, number_of_tests):
     dir_ = 'step_steering/'
     filename = 'DemoSportsCar_step.csv'
+    degs = ['0', '1', '2', '3', '4', '5', '10', '15', '20', '25', '30', '45', '60', '75', '90']
 
     # Creating ramp steering tests
     print('CREATING STEP STEERING TEST')
@@ -848,18 +849,16 @@ def create_test_step_steer(path_to_data, path_to_output_, number_of_tests, secon
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
+        dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx100_' + degs[i] + 'deg.csv', index=False,
                          header=False)
     print('END CREATION STEP STEERING TEST')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def create_test_ramp_steer(path_to_data, path_to_output_, number_of_tests, seconds_of_test):
+def create_test_ramp_steer(path_to_data, path_to_output_, number_of_tests):
     dir_ = 'ramp_steering/'
     filename = 'DemoSportsCar_ramp.csv'
-
-    test_length = seconds_of_test * 100
 
     # Creating ramp steering tests
     print('CREATING RAMP STEERING TEST')
@@ -868,13 +867,21 @@ def create_test_ramp_steer(path_to_data, path_to_output_, number_of_tests, secon
         data = data.drop(0, axis='rows')  # remove the row containing the measure units
         data.reset_index(drop=True, inplace=True)
 
-        yaw_rate = np.full(test_length, 0.0)
-        uy = np.full(test_length, 0.0)
-        ux = np.full(test_length, 29.0)
-        steer = np.zeros(test_length)
-        ramp_steer = data['driver_demands.steering'].to_numpy().astype(float)
-        steer[-len(ramp_steer):] = ramp_steer
-        fx = np.full(test_length, 100)
+        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
+        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
+        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+
+        # Delta
+        steer = data['driver_demands.steering'].to_numpy().astype(float)
+
+        # Fx
+        frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
+        frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
+        fr = (frl + frr) / 2
+        ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
+        ffr = data['Tire.Ground_Surface_Force_X.R1'].to_numpy().astype(float)
+        ff = (ffl + ffr) / 2
+        fx = (fr + ff) / 2
 
         # Save test set
         test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
@@ -884,6 +891,45 @@ def create_test_ramp_steer(path_to_data, path_to_output_, number_of_tests, secon
         dataframe.to_csv(path_to_output_ + 'test_set_rampsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
                          header=False)
     print('END CREATION RAMP STEERING TEST')
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def create_test_sine_steer(path_to_data, path_to_output_, number_of_tests):
+    dir_ = 'sine_steering/'
+    filename = 'DemoSportsCar_sin.csv'
+
+    # Creating ramp steering tests
+    print('CREATING SINE STEERING TEST')
+    for i in range(number_of_tests):
+        data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
+        data = data.drop(0, axis='rows')  # remove the row containing the measure units
+        data.reset_index(drop=True, inplace=True)
+
+        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
+        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
+        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+
+        # Delta
+        steer = data['driver_demands.steering'].to_numpy().astype(float)
+
+        # Fx
+        frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
+        frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
+        fr = (frl + frr) / 2
+        ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
+        ffr = data['Tire.Ground_Surface_Force_X.R1'].to_numpy().astype(float)
+        ff = (ffl + ffr) / 2
+        fx = (fr + ff) / 2
+
+        # Save test set
+        test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
+
+        # Save test set
+        dataframe = pd.DataFrame(test_set)
+        dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
+                         header=False)
+    print('END CREATION SINE STEERING TEST')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -917,39 +963,6 @@ def create_test_impulse_steer(path_to_data, path_to_output_, number_of_tests, se
         dataframe.to_csv(path_to_output_ + 'test_set_impulsesteer_fx100_' + str(i).replace('-', '') + '.csv',
                          index=False, header=False)
     print('END CREATION IMPULSE STEERING TEST')
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-def create_test_sine_steer(path_to_data, path_to_output_, number_of_tests, seconds_of_test):
-    dir_ = 'sine_steering/'
-    filename = 'DemoSportsCar_sin.csv'
-
-    test_length = seconds_of_test * 100
-
-    # Creating ramp steering tests
-    print('CREATING SINE STEERING TEST')
-    for i in range(number_of_tests):
-        data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
-        data = data.drop(0, axis='rows')  # remove the row containing the measure units
-        data.reset_index(drop=True, inplace=True)
-
-        yaw_rate = np.full(test_length, 0.0)
-        uy = np.full(test_length, 0.0)
-        ux = np.full(test_length, 29.0)
-        steer = np.zeros(test_length)
-        sin_steer = data['driver_demands.steering'].to_numpy().astype(float)
-        steer[-len(sin_steer):] = sin_steer
-        fx = np.full(test_length, 100)
-
-        # Save test set
-        test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
-
-        # Save test set
-        dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
-                         header=False)
-    print('END CREATION SINE STEERING TEST')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
