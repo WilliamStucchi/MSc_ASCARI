@@ -175,10 +175,10 @@ def create_df_car_perf(vy_train, yaw_train, vx_train, delta_train, fx_train,
                        vy_val, yaw_val, vx_val, delta_val, fx_val,
                        test_0_feat, test_1_feat, test_2_feat, test_3_feat,
                        vy_test, yaw_test, vx_test, delta_test, fx_test):
-    vy_test[0], vy_test[1], vy_test[2], vy_test[3] = (
-        test_0_feat[:, 1], test_1_feat[:, 1], test_2_feat[:, 1], test_3_feat[:, 1])
     yaw_test[0], yaw_test[1], yaw_test[2], yaw_test[3] = (
         test_0_feat[:, 0], test_1_feat[:, 0], test_2_feat[:, 0], test_3_feat[:, 0])
+    vy_test[0], vy_test[1], vy_test[2], vy_test[3] = (
+        test_0_feat[:, 1], test_1_feat[:, 1], test_2_feat[:, 1], test_3_feat[:, 1])
     vx_test[0], vx_test[1], vx_test[2], vx_test[3] = (
         test_0_feat[:, 2], test_1_feat[:, 2], test_2_feat[:, 2], test_3_feat[:, 2])
     delta_test[0], delta_test[1], delta_test[2], delta_test[3] = (
@@ -263,7 +263,7 @@ def create_df_road_grip(vy_train, yaw_train, vx_train, delta_train, fx_train,
 
 def kde_car_perf(selector: str):
     # Load data
-    train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step1.csv')
+    train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_cplt.csv')
     print('Data length: ', str(len(train_feat) + len(val_feat)))
     folder = '../gg_plots/density_perf_high_midhigh/'
 
@@ -312,13 +312,13 @@ def kde_car_perf(selector: str):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def kde_road_grip(selector: str):
+def kde_road_grip(selector_test: str):
     # Load data
     train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step1_mu.csv')
     print('Data length: ', str(len(train_feat) + len(val_feat)))
     folder = '../gg_plots/density_grip_mid_low/'
 
-    if selector == 'car_perf':
+    if selector_test == 'car_perf':
         test_0_feat, test_1_feat, test_2_feat, test_3_feat = load_test_car_perf(
             'scirob_submission/Model_Learning/data/new/')
 
@@ -339,7 +339,7 @@ def kde_road_grip(selector: str):
         for i, title in enumerate(titles):
             show_kde_car_perf(title, sets[i], folder)
 
-    if selector == 'road_grip':
+    if selector_test == 'road_grip':
         test_0_feat, test_1_feat, test_2_feat = load_test_road_grip('scirob_submission/Model_Learning/data/new/')
 
         # Prepare data

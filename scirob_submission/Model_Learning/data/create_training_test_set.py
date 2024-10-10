@@ -1,7 +1,173 @@
 import pandas as pd
 import numpy as np
+from scipy.integrate import simps
 from tqdm import tqdm
+from matplotlib import pyplot as plt
+import seaborn as sns
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+def plot_delta_steps(path_to_data, number_of_sets):
+    delta_fx = []
+    delta_steer = []
+
+    directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
+                   '/train_road_grip/grip_06/', '/train_road_grip/grip_06_perf_045/',
+                   '/train_road_grip/grip_06_perf_03/', '/const_speed/']
+    number_of_sets_ = number_of_sets  # fixed number of sets for when I want to change the number of sets manually here
+    filename = 'DemoSportsCar_mxp.csv'
+
+    for k, dir_ in enumerate(directories):
+        if 'const_speed' in dir_:
+            number_of_sets = 9
+            filename = 'DemoSportsCar_mnt.csv'
+
+        for i in tqdm(range(0, number_of_sets)):
+            # print('Opening: ' + path_to_data + '/flat/test_' + str(i) + '/DemoSportsCar_mxp.csv')
+            data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
+            data = data.drop(0, axis='rows')  # remove the row containing the measure units
+            data.reset_index(drop=True, inplace=True)
+
+            for idx in range(1, len(data)):
+                # Delta Fx
+                prev_fr = (float(data['Tire.Ground_Surface_Force_X.L2'][idx - 1]) +
+                           float(data['Tire.Ground_Surface_Force_X.R2'][idx - 1])) / 2
+                prev_ff = (float(data['Tire.Ground_Surface_Force_X.L1'][idx - 1]) +
+                           float(data['Tire.Ground_Surface_Force_X.R1'][idx - 1])) / 2
+                prev_fx = (prev_ff + prev_fr) / 2
+
+                curr_fr = (float(data['Tire.Ground_Surface_Force_X.L2'][idx]) +
+                           float(data['Tire.Ground_Surface_Force_X.R2'][idx])) / 2
+                curr_ff = (float(data['Tire.Ground_Surface_Force_X.L1'][idx]) +
+                           float(data['Tire.Ground_Surface_Force_X.R1'][idx])) / 2
+                curr_fx = (curr_ff + curr_fr) / 2
+                
+                delta_fx.append(curr_fx - prev_fx)
+
+                # Delta Steer
+                prev_steer = float(data['driver_demands.steering'][idx - 1])
+                curr_steer = float(data['driver_demands.steering'][idx])
+                delta_steer.append(curr_steer - prev_steer)
+
+    media_fx = np.mean(delta_fx)
+    varianza_fx = np.var(delta_fx)
+    fx_df = pd.DataFrame({'Delta': delta_fx})
+
+    media_steer = np.mean(delta_steer)
+    varianza_steer = np.var(delta_steer)
+    steer_df = pd.DataFrame({'Delta': delta_steer})
+
+    print('Numero di elementi unici in deltaFx: ', len(np.unique(delta_fx)))
+    print('Numero di elementi unici in deltaSteer: ', len(np.unique(delta_steer)))
+
+    print('Media Fx: ' + str(media_fx) + ' --- Varianza Fx: ' + str(varianza_fx))
+    print('Media Steer: ' + str(media_steer) + ' --- Varianza Steer: ' + str(varianza_steer))
+
+    """plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    sns.set_style('whitegrid')
+    sns.kdeplot(data=fx_df, x='DeltaFx', fill=True, bw_adjust=.1, color='blue')
+
+    sns.despine()
+    plt.xlabel('[Fx(t) - Fx(t-1)] values')
+    plt.ylabel('Density')
+    plt.title('Distribution of deltaFx [Fx(t) - Fx(t-1)]')
+    #plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', format='png')
+
+    plt.show()
+    plt.close()"""
+
+    # Istogramma
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
+    plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution.png', format='png', dpi=300)
+    plt.close()
+
+    """for j in range(len(n)):
+        print(f"Bin {j + 1} (da {bins[j]:.2f} a {bins[j+1]:.2f}): {n[j]} valori")"""
+
+    dati_per_excel = {
+        'Descrizione': [
+            'Numero di elementi unici in deltaFx',
+            'Media Fx',
+            'Varianza Fx'
+        ],
+        'Valore': [
+            len(np.unique(delta_fx)),
+            media_fx,
+            varianza_fx
+        ]
+    }
+
+    df = pd.DataFrame(dati_per_excel)
+
+    for j in range(len(n)):
+        df = df._append({'Descrizione': f'Bin {j + 1} (da {bins[j]:.2f} a {bins[j + 1]:.2f})', 'Valore': n[j]},
+                       ignore_index=True)
+
+    # Esportare il DataFrame in un file Excel
+    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_fx.xlsx', index=False)
+
+    # Istogramma
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
+    plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution.png', format='png', dpi=300)
+    plt.close()
+
+    """for j in range(len(n)):
+        print(f"Bin {j + 1} (da {bins[j]:.2f} a {bins[j + 1]:.2f}): {n[j]} valori")"""
+
+    dati_per_excel = {
+        'Descrizione': [
+            'Numero di elementi unici in deltaSteer',
+            'Media steer',
+            'Varianza steer'
+        ],
+        'Valore': [
+            len(np.unique(delta_steer)),
+            media_steer,
+            varianza_steer
+        ]
+    }
+
+    df = pd.DataFrame(dati_per_excel)
+
+    for j in range(len(n)):
+        df = df._append({'Descrizione': f'Bin {j + 1} (da {bins[j]:.2f} a {bins[j + 1]:.2f})', 'Valore': n[j]},
+                       ignore_index=True)
+
+    # Esportare il DataFrame in un file Excel
+    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_steer.xlsx', index=False)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, step, timesteps_back=4,
                                  vy_estimation=False, include_grip=False):
@@ -191,36 +357,36 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     print('MAX_DIFF_FX: ', max_Fx_difference)
     print('POS_MAX_FX: ' + file_max_fx + ' -> IDX: ' + str(pos_max_fx) + ' -> ' + couple_fx)
 
-    """print('SAVING ACCELERATIONS')
-    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_cplt.csv', ax_to_plot, delimiter=',')
-    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_cplt.csv', ay_to_plot, delimiter=',')
+    print('SAVING ACCELERATIONS')
+    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_cpltbicycle.csv', ax_to_plot, delimiter=',')
+    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_cpltbicycle.csv', ay_to_plot, delimiter=',')
 
     print('FLATTENING')
     # Put together all data extracted
     result_flat = flatten_extend(result)
-    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_cplt.csv', result_flat, delimiter=',')
+    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_cpltbicycle.csv', result_flat, delimiter=',')
 
     # Flatten to obtain a list of lists (200000+, 23)
-    result_flat = np.array(result_flat)"""
+    result_flat = np.array(result_flat)
 
-    """# Load bicycle data
-    bicycle_data = np.loadtxt('../data/new/bicycle_model.csv', delimiter=',')
-    result_flat = np.concatenate((result_flat, bicycle_data), axis=0)"""
+    # Load bicycle data
+    bicycle_data = np.loadtxt('../data/new/bicycle_model_2grip.csv', delimiter=',')
+    result_flat = np.concatenate((result_flat, bicycle_data), axis=0)
 
-    """# Remove all lists of all-zero elements
+    # Remove all lists of all-zero elements
     result_filtered = result_flat[~np.all(result_flat == 0, axis=1)]
-    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_cplt.csv', result_filtered,
+    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_cpltbicycle.csv', result_filtered,
                delimiter=',')
 
     # Shuffle input
     print('SHUFFLING')
     np.random.seed(1)
     np.random.shuffle(result_filtered)
-    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_cplt.csv', result_filtered, delimiter=',')
-    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_cplt.csv')
+    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_cpltbicycle.csv', result_filtered, delimiter=',')
+    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_cpltbicycle.csv')
 
     print('END CREATION TRAINING DATA')
-    print('sum = ' + str(sum_))"""
+    print('sum = ' + str(sum_))
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -817,40 +983,45 @@ def create_test_set_road_grip(path_to_data, path_to_output_, number_of_sets):
 # ----------------------------------------------------------------------------------------------------------------------
 
 def create_test_step_steer(path_to_data, path_to_output_, number_of_tests):
-    dir_ = 'step_steering/'
+    dir_ = ['step_steering_highspeed/', 'step_steering_lowspeed/']
     filename = 'DemoSportsCar_step.csv'
-    degs = ['0', '1', '2', '3', '4', '5', '10', '15', '20', '25', '30', '45', '60', '75', '90']
+    degs = ['0', '1', '2', '3', '4', '5', '10', '15', '20', '25', '30', '45', '60', '75', '90', '100']
 
     # Creating ramp steering tests
     print('CREATING STEP STEERING TEST')
-    for i in range(number_of_tests):
-        data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
-        data = data.drop(0, axis='rows')  # remove the row containing the measure units
-        data.reset_index(drop=True, inplace=True)
+    for el in dir_:
+        for i in range(number_of_tests):
+            data = pd.read_csv(path_to_data + el + 'test_' + str(i) + '/' + filename, dtype=object)
+            data = data.drop(0, axis='rows')  # remove the row containing the measure units
+            data.reset_index(drop=True, inplace=True)
 
-        yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
-        uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
-        ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
+            yaw_rate = data['Vehicle_States.yaw_angular_vel_wrt_road'].to_numpy().astype(float)
+            uy = data['Vehicle_States.lateral_vel_wrt_road'].to_numpy().astype(float)
+            ux = data['Vehicle_States.longitudinal_vel_wrt_road'].to_numpy().astype(float)
 
-        # Delta
-        steer = data['driver_demands.steering'].to_numpy().astype(float)
+            # Delta
+            steer = data['driver_demands.steering'].to_numpy().astype(float)
 
-        # Fx
-        frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
-        frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
-        fr = (frl + frr) / 2
-        ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
-        ffr = data['Tire.Ground_Surface_Force_X.R1'].to_numpy().astype(float)
-        ff = (ffl + ffr) / 2
-        fx = (fr + ff) / 2
+            # Fx
+            frl = data['Tire.Ground_Surface_Force_X.L2'].to_numpy().astype(float)
+            frr = data['Tire.Ground_Surface_Force_X.R2'].to_numpy().astype(float)
+            fr = (frl + frr) / 2
+            ffl = data['Tire.Ground_Surface_Force_X.L1'].to_numpy().astype(float)
+            ffr = data['Tire.Ground_Surface_Force_X.R1'].to_numpy().astype(float)
+            ff = (ffl + ffr) / 2
+            fx = (fr + ff) / 2
 
-        # Save test set
-        test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
+            # Save test set
+            test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
 
-        # Save test set
-        dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx100_' + degs[i] + 'deg.csv', index=False,
-                         header=False)
+            # Save test set
+            dataframe = pd.DataFrame(test_set)
+            if 'highspeed' in el:
+                dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx100_' + degs[i] + 'deg.csv', index=False,
+                             header=False)
+            elif 'lowspeed' in el:
+                dataframe.to_csv(path_to_output_ + 'test_set_stepsteer_fx25_' + degs[i] + 'deg.csv', index=False,
+                                 header=False)
     print('END CREATION STEP STEERING TEST')
 
 

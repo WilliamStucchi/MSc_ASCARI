@@ -22,15 +22,21 @@ path_dict = helper_funcs_NN.src.manage_paths.manage_paths()
 # Run Tests ------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-path_to_model = 'outputs/2024_05_21/14_45_17/keras_model_recurrent.h5'
+# rete recurrent
+# path_to_model = 'outputs/2024_05_20/11_30_21/keras_model_recurrent.h5'
+# path_to_results = 'outputs/2024_05_20/11_30_21/'
 
-path_to_results = 'outputs/2024_05_21/14_45_17/'
-path_to_data = 'inputs/trainingdata/test_set_'
+
+# rete feedforward
+path_to_model = 'outputs/2024_05_19/17_00_32/keras_model.h5'
+path_to_results = 'outputs/2024_05_19/17_00_32/'
+
+path_to_data = 'inputs/trainingdata/new/test_set_'
 
 # create a dictionary which contains all parameters
 params_dict = helper_funcs_NN.src.handle_params.handle_params(path_dict=path_dict)
 
-for count in range(0, 4):
+for count in range(1, 4):
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
         print('STARTING RUN FEEDFORWARD NETWORK')
@@ -40,6 +46,7 @@ for count in range(0, 4):
                                            path_to_model=path_to_model,
                                            path_to_data=path_to_data,
                                            nn_mode="feedforward",
+                                           test_type='perf_' + str(count),
                                            counter=count)
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
@@ -50,6 +57,7 @@ for count in range(0, 4):
                                            path_to_model=path_to_model,
                                            path_to_data=path_to_data,
                                            nn_mode='recurrent',
+                                           test_type='perf_' + str(count),
                                            counter=count)
 
     # save and plot results (if activated in parameter file)
@@ -57,7 +65,40 @@ for count in range(0, 4):
                                                  params_dict=params_dict,
                                                  path_to_model=path_to_model,
                                                  path_to_results=path_to_results,
-                                                 counter=count)
+                                                 counter='perf_' + str(count))
+
+
+grips = ['mu_1', 'mu_06', 'mu_08', 'mu_0603', 'mu_06045', 'mu_0806', 'mu_0804']
+for grip_ in grips:
+
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
+        print('STARTING RUN FEEDFORWARD NETWORK')
+
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           path_to_model=path_to_model,
+                                           path_to_data=path_to_data,
+                                           nn_mode="feedforward",
+                                           test_type=str(grip_),
+                                           counter=grip_)
+
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
+        print('STARTING RUN RECURRENT NETWORK')
+
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           path_to_model=path_to_model,
+                                           path_to_data=path_to_data,
+                                           nn_mode='recurrent',
+                                           test_type=str(grip_),
+                                           counter=grip_)
+
+    # save and plot results (if activated in parameter file)
+    visualization.plot_results.plot_run_test_CRT(path_dict=path_dict,
+                                                 params_dict=params_dict,
+                                                 path_to_model=path_to_model,
+                                                 path_to_results=path_to_results,
+                                                 counter=grip_)
 
 """
 index_last_slash = path_to_model.rfind('/')

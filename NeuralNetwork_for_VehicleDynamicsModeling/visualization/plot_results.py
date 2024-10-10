@@ -177,13 +177,15 @@ def plot_run_test_CRT(path_dict: dict,
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
         filename_model = 'prediction_result_feedforward'
+        nn_mode = 'feedforward'
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
         filename_model = 'prediction_result_recurrent'
+        nn_mode = 'recurrent'
 
     if path_to_model is not None:
-        filepath2results = (path_to_model[:path_to_model.rfind('/') + 1] + '/matfiles/' +
-                            filename_model + '_CRT_' + str(counter) + '.csv')
+        filepath2results = (path_to_model[:path_to_model.rfind('/') + 1] + '/matfiles/results_test_' + nn_mode + '_' +
+                            str(counter) + '.csv')
     else:
         filepath2results = os.path.join(path_dict['path2results_matfiles'],
                                         filename_model + '_CRT_' + str(counter) + '.csv')
@@ -193,7 +195,7 @@ def plot_run_test_CRT(path_dict: dict,
         results = np.loadtxt(fh)
 
     # load label data
-    with open(path_dict['filepath2inputs_testdata_CRT'] + '_' + str(counter) + '.csv', 'r') as fh:
+    with open(path_dict['filepath2inputs_testdata_CRT'] + '_' + str(counter).replace('perf_', '') + '.csv', 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
 
     vx_result = results[:, 0][:, np.newaxis]

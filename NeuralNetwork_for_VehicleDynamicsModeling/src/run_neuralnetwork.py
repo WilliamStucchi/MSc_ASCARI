@@ -3,9 +3,10 @@ import sys
 from tqdm import tqdm
 import os.path
 from tensorflow import keras
+import tensorflow as tf
 
 # custom modules
-import src
+from .prepare_data import *
 
 """
 Created by: Rainer Trauth
@@ -69,12 +70,12 @@ def run_nn(path_dict: dict,
     input_timesteps = params_dict['NeuralNetwork_Settings']['input_timesteps']
 
     # scale dataset the vanish effects of different input data quantities
-    data = src.prepare_data.scaler_run(path2scaler=path2scaler,
+    data = scaler_run(path2scaler=path2scaler,
                                        params_dict=params_dict,
                                        dataset=data)
 
     initial, steeringangle_rad, torqueRL_Nm, torqueRR_Nm, brakepresF_bar, brakepresR_bar = \
-        src.prepare_data.create_dataset_separation_run(data, params_dict, startpoint,
+        create_dataset_separation_run(data, params_dict, startpoint,
                                                        params_dict['Test']['run_timespan'], nn_mode)
 
     # load neural network model
@@ -137,7 +138,7 @@ def run_nn(path_dict: dict,
     results[:, output_shape:input_shape] = data[startpoint:startpoint + len(steeringangle_rad) + input_timesteps,
                                            output_shape:input_shape]
 
-    results = src.prepare_data.scaler_reverse(path2scaler=path2scaler,
+    results = scaler_reverse(path2scaler=path2scaler,
                                               params_dict=params_dict,
                                               dataset=results)
 
@@ -158,7 +159,8 @@ def run_test_CRT(path_dict: dict,
                  path_to_model: object,
                  path_to_data: object,
                  nn_mode: str,
-                 counter: int):
+                 test_type: str,
+                 counter: str):
     """ Runs the neural network to test its predictions against actual vehicle data from CarRealTime
 
         :param counter:
@@ -167,6 +169,8 @@ def run_test_CRT(path_dict: dict,
         :param params_dict:         dictionary which contains all parameters necessary to run this module
         :type params_dict: dict
     """
+
+    tf.compat.v1.disable_eager_execution()
 
     if not nn_mode == "feedforward" or not nn_mode == "recurrent":
         ValueError('unknown "neural network mode"; must be either "feedforward" or "recurrent"')
@@ -203,12 +207,12 @@ def run_test_CRT(path_dict: dict,
     input_timesteps = params_dict['NeuralNetwork_Settings']['input_timesteps']
 
     # scale dataset the vanish effects of different input data quantities
-    data = src.prepare_data.scaler_run(path2scaler=path2scaler,
+    data = scaler_run(path2scaler=path2scaler,
                                        params_dict=params_dict,
                                        dataset=data)
 
     initial, steeringangle_rad, torqueRL_Nm, torqueRR_Nm, brakepresF_bar, brakepresR_bar = \
-        src.prepare_data.create_dataset_separation_run_for_testing(data, params_dict, nn_mode)
+        create_dataset_separation_run_for_testing(data, params_dict, nn_mode)
 
     # load neural network model
     if path_to_model is not None:
@@ -269,7 +273,7 @@ def run_test_CRT(path_dict: dict,
 
     results[:, output_shape:input_shape] = data[0:len(steeringangle_rad) + input_timesteps, output_shape:input_shape]
 
-    results = src.prepare_data.scaler_reverse(path2scaler=path2scaler,
+    results = scaler_reverse(path2scaler=path2scaler,
                                               params_dict=params_dict,
                                               dataset=results)
 
@@ -280,6 +284,6 @@ def run_test_CRT(path_dict: dict,
             results)
     else:
         index_last_slash = path_to_model.rfind('/')
-        output_path = (path_to_model[:index_last_slash + 1] + '/matfiles/prediction_result_' + nn_mode + '_CRT_' +
-                       str(counter) + '.csv')
+        output_path = (path_to_model[:index_last_slash + 1] + '/matfiles/results_test_' + nn_mode + '_' +
+                       str(test_type) + '.csv')
         np.savetxt(output_path, results)

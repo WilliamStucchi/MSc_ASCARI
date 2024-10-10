@@ -141,22 +141,27 @@ def plot_run_test_CRT(filepath2results: str,
     # load results
     with open(filepath2results, 'r') as fh:
         results = np.loadtxt(fh)
+        results = results[:-4]
 
     with open(filepath2resax, 'r') as fh:
         res_ax = np.loadtxt(fh)
+        res_ax = res_ax[:-4]
 
     with open(filepath2resay, 'r') as fh:
         res_ay = np.loadtxt(fh)
+        res_ay = res_ay[:-4]
 
-    """with open(filepath2resgrip, 'r') as fh:
-        res_grip = np.loadtxt(fh)"""
+    # with open(filepath2resgrip, 'r') as fh:
+       # res_grip = np.loadtxt(fh)
 
     with open(filepath2labelsaccel, 'r') as fh:
         label_accel = np.loadtxt(fh, delimiter=',')
+        label_accel = label_accel[:-4]
 
     # load label data
     with open(filepath2testdata, 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
+        labels = labels[:-4]
 
     vx_result = results[:, 2][:, np.newaxis]
     vy_result = results[:, 1][:, np.newaxis]
@@ -272,9 +277,9 @@ def plot_run_test_CRT(filepath2results: str,
                   filepath2plots + 'vy_test_' + str(counter) + '.png')
     plot_and_save(vx_result, vx_label, None, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_test_' + str(counter) + '.png')
-    plot_and_save(ax_result, ax_label, None, 'Long. accel. ax [m/s^2]',
+    plot_and_save(ax_result, ax_label, None, 'Long. accel. ax [m/s2]',
                   filepath2plots + 'ax_test_' + str(counter) + '.png')
-    plot_and_save(ay_result, ay_label, None, 'Lat. accel. ay [m/s^2]',
+    plot_and_save(ay_result, ay_label, None, 'Lat. accel. ay [m/s2]',
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
     """plot_and_save(grip_result, grip_label, None, 'Grip level',
                   filepath2plots + 'grip_test_' + str(counter) + '.png')
@@ -288,9 +293,9 @@ def plot_run_test_CRT(filepath2results: str,
                   filepath2plots + 'vy_diff_' + str(counter) + '.png')
     plot_and_save(None, None, vx_diff, 'Long. vel. vx [m/s]',
                   filepath2plots + 'vx_diff_' + str(counter) + '.png')
-    plot_and_save(None, None, ax_diff, 'Long. accel. ax [m/s^2]',
+    plot_and_save(None, None, ax_diff, 'Long. accel. ax [m/s2]',
                   filepath2plots + 'ax_diff_' + str(counter) + '.png')
-    plot_and_save(None, None, ay_diff, 'Lat. accel. ay [m/s^2]',
+    plot_and_save(None, None, ay_diff, 'Lat. accel. ay [m/s2]',
                   filepath2plots + 'ay_diff_' + str(counter) + '.png')
 
 
@@ -316,15 +321,15 @@ def plot_and_save(inp_1, inp_2, inp_3, value, savename):
 
     if inp_1 is not None:
         time_values = np.linspace(0, len(inp_1) / 100, len(inp_1))
-        plt.plot(time_values, inp_1, label='Result', color='red', linewidth=1.5)
+        plt.plot(time_values, inp_1, label='Neural Network', color='red', linewidth=2.0)
 
     if inp_2 is not None:
         time_values = np.linspace(0, len(inp_2) / 100, len(inp_2))
-        plt.plot(time_values, inp_2, label='Label', color='blue', linewidth=1.5)
+        plt.plot(time_values, inp_2, label='Ground Truth', color='blue', linewidth=2.0)
 
     if inp_3 is not None:
         time_values = np.linspace(0, len(inp_3) / 100, len(inp_3))
-        plt.plot(time_values, inp_3, label='Difference', color='tab:blue', linewidth=1.5)
+        plt.plot(time_values, inp_3, label='Difference', color='blue', linewidth=1.5)
 
     plt.ylabel(value)
     plt.xlabel('Time steps [s]')
@@ -356,12 +361,13 @@ path_to_plots = 'results/step_4/callbacks/2024_05_10/09_39_23/images/'
 path_to_data = 'data/new/test_set_mu_'
 path_to_plots = 'results/step_1/callbacks/2024_09_02/16_42_37/images/'
 path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_mu_'"""
-path_to_results = 'results/step_1/callbacks/2024_10_02/16_30_34/results_test_mu_'
-path_to_data = 'data/new/test_set_mu_'
-path_to_plots = 'results/step_1/callbacks/2024_10_02/16_30_34/images/'
-path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_mu_'
 
-for num_test in ['1', '08', '06', '0806', '0804', '06045', '0603']:
+path_to_results = 'results/step_1/callbacks/2024_10_07/15_41_02/results_test_perf_'
+path_to_data = 'data/new/test_set_'
+path_to_plots = 'results/step_1/callbacks/2024_10_07/15_41_02/images/'
+path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+
+"""for num_test in ['1', '08', '06', '0806', '0804', '06045', '0603']:
 
     path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '.csv'
     path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '_ax.csv'
@@ -378,9 +384,9 @@ for num_test in ['1', '08', '06', '0806', '0804', '06045', '0603']:
                       #filepath2resgrip=path_to_res_grip,
                       filepath2labelsaccel=path_to_labels_for_accel,
                       filepath2plots=path_to_plots,
-                      counter='mu_' + num_test)
+                      counter='mu_' + num_test)"""
 
-"""for num_test in range(1, 4):
+for num_test in range(1, 4):
 
     path_to_results = path_to_results[:path_to_results.rfind('_') + 1] + str(num_test) + '.csv'
     path_to_res_ax = path_to_results[:path_to_results.rfind('_') + 1] + str(num_test) + '_ax.csv'
@@ -397,7 +403,7 @@ for num_test in ['1', '08', '06', '0806', '0804', '06045', '0603']:
                       #filepath2resgrip=path_to_res_grip,
                       filepath2labelsaccel=path_to_labels_for_accel,
                       filepath2plots=path_to_plots,
-                      counter='perf_' + str(num_test))"""
+                      counter='perf_' + str(num_test))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # TEST TUM DATA

@@ -8,7 +8,9 @@ from tqdm import tqdm
 spindle = False
 forces = True
 
-directories = ['/grip_1_perf_50/']
+directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
+               '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/',
+               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
 
 for k, dir_ in tqdm(enumerate(directories)):
     data = pd.read_csv('../CRT_data/parameters_study/' + dir_ + '/DemoSportsCar_mxp.csv', dtype=object)
@@ -93,6 +95,13 @@ for k, dir_ in tqdm(enumerate(directories)):
 
         # PLOT
         plt.figure(figsize=(10, 8))
+        # Aumentare il font size per tutto il grafico
+        plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+        plt.rc('axes', titlesize=25)  # Titolo degli assi
+        plt.rc('axes', labelsize=25)  # Etichette degli assi
+        plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+        plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+        plt.rc('legend', fontsize=20)  # Legenda
         plt.plot(alphaf_real, -Fyf_real / Fzf_real, label='CRT data', color='r', linewidth=1.0)
         plt.plot(alphaf_sim, -Fyf_sim / Fzf_sim, label='Bicycle model', color='b', linewidth=1.0)
 

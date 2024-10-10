@@ -63,24 +63,16 @@ def sample(Param, Veh, mu, last_delta, last_fx):
         Fx = np.random.uniform(low=-4700, high=3700)
 
     else:
-        if last_delta - max_delta_diff >= -del_lim:
-            lower_lim_delta = last_delta - max_delta_diff
-        else:
-            lower_lim_delta = -del_lim
-        if last_fx + max_delta_diff <= del_lim:
-            upper_lim_delta = last_fx + max_delta_diff
-        else:
-            upper_lim_delta = del_lim
+        if last_delta - max_delta_diff >= -del_lim: lower_lim_delta = last_delta - max_delta_diff
+        else: lower_lim_delta = -del_lim
+        if last_fx + max_delta_diff <= del_lim: upper_lim_delta = last_fx + max_delta_diff
+        else: upper_lim_delta = del_lim
         delta = np.random.uniform(low=lower_lim_delta, high=upper_lim_delta)
 
-        if last_fx - max_fx_diff >= -4700:
-            lower_lim_fx = last_fx - max_fx_diff
-        else:
-            lower_lim_fx = -4700
-        if last_fx + max_delta_diff <= 3700:
-            upper_lim_fx = last_fx + max_fx_diff
-        else:
-            upper_lim_fx = 3700
+        if last_fx - max_fx_diff >= -4700: lower_lim_fx = last_fx - max_fx_diff
+        else: lower_lim_fx = -4700
+        if last_fx + max_delta_diff <= 3700: upper_lim_fx = last_fx + max_fx_diff
+        else: upper_lim_fx = 3700
         Fx = np.random.uniform(low=lower_lim_fx, high=upper_lim_fx)
 
     # First sample Ux to ensure dynamically feasible uy and r! This was a mistake before.
@@ -92,12 +84,10 @@ def sample(Param, Veh, mu, last_delta, last_fx):
     r = np.random.uniform(low=-r_lim, high=r_lim)
     Uy = np.random.uniform(low=-Uy_lim, high=Uy_lim)
 
-
-
     return r, Uy, Ux, delta, Fx
 
 
-def step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx, Param, Veh, mu, beta_t, a_f_in, a_r_in, af, ar, bf, br, ef, er, lf, lr, tf, tr, DT):
+def step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx, Param, Veh, beta_t, a_f_in, a_r_in, af, ar, bf, br, ef, er, lf, lr, tf, tr, DT):
     a = Veh["a"]
     b = Veh["b"]
     cr = Veh["Cr"]
@@ -183,6 +173,10 @@ def step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx, Param, Veh, mu, beta_t, a_f_in, a_
 
 
 def gen_data_mod(Param, Veh):
+    yaw_rates = []
+    steering_angles = []
+    longitudinal_vels = []
+
     # Unpack dicts
     T = Param["T"]
     N_SAMPLES = Param["N_SAMPLES"]
@@ -227,53 +221,111 @@ def gen_data_mod(Param, Veh):
         last_delta = None
         last_fx = None
 
-        # run a single simulation for one trajectory of length T
-        for j in range(T):
-            # FIll out the delay states!
-            if j == 0:
-                r_t, Uy_t, Ux_t, del_t, Fx_t = sample(Param, Veh, mu, last_delta, last_fx)
-                gen_data[i, 0] = r_t
-                gen_data[i, 1] = Uy_t
-                gen_data[i, 2] = Ux_t
-                gen_data[i, 3] = del_t * SW_rate
-                gen_data[i, 4] = Fx_t
+        if TWO_FRIC and i < N_SAMPLES / 2:
+            # run a single simulation for one trajectory of length T
+            for j in range(T):
+                # FIll out the delay states!
+                if j == 0:
+                    r_t, Uy_t, Ux_t, del_t, Fx_t = sample(Param, Veh, mu_2, last_delta, last_fx)
+                    gen_data[i, 0] = r_t
+                    gen_data[i, 1] = Uy_t
+                    gen_data[i, 2] = Ux_t
+                    gen_data[i, 3] = del_t * SW_rate
+                    gen_data[i, 4] = Fx_t
 
-                # Calculate the initial slip from SS assumptions
-                a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
-                a_r = np.arctan((Uy_t - b * r_t) / Ux_t)
-                beta_t = 0  # initialization
-            else:
-                # Propagate the next state w/ dynamics model!
-                r_t, Uy_t, Ux_t, a_f, a_r, _, _, _, beta_t = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx_t, Param, Veh, mu,
-                                                                           beta_t, a_f, a_r, af, ar, bf, br, ef, er, lf,
-                                                                           lr, tf, tr, Param["DT"])
+                    # Calculate the initial slip from SS assumptions
+                    a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
+                    a_r = np.arctan((Uy_t - b * r_t) / Ux_t)
+                    beta_t = 0  # initialization
+                else:
+                    # Propagate the next state w/ dynamics model!
+                    r_t, Uy_t, Ux_t, a_f, a_r, _, _, _, beta_t = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx_t, Param, Veh,
+                                                                               beta_t, a_f, a_r, af, ar, bf, br, ef, er, lf,
+                                                                               lr, tf, tr, Param["DT"])
 
-                # And cache the next state in our data matrix
-                gen_data[i, (N_STATE_INPUT * j)] = r_t
-                gen_data[i, (N_STATE_INPUT * j) + 1] = Uy_t
-                gen_data[i, (N_STATE_INPUT * j) + 2] = Ux_t
+                    # And cache the next state in our data matrix
+                    gen_data[i, (N_STATE_INPUT * j)] = r_t
+                    gen_data[i, (N_STATE_INPUT * j) + 1] = Uy_t
+                    gen_data[i, (N_STATE_INPUT * j) + 2] = Ux_t
 
-                # Sample the next set of controls!
-                last_delta = gen_data[i, (N_STATE_INPUT * (j - 1)) + 3] / SW_rate
-                last_fx = gen_data[i, (N_STATE_INPUT * (j - 1)) + 4]
-                _, _, _, del_t, Fx_t = sample(Param, Veh, mu, last_delta, last_fx)
+                    # Sample the next set of controls!
+                    last_delta = gen_data[i, (N_STATE_INPUT * (j - 1)) + 3] / SW_rate
+                    last_fx = gen_data[i, (N_STATE_INPUT * (j - 1)) + 4]
+                    _, _, _, del_t, Fx_t = sample(Param, Veh, mu_2, last_delta, last_fx)
 
-                # Then Cache them in the data!
-                gen_data[i, (N_STATE_INPUT * j) + 3] = del_t * SW_rate
-                gen_data[i, (N_STATE_INPUT * j) + 4] = Fx_t
+                    # Then Cache them in the data!
+                    gen_data[i, (N_STATE_INPUT * j) + 3] = del_t * SW_rate
+                    gen_data[i, (N_STATE_INPUT * j) + 4] = Fx_t
 
-        # For the Last T step we will get the vel targets we want to predict!
-        _, _, _, _, _, r_dot_t, Uy_dot_t, Ux_dot_t, _ = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx_t,
-                                                                      Param, Veh, mu, beta_t, a_f, a_r,
-                                                                      af, ar, bf, br, ef, er, lf, lr,
-                                                                      tf, tr, Param["DT"])
+            # For the Last T step we will get the vel targets we want to predict!
+            _, _, _, _, _, r_dot_t, Uy_dot_t, Ux_dot_t, _ = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx_t,
+                                                                          Param, Veh,beta_t, a_f, a_r,
+                                                                          af, ar, bf, br, ef, er, lf, lr,
+                                                                          tf, tr, Param["DT"])
 
-        # Cache the targets!
-        gen_data[i, (N_STATE_INPUT * T)] = r_dot_t
-        gen_data[i, (N_STATE_INPUT * T) + 1] = Uy_dot_t
-        gen_data[i, (N_STATE_INPUT * T) + 2] = Ux_dot_t
+            # Cache the targets!
+            gen_data[i, (N_STATE_INPUT * T)] = r_dot_t
+            gen_data[i, (N_STATE_INPUT * T) + 1] = Uy_dot_t
+            gen_data[i, (N_STATE_INPUT * T) + 2] = Ux_dot_t
+        else:
+            for j in range(T):
+                # FIll out the delay states!
+                if j == 0:
+                    r_t, Uy_t, Ux_t, del_t, Fx_t = sample(Param, Veh, mu, last_delta, last_fx)
+                    gen_data[i, 0] = r_t
+                    gen_data[i, 1] = Uy_t
+                    gen_data[i, 2] = Ux_t
+                    gen_data[i, 3] = del_t * SW_rate
+                    gen_data[i, 4] = Fx_t
 
-    return gen_data
+                    # Calculate the initial slip from SS assumptions
+                    a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
+                    a_r = np.arctan((Uy_t - b * r_t) / Ux_t)
+                    beta_t = 0  # initialization
+
+                    yaw_rates.append(r_t)
+                    steering_angles.append(del_t)
+                    longitudinal_vels.append(Ux_t)
+                else:
+                    # Propagate the next state w/ dynamics model!
+                    r_t, Uy_t, Ux_t, a_f, a_r, _, _, _, beta_t = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx_t, Param, Veh,
+                                                                               beta_t, a_f, a_r, af, ar, bf, br, ef, er,
+                                                                               lf,
+                                                                               lr, tf, tr, Param["DT"])
+
+                    # And cache the next state in our data matrix
+                    gen_data[i, (N_STATE_INPUT * j)] = r_t
+                    gen_data[i, (N_STATE_INPUT * j) + 1] = Uy_t
+                    gen_data[i, (N_STATE_INPUT * j) + 2] = Ux_t
+
+                    # Sample the next set of controls!
+                    # last_delta = gen_data[i, (N_STATE_INPUT * (j - 1)) + 3] / SW_rate
+                    # last_fx = gen_data[i, (N_STATE_INPUT * (j - 1)) + 4]
+                    last_delta = None
+                    last_fx = None
+                    _, _, _, del_t, Fx_t = sample(Param, Veh, mu, last_delta, last_fx)
+
+                    # Then Cache them in the data!
+                    gen_data[i, (N_STATE_INPUT * j) + 3] = del_t * SW_rate
+                    gen_data[i, (N_STATE_INPUT * j) + 4] = Fx_t
+
+                    yaw_rates.append(r_t)
+                    steering_angles.append(del_t)
+                    longitudinal_vels.append(Ux_t)
+
+            # For the Last T step we will get the vel targets we want to predict!
+            _, _, _, _, _, r_dot_t, Uy_dot_t, Ux_dot_t, _ = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fx_t,
+                                                                          Param, Veh, beta_t, a_f, a_r,
+                                                                          af, ar, bf, br, ef, er, lf, lr,
+                                                                          tf, tr, Param["DT"])
+
+            # Cache the targets!
+            gen_data[i, (N_STATE_INPUT * T)] = r_dot_t
+            gen_data[i, (N_STATE_INPUT * T) + 1] = Uy_dot_t
+            gen_data[i, (N_STATE_INPUT * T) + 2] = Ux_dot_t
+
+
+    return gen_data, yaw_rates, steering_angles, longitudinal_vels
 
 
 def add_noise(gen_data, Param):
