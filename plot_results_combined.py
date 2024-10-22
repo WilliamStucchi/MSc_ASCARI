@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from matplotlib.ticker import MultipleLocator
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler
@@ -31,9 +32,14 @@ def plot(data: list,
         with open(el + str(counter) + '_ay.csv', 'r') as fh:
             ay_[i] = np.loadtxt(fh)
 
+    data_ = [arr[:-4] for arr in data_]
+    ax_ = [arr[:-4] for arr in ax_]
+    ay_ = [arr[:-4] for arr in ay_]
+
     # load label data
     with open(label + '.csv', 'r') as fh:
         labels = np.loadtxt(fh, delimiter=',')
+        labels = labels[:-4]
 
     # Extract results for each feature
     res_vx = []
@@ -84,72 +90,49 @@ def plot(data: list,
     plot_and_save(res_ay, labels_ay, titles, 'Lat. acc. ay [m/s2]',
                   filepath2plots + 'ay_test_' + str(counter) + '.png')
 
-    """
-    # Differences
-    diff_data1 = labels_all - res_data1
-    diff_data2 = labels_all - res_data2
-    diff_data3 = labels_all - res_data3
-   
-    # Scaled results
-    results_scaled_data1, labels_scaled_data1 = scale_results(res_data1, labels_all)
+    metrics_array = []
+    column_header = ', '
+    for i in range(len(res_yaw)):
+        metrics_array.append(mean_squared_error(labels_yaw, res_yaw[i]))
+        metrics_array.append(mean_squared_error(labels_vx, res_vx[i]))
+        metrics_array.append(mean_squared_error(labels_vy, res_vy[i]))
+        metrics_array.append(mean_squared_error(labels_ax, res_ax[i]))
+        metrics_array.append(mean_squared_error(labels_ay, res_ay[i]))
+        column_header = column_header + titles[i] + ' yaw_rate, '
+        column_header = column_header + titles[i] + ' long. vel. vx, '
+        column_header = column_header + titles[i] + ' lat. vel. vy, '
+        column_header = column_header + titles[i] + ' long. acc. ax, '
+        column_header = column_header + titles[i] + ' lat. acc. ay, '
 
-    results_scaled_data2, labels_scaled_data2 = scale_results(res_data2, labels_all)
+    for i in range(len(res_yaw)):
+        metrics_array.append(mean_absolute_error(labels_yaw, res_yaw[i]))
+        metrics_array.append(mean_absolute_error(labels_vx, res_vx[i]))
+        metrics_array.append(mean_absolute_error(labels_vy, res_vy[i]))
+        metrics_array.append(mean_absolute_error(labels_ax, res_ax[i]))
+        metrics_array.append(mean_absolute_error(labels_ay, res_ay[i]))
+        
+    data = np.asarray([metrics_array]).reshape(2, 5*len(res_yaw)).round(5)
 
-    results_scaled_data3, labels_scaled_data3 = scale_results(res_data3, labels_all)
+    save_to_csv(data, 'MSE AND MAE OF UNSCALED VALUES Test CRT', filepath2plots, counter, column_header)
 
-    # Compute metrics
-    row_header = ['MSE', 'RMSE', 'MAE', 'R2']
-    column_header = ['long. vel. vx', 'lat. vel. vy', 'yaw rate', 'long. acc. ax', 'lat. acc. ay']
+    save_histogram(res_yaw, labels_yaw, titles, 'Yaw rate', filepath2plots + 'metrics/yaw_metrics_' + str(counter) + '.png')
+    save_histogram(res_ay, labels_ay, titles, 'Lat. acc. ay', filepath2plots + 'metrics/ay_metrics_' + str(counter) + '.png')
+    save_histogram(res_ax, labels_ax, titles, 'Long. acc. ax', filepath2plots + 'metrics/ax_metrics_' + str(counter) + '.png')
+    save_histogram(res_vx, labels_vx, titles, 'Long. vel. vx', filepath2plots + 'metrics/vx_metrics_' + str(counter) + '.png')
+    save_histogram(res_vy, labels_vy, titles, 'Lat. vel. vy', filepath2plots + 'metrics/vy_metrics_' + str(counter) + '.png')
 
-    my_dict = {'MSE': mean_squared_error,
-               'RMSE': mean_squared_error,
-               'MAE': mean_absolute_error,
-               'R2': r2_score
-               }
-
-    print('\n')
-    print('Test CRT TUM FeedForward')
-    compute_metrics_matrix(row_header, column_header, my_dict, results_TUM_ff, labels_all,
-                           'Test CRT TUM FeedForward', filepath2plots, counter)
-
-    print('Test CRT TUM FeedForward scaled')
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_TUM_ff, labels_scaled_TUM_ff,
-                                  'Test CRT TUM FeedForward scaled', filepath2plots, counter)
-
-    print('Test CRT TUM Recurrent')
-    compute_metrics_matrix(row_header, column_header, my_dict, results_TUM_rr, labels_all,
-                           'Test CRT TUM Recurrent', filepath2plots, counter)
-
-    print('Test CRT TUM Recurrent scaled')
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_TUM_rr, labels_scaled_TUM_rr,
-                                  'Test CRT TUM Recurrent scaled', filepath2plots, counter)
-
-    print('Test CRT Stanford')
-    compute_metrics_matrix(row_header, column_header, my_dict, results_STAN, labels_all,
-                           'Test CRT Stanford', filepath2plots, counter)
-
-    print('Test CRT Stanford scaled')
-    compute_metrics_matrix_scaled(row_header, column_header, my_dict, results_scaled_STAN, labels_scaled_STAN,
-                                  'Test CRT Stanford scaled', filepath2plots, counter)"""
-
-
-    """# Plot and save differences
-    plot_and_save(diff_data1[0], diff_data2[0], diff_data3[0], None, 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[1], diff_data2[1], diff_data2[1], None, 'Lat. vel. vy [m/s]',
-                  filepath2plots + 'vy_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[2], diff_data2[2], diff_data2[2], None, 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[3], diff_data2[3], diff_data2[3], None, 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_diff_' + str(counter) + '.png')
-    plot_and_save(diff_data1[4], diff_data2[4], diff_data2[4], None, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_diff_' + str(counter) + '.png')"""
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def plot_and_save(res, label, titles, value, savename):
-    colors = ['xkcd:red', 'xkcd:green', 'xkcd:purple', 'xkcd:orange', 'xkcd:black']
+    colors = ['r', 'green', 'orange', 'violet', 'xkcd:black']
     plt.figure(figsize=(25, 10))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
     ax = plt.gca()
 
     if 'yaw' not in savename:
@@ -157,14 +140,15 @@ def plot_and_save(res, label, titles, value, savename):
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
-    if label is not None:
-            plt.plot(label, label='Ground Truth', color='xkcd:blue', alpha=0.5)
-
+    time_values = np.linspace(0, len(label) / 100, len(label))
     for i, el in enumerate(res):
-        plt.plot(res[i], label=titles[i], color=colors[i], alpha=0.75)
+        plt.plot(time_values, res[i], label=titles[i], color=colors[i], alpha=1.0, linewidth=2.0)
+
+    if label is not None:
+            plt.plot(time_values, label, label='Ground Truth', color='b', alpha=1.0, linewidth=2.0)
 
     plt.ylabel(value)
-    plt.xlabel('Time steps (10 ms)')
+    plt.xlabel('Time [s]')
     plt.legend(loc='best')
     plt.grid()
 
@@ -172,6 +156,54 @@ def plot_and_save(res, label, titles, value, savename):
     plt.ion()
     plt.close()
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+def save_histogram(nn_res, labels, titles, value, savename):
+    metrics_labels = ['RMSE', 'MAE']
+
+    rmse = []
+    mae = []
+    for i in range(len(nn_res)):
+        rmse.append(np.sqrt(mean_squared_error(labels, nn_res[i])))
+        mae.append(mean_absolute_error(labels, nn_res[i]))
+
+    metrics_values = []
+    for i in range(len(nn_res)):
+        metrics_values.append(list({'RMSE': rmse[i], 'MAE': mae[i]}.values()))
+
+    # Plotting
+    plt.figure(figsize=(18, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=20)  # Titolo degli assi
+    plt.rc('axes', labelsize=20)  # Etichette degli assi
+    plt.rc('xtick', labelsize=20)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=20)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=12)  # Legenda
+
+    colors = ['xkcd:red', 'xkcd:green', 'xkcd:purple', 'xkcd:orange', 'xkcd:black']
+    x = np.arange(len(metrics_labels))  # X locations for features
+    width = [-0.125-0.0625, -0.0625, 0.0625, 0.0625+0.125]
+
+    for i in range(len(nn_res)):
+        plt.bar(x + width[i], metrics_values[i], 0.125, label=titles[i], color=colors[i])
+
+    """plt.bar(x, metrics_bicycle_values, width, label='Bicycle model', color='green')
+    plt.bar(x + width, metrics_bicycle_vx_comp_values, width, label='Bicycle model with Fx as input',
+                     color='orange')"""
+
+    # Aggiunta delle etichette
+    plt.ylabel('Values')
+    plt.title('Comparison of the metrics for the ' + value)
+    plt.xticks([0, 1], metrics_labels)
+    plt.legend(loc='best')
+
+    # Mostrare il grafico
+    plt.tight_layout()
+    plt.grid()
+
+    plt.savefig(savename, format='png', dpi=300)
+    plt.close()
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -246,7 +278,6 @@ def compute_metrics_matrix(rows_head, column_head, dictionary, predictions_head,
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-
 def compute_metrics_matrix_scaled(rows_head, column_head, dictionary, predictions_head, labels_head, title,
                                   path_, counter, round_digits=5):
     data = np.zeros(predictions_head.shape[1] * len(rows_head))
@@ -274,33 +305,47 @@ def compute_metrics_matrix_scaled(rows_head, column_head, dictionary, prediction
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def save_to_csv(data, title, path_, counter):
-    np.savetxt(path_ + title + ' ' + str(counter) + '.csv', data,
-               header='long. vel. vx, lat. vel. vy, yaw rate, long. acc. ax, lat. acc. ay', delimiter=',')
+def save_to_csv(data, title, path_, counter, column_header):
+    new_column = np.array([['MSE'], ['MAE']])
+    data = np.hstack((new_column, data))
+    np.savetxt(path_ + title + ' ' + str(counter) + '.csv', data, header=column_header, delimiter=',',
+               fmt='%s', comments='')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_07_22/13_34_22/results_test_'
-title_1 = 'base'
-result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_08_30/12_10_48/results_test_'
-title_2 = 'corners+'
-result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_07_22/13_34_22/eps_1/results_test_'
-title_3 = 'esp1'
-result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_07_22/13_34_22/eps_2/results_test_'
-title_4 = 'esp2'
+result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_14/19_30_02/results_latest_'
+title_1 = 'CRT (μ=1)'
+result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_17/16_05_26/results_latest_'
+title_2 = 'Bike (μ=1) + CRT (μ=1)'
+result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_14/20_28_05/results_latest_'
+title_3 = 'Bike (μ=1, μ=0.6) + CRT (μ=1)'
+result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_13/16_22_36/results_latest_'
+title_4 = 'bike + mu1'
 
-path_to_results = [result_1, result_2]
-titles = [title_1, title_2]
+path_to_results = [result_1, result_2, result_3]
+titles = [title_1, title_2, title_3]
 
-path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_mu_'
+path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/latest/test_set_'
 
-path_to_plots = '../stan combined/'
+path_to_plots = '../test/test_post_20241020/'
 
-tests = ['1', '08', '06', '0806', '0804', '06045', '0603']
+for num_test in ['mu_1_perf_50', 'mu_06_perf_100', 'mu_08_perf_100', 'mu_1_perf_100', 'mu_1_perf_75', 'mu_1_perf_25', 'mu_06_perf_75', 'mu_06_perf_50',
+                 'mu_08_perf_75', 'mu_08_perf_50']:
+
+    print('Printing results for test ' + str(num_test))
+    path_to_labels_ = path_to_labels[:path_to_labels.rfind('_') + 1] + str(num_test)
+    plot(data=path_to_results,
+         titles=titles,
+         label=path_to_labels_,
+         filepath2plots=path_to_plots,
+         counter=str(num_test))
+
+
+"""tests = ['1', '08', '06', '0806', '0804', '06045', '0603']
 for test in tests:
-    print('Printing results for test ' + test)
+    print('Printing results for test mu' + test)
     path_to_labels = path_to_labels[:path_to_labels.rfind('_') + 1] + test
 
     plot(data=path_to_results,
@@ -309,9 +354,12 @@ for test in tests:
          filepath2plots=path_to_plots,
          counter='mu_' + test)
 
-"""tot_num_tests = 4
+
+path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_'
+
+tot_num_tests = 4
 for num_tests in range(1, tot_num_tests):
-    print('Printing results for test ' + num_tests)
+    print('Printing results for test perf' + str(num_tests))
     path_to_labels = path_to_labels[:path_to_labels.rfind('_') + 1] + str(num_tests)
     plot(data=path_to_results,
          titles=titles,

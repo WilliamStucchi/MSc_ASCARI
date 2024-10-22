@@ -25,19 +25,26 @@ Veh['Hf']                = 0.51
 Veh['Hr']                = 0.57
 Veh['Pf']                = 0.7
 Veh['Pr']                = 0.7
-Veh['Peakyf']            = np.tan(np.radians(10))
-Veh['Peakyr']            = np.tan(np.radians(9))
-Veh['muyf']              = 0.0115
-Veh['muyr']              = 0.018
+Veh['Peakyf_mu1']            = np.tan(np.radians(10))
+Veh['Peakyf_mu06']            = np.tan(np.radians(6))
+Veh['Peakyr_mu1']            = np.tan(np.radians(9))
+Veh['Peakyr_mu06']            = np.tan(np.radians(6))
+Veh['muyf_mu1']              = 1.115
+Veh['muyf_mu06']              = 0.6 * 1.115
+Veh['muyr_mu1']              = 1.18
+Veh['muyr_mu06']              = 0.6 * 1.18
 
 Veh['front_normal_load'] = 6827.5
 Veh['rear_normal_load']  = 8420.4
 
+Veh['g']                 = 9.81
 Veh["mu"]                = 1.0     #Nominal Friction value
 Veh["mu_2"]              = 0.6     #Low Friction value
-Veh["del_lim"]           = 360 * np.pi / 180.0
-Veh["max_delta_diff"]    = 0.43
-Veh['max_fx_diff']       = 2500
+Veh["delta_lim"]         = (360 * np.pi / 180.0) / 15.56  # steering angle at the wheels
+Veh['max_pos_fx_mu1']    = 3800
+Veh['max_pos_fx_mu06']   = 2150
+Veh['max_neg_fx_mu1']    = -4700
+Veh['max_neg_fx_mu06']   = -2600
 Veh['SW_rate']           = 15.56
 
 Veh["p_lim"]             = 147*1e3 #Engine Power Limit
@@ -53,6 +60,22 @@ Veh['CxA']               = 0.728
 Veh['CzfA']              = 0.0855
 Veh['CzrA']              = 0.2899
 Veh['rho_air']           = 1.225
+
+Veh['mul_margin']        = 1.3  # small margin for the computation of physical limits
+Veh['CRT_yawrate_max_mu1']   = 0.93 / 1.3  # mul_margin
+Veh['CRT_yawrate_max_mu06']   =  0.72 / 1.3  # mul_margin
+Veh['max_physical_steer_mu1'] = 0.42
+Veh['max_physical_steer_mu06'] = 0.42
+
+Veh['mean_deltaFx_mu1']      = 3.27283988021911
+Veh['var_deltaFx_mu1']       = 1193.42206633566
+Veh['mean_deltaFx_mu06']     = 1.95460780335385
+Veh['var_deltaFx_mu06']      = 553.175982027478
+
+Veh['mean_deltaSteer_mu1']      = 0.00000054221197159985
+Veh['var_deltaSteer_mu1']       = 0.00000009548424372842
+Veh['mean_deltaSteer_mu06']     = 0.00000054305945292839
+Veh['var_deltaSteer_mu06']      = 0.00000008146225238494
 
 #NN Model Parameters
 Param["N1"]              = 128      #Neurons first layer
@@ -84,9 +107,9 @@ Param["SAVE"]            = True
 
 #Data Generation Parameters
 Param["DT"]              = 0.01   #Sampling Time
-Param["N_SAMPLES"]       = 50000 #Number of state transition trajectories.
+Param["N_SAMPLES"]       = 300000 #Number of state transition trajectories.
 Param["ADD_NOISE"]       = True
-Param["TWO_FRIC"]        = False
+Param["TWO_FRIC"]        = True
 Param["WEIGHT_TRANSFER"] = False
 Param["RELAX_LENGTH"]    = False
 Param["UX_LIM"]          = 87.0

@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
-from scipy.integrate import simps
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 import seaborn as sns
+import scipy.stats as stats
+from scipy.stats import norm
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -11,9 +12,15 @@ def plot_delta_steps(path_to_data, number_of_sets):
     delta_fx = []
     delta_steer = []
 
-    directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
-                   '/train_road_grip/grip_06/', '/train_road_grip/grip_06_perf_045/',
-                   '/train_road_grip/grip_06_perf_03/', '/const_speed/']
+    yaw_rate_max = 0
+    max_vx = float('-inf')
+    max_delta = float('-inf')
+    min_fx = float('inf')
+    max_fx = float('-inf')
+
+    """directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
+                   '/train_car_perf/mid_low_perf/']"""
+    directories = ['train_road_grip/grip_06/', 'train_road_grip/grip_06_perf_045/', 'train_road_grip/grip_06_perf_03/']
     number_of_sets_ = number_of_sets  # fixed number of sets for when I want to change the number of sets manually here
     filename = 'DemoSportsCar_mxp.csv'
 
@@ -29,6 +36,26 @@ def plot_delta_steps(path_to_data, number_of_sets):
             data.reset_index(drop=True, inplace=True)
 
             for idx in range(1, len(data)):
+                if float(data['Vehicle_States.yaw_angular_vel_wrt_road'][idx]) > yaw_rate_max:
+                    yaw_rate_max = float(data['Vehicle_States.yaw_angular_vel_wrt_road'][idx])
+                if float(data['Vehicle_States.longitudinal_vel_wrt_road'][idx]) > max_vx:
+                    max_vx = float(data['Vehicle_States.longitudinal_vel_wrt_road'][idx])
+                if float(data['driver_demands.steering'][idx]) > max_delta:
+                    max_delta = float(data['driver_demands.steering'][idx])
+
+                frl = float(data['Tire.Ground_Surface_Force_X.L2'][idx])
+                frr = float(data['Tire.Ground_Surface_Force_X.R2'][idx])
+                fr = (frl + frr) / 2
+                ffl = float(data['Tire.Ground_Surface_Force_X.L1'][idx])
+                ffr = float(data['Tire.Ground_Surface_Force_X.R1'][idx])
+                ff = (ffl + ffr) / 2
+                fx = (ff + fr) / 2
+
+                if fx > max_fx:
+                    max_fx = fx
+                elif fx < min_fx:
+                    min_fx = fx
+
                 # Delta Fx
                 prev_fr = (float(data['Tire.Ground_Surface_Force_X.L2'][idx - 1]) +
                            float(data['Tire.Ground_Surface_Force_X.R2'][idx - 1])) / 2
@@ -45,9 +72,16 @@ def plot_delta_steps(path_to_data, number_of_sets):
                 delta_fx.append(curr_fx - prev_fx)
 
                 # Delta Steer
-                prev_steer = float(data['driver_demands.steering'][idx - 1])
-                curr_steer = float(data['driver_demands.steering'][idx])
+                # 15.56 is for the conversion between steering wheel angle and tire steering angle
+                prev_steer = float(data['driver_demands.steering'][idx - 1]) / 15.56
+                curr_steer = float(data['driver_demands.steering'][idx]) / 15.56
                 delta_steer.append(curr_steer - prev_steer)
+
+    print('Yaw rate max = ', yaw_rate_max)
+    print('Vx max = ', max_vx)
+    print('Steer max = ', max_delta)
+    print('Fx max = ', max_fx)
+    print('Fx min = ', min_fx)
 
     media_fx = np.mean(delta_fx)
     varianza_fx = np.var(delta_fx)
@@ -57,30 +91,10 @@ def plot_delta_steps(path_to_data, number_of_sets):
     varianza_steer = np.var(delta_steer)
     steer_df = pd.DataFrame({'Delta': delta_steer})
 
-    print('Numero di elementi unici in deltaFx: ', len(np.unique(delta_fx)))
-    print('Numero di elementi unici in deltaSteer: ', len(np.unique(delta_steer)))
-
-    print('Media Fx: ' + str(media_fx) + ' --- Varianza Fx: ' + str(varianza_fx))
-    print('Media Steer: ' + str(media_steer) + ' --- Varianza Steer: ' + str(varianza_steer))
-
-    """plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
-    sns.set_style('whitegrid')
-    sns.kdeplot(data=fx_df, x='DeltaFx', fill=True, bw_adjust=.1, color='blue')
-
-    sns.despine()
-    plt.xlabel('[Fx(t) - Fx(t-1)] values')
-    plt.ylabel('Density')
-    plt.title('Distribution of deltaFx [Fx(t) - Fx(t-1)]')
-    #plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', format='png')
-
-    plt.show()
-    plt.close()"""
+    # ----------------------------
+    # Fx
+    # ----------------------------
+    mean, std_dev = norm.fit(delta_fx)
 
     # Istogramma
     plt.figure(figsize=(20, 12))
@@ -90,14 +104,48 @@ def plot_delta_steps(path_to_data, number_of_sets):
     plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
     plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
     plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(delta_fx, bins=100, density=True, color='#0000FF', edgecolor='#0000FF')
+    plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
+    plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
+    plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20),
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_mu06.png', format='png', dpi=300)
+    plt.close()
+    input('wait')
+
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
     n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.yscale('log')
     plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
     plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_logy_mu06.png', format='png', dpi=300)
     plt.close()
+
+    # Create a box plot
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    sns.boxplot(data=fx_df, x='Delta')
+    plt.title('Box Plot of DeltaFx')
+    plt.xlabel('[Fx(t) - Fx(t-1)] values')
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_boxplot_mu06.png', format='png', dpi=300)
+    plt.close()
+
 
     """for j in range(len(n)):
         print(f"Bin {j + 1} (da {bins[j]:.2f} a {bins[j+1]:.2f}): {n[j]} valori")"""
@@ -122,7 +170,92 @@ def plot_delta_steps(path_to_data, number_of_sets):
                        ignore_index=True)
 
     # Esportare il DataFrame in un file Excel
-    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_fx.xlsx', index=False)
+    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_fx_mu06.xlsx', index=False)
+
+    z_scores_fx = stats.zscore(delta_fx)
+    threshold = 3
+    mask_zscore_fx = np.abs(z_scores_fx) < threshold
+    delta_fx = np.array(delta_fx)
+    delta_fx_cleaned = delta_fx[mask_zscore_fx]
+    fx_df = pd.DataFrame({'Delta': delta_fx_cleaned})
+
+    # Istogramma
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
+    plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_zscore_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.yscale('log')
+    plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
+    plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_zscore_logy_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    # Create a box plot
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    sns.boxplot(data=fx_df, x='Delta')
+    plt.title('Box Plot of DeltaFx after zscore')
+    plt.xlabel('[Fx(t) - Fx(t-1)] values')
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_zscore_boxplot_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    media_fx_zscore = np.mean(delta_fx_cleaned)
+    varianza_fx_zscore = np.var(delta_fx_cleaned)
+    mean, std_dev = norm.fit(delta_fx_cleaned)
+
+    dati_per_excel = {
+        'Descrizione': [
+            'Numero di elementi unici in deltaFx',
+            'Media Fx',
+            'Varianza Fx'
+        ],
+        'Valore': [
+            len(np.unique(delta_fx_cleaned)),
+            media_fx_zscore,
+            varianza_fx_zscore
+        ]
+    }
+
+    df = pd.DataFrame(dati_per_excel)
+
+    for j in range(len(n)):
+        df = df._append({'Descrizione': f'Bin {j + 1} (da {bins[j]:.2f} a {bins[j + 1]:.2f})', 'Valore': n[j]},
+                        ignore_index=True)
+
+    # Esportare il DataFrame in un file Excel
+    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_fx_zscore_mu06.xlsx', index=False)
+
+    # ----------------------------
+    # Steer
+    # ----------------------------
 
     # Istogramma
     plt.figure(figsize=(20, 12))
@@ -138,7 +271,38 @@ def plot_delta_steps(path_to_data, number_of_sets):
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.yscale('log')
+    plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
+    plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_logy_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    # Create a box plot
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    sns.boxplot(data=steer_df, x='Delta')
+    plt.title('Box Plot of DeltaSteer')
+    plt.xlabel('[δ(t) - δ(t-1)] values')
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_boxplot_mu06.png', format='png', dpi=300)
     plt.close()
 
     """for j in range(len(n)):
@@ -164,10 +328,325 @@ def plot_delta_steps(path_to_data, number_of_sets):
                        ignore_index=True)
 
     # Esportare il DataFrame in un file Excel
-    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_steer.xlsx', index=False)
+    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_steer_mu06.xlsx', index=False)
+
+    z_scores_steer = stats.zscore(delta_steer)
+    threshold = 3
+    mask_zscore_steer = np.abs(z_scores_steer) < threshold
+    delta_steer = np.array(delta_steer)
+    delta_steer_cleaned = delta_steer[mask_zscore_steer]
+    steer_df = pd.DataFrame({'Delta': delta_steer_cleaned})
+
+    # Istogramma
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
+    plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_zscore_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.yscale('log')
+    plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
+    plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
+    plt.ylabel('# elements per bin', labelpad=20)
+    plt.grid()
+    # plt.show()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_zscore_logy_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    # Create a box plot
+    plt.figure(figsize=(20, 12))
+    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=22)  # Titolo degli assi
+    plt.rc('axes', labelsize=22)  # Etichette degli assi
+    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=17)  # Legenda
+    sns.boxplot(data=steer_df, x='Delta')
+    plt.title('Box Plot of DeltaSteer after zscore')
+    plt.xlabel('[δ(t) - δ(t-1)] values')
+    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_zscore_boxplot_mu06.png', format='png', dpi=300)
+    plt.close()
+
+    media_steer_zscore = np.mean(delta_steer_cleaned)
+    varianza_steer_zscore = np.var(delta_steer_cleaned)
+
+    dati_per_excel = {
+        'Descrizione': [
+            'Numero di elementi unici in deltaSteer',
+            'Media steer',
+            'Varianza steer'
+        ],
+        'Valore': [
+            len(np.unique(delta_steer_cleaned)),
+            media_steer_zscore,
+            varianza_steer_zscore
+        ]
+    }
+
+    df = pd.DataFrame(dati_per_excel)
+
+    for j in range(len(n)):
+        df = df._append({'Descrizione': f'Bin {j + 1} (da {bins[j]:.2f} a {bins[j + 1]:.2f})', 'Valore': n[j]},
+                        ignore_index=True)
+
+    # Esportare il DataFrame in un file Excel
+    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_steer_zscore_mu06.xlsx', index=False)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+
+def create_training_set(path_to_data, path_to_output, number_of_sets, step, timesteps_back=4,
+                                 vy_estimation=False, include_grip=False):
+    len_mu1_perf100 = 0
+    len_mu1_perf75 = 0
+    len_mu1_perf50 = 0
+    len_mu06_perf100 = 0
+    len_mu06_perf75 = 0
+    len_mu06_perf50 = 0
+    enter = False
+
+    input_shape = 5
+    output_shape = 3
+    sum_ = 0
+
+    name_file = 'balanced'
+    directories = ['/train_road_grip/grip_06/', '/train_car_perf/high_perf/', '/train_car_perf/mid_high_perf/', 
+                   '/train_car_perf/mid_perf/', '/train_road_grip/grip_06_perf_045/',
+                   '/train_road_grip/grip_06_perf_03/']
+
+    number_of_sets_ = number_of_sets  # fixed number of sets for when I want to change the number of sets manually here
+    filename = 'DemoSportsCar_mxp.csv'
+
+    result = []
+    for i in range(number_of_sets_ * len(directories)):
+        temp = []
+        result.append(temp)
+
+    print('CREATION TRAINING DATA')
+    for k, dir_ in enumerate(directories):
+        print('CREATION TRAINING DATA ' + dir_)
+        yaw_rate = np.zeros(timesteps_back)
+        uy = np.zeros(timesteps_back)
+        ux = np.zeros(timesteps_back)
+        steer = np.zeros(timesteps_back)
+        fx = np.zeros(timesteps_back)
+
+        if 'const_speed' in dir_:
+            number_of_sets = 9
+            filename = 'DemoSportsCar_mnt.csv'
+
+        for i in tqdm(range(0, number_of_sets)):
+            data = pd.read_csv(path_to_data + dir_ + 'test_' + str(i) + '/' + filename, dtype=object)
+            data = data.drop(0, axis='rows')  # remove the row containing the measure units
+            data.reset_index(drop=True, inplace=True)
+
+            ay_to_plot = np.zeros(len(data))
+            ax_to_plot = np.zeros(len(data))
+
+            if '/train_road_grip/grip_06/' in dir_:
+                len_mu06_perf100 += len(data)
+                enter = True
+
+            elif '/train_car_perf/high_perf/' in dir_:
+                if len_mu1_perf100 + len(data) < int(np.floor(len_mu06_perf100 / 2)):
+                    enter = True
+                    len_mu1_perf100 += len(data)
+                elif len_mu1_perf100 >= int(np.floor(len_mu06_perf100 / 2)):
+                    enter = False
+                    print('Dati generati da /train_car_perf/high_perf/: ' + str(len_mu1_perf100) + ' su '
+                          + str(len_mu06_perf100) + ' [' + str(len_mu1_perf100/len_mu06_perf100) + ']')
+                else:
+                    data = data[:(int(np.floor(len_mu06_perf100 / 2)) - len_mu1_perf100)]
+                    len_mu1_perf100 += len(data)
+                    enter = True
+
+            elif '/train_car_perf/mid_high_perf/' in dir_:
+                if len_mu1_perf75 + len(data) < int(np.floor(len_mu06_perf100 / 2)):
+                    enter = True
+                    len_mu1_perf75 += len(data)
+                elif len_mu1_perf75 >= int(np.floor(len_mu06_perf100 / 2)):
+                    enter = False
+                    print('Dati generati da /train_car_perf/mid_high_perf/: ' + str(len_mu1_perf75) + ' su '
+                          + str(len_mu06_perf100) + ' [' + str(len_mu1_perf75 / len_mu06_perf100) + ']')
+                else:
+                    data = data[:(int(np.floor(len_mu06_perf100 / 2)) - len_mu1_perf75)]
+                    len_mu1_perf75 += len(data)
+                    enter = True
+
+            elif '/train_car_perf/mid_perf/' in dir_:
+                if len_mu1_perf50 + len(data) < int(np.floor(len_mu06_perf100 / 2)):
+                    enter = True
+                    len_mu1_perf50 += len(data)
+                elif len_mu1_perf50 >= int(np.floor(len_mu06_perf100 / 2)):
+                    enter = False
+                    print('Dati generati da /train_car_perf/mid_perf/: ' + str(len_mu1_perf50) + ' su '
+                          + str(len_mu06_perf100) + ' [' + str(len_mu1_perf50 / len_mu06_perf100) + ']')
+                else:
+                    data = data[:(int(np.floor(len_mu06_perf100 / 2)) - len_mu1_perf50)]
+                    len_mu1_perf50 += len(data)
+                    enter = True
+
+            elif '/train_road_grip/grip_06_perf_045/' in dir_:
+                if len_mu06_perf75 + len(data) < int(np.floor(len_mu06_perf100 / 4)):
+                    enter = True
+                    len_mu06_perf75 += len(data)
+                elif len_mu06_perf75 >= int(np.floor(len_mu06_perf100 / 4)):
+                    enter = False
+                    print('Dati generati da /train_road_grip/grip_06_perf_045/: ' + str(len_mu06_perf75) + ' su '
+                          + str(len_mu06_perf100) + ' [' + str(len_mu06_perf75 / len_mu06_perf100) + ']')
+                else:
+                    data = data[:(int(np.floor(len_mu06_perf100 / 4)) - len_mu06_perf75)]
+                    len_mu06_perf75 += len(data)
+                    enter = True
+
+            elif '/train_road_grip/grip_06_perf_03/' in dir_:
+                if len_mu06_perf50 + len(data) < int(np.floor(len_mu06_perf100 / 4)):
+                    enter = True
+                    len_mu06_perf50 += len(data)
+                elif len_mu06_perf50 >= int(np.floor(len_mu06_perf100 / 4)):
+                    enter = False
+                    print('Dati generati da /train_road_grip/grip_06_perf_03/: ' + str(len_mu06_perf50) + ' su '
+                          + str(len_mu1_perf100) + ' [' + str(len_mu06_perf50 / len_mu06_perf100) + ']')
+                else:
+                    data = data[:(int(np.floor(len_mu06_perf100 / 4)) - len_mu06_perf50)]
+                    len_mu06_perf50 += len(data)
+                    enter = True
+
+            if enter:
+                # print(dir_ + 'test_' + str(i) + ' has len ' + str(len(data)))
+                sum_ += len(data)
+                # input('Wait')
+
+                if not include_grip:
+                    result[k * number_of_sets_ + i] = np.zeros(
+                        (len(data),
+                         input_shape * timesteps_back + output_shape))  # 5 inputs, 4 steps in the past, 3 objectives
+                else:
+                    result[k * number_of_sets_ + i] = np.zeros(
+                        (len(data),
+                         input_shape * timesteps_back + output_shape + 1))  # 5 inputs, 4 steps in the past, 4 objectives
+
+                vy_est_prev = 0.0  # in case of estimation of vy
+                vy_est = 0.0
+                count = 0
+                for idx in range(0, len(data) - (timesteps_back + 1) + 1, step):
+                    # print(idx)
+                    for j in range(0, timesteps_back):
+                        yaw_rate[j], uy[j], ux[j], steer[j], fx[j] = pick_data_idx(data, idx + j)
+
+                    yaw_acc = float(data['Vehicle_States.yaw_angular_acc_wrt_road'][idx + timesteps_back])
+                    ay = float(data['Vehicle_States.lateral_acc_wrt_road'][idx + timesteps_back])
+                    ax = float(data['Vehicle_States.longitudinal_acc_wrt_road'][idx + timesteps_back])
+
+                    if vy_estimation:
+                        for obj in range(0, timesteps_back):
+                            result[k * number_of_sets_ + i][count, obj * input_shape] = yaw_rate[obj]
+
+                            # vy_dot = ay - yaw_rate * vx
+                            ay_obj = float(data['Vehicle_States.lateral_acc_wrt_road'][idx + obj])
+                            vy_dot = ay_obj - yaw_rate[obj] * ux[obj]
+
+                            if obj == 0:
+                                vy_est = vy_dot * 0.01 + vy_est_prev
+                                vy_est_prev = vy_est
+                            else:
+                                vy_est = vy_dot * 0.01 + vy_est
+
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 1] = vy_est
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 2] = ux[obj]
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 3] = steer[obj]
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 4] = fx[obj]
+
+                        result[k * number_of_sets_ + i][count, -3] = yaw_acc
+                        result[k * number_of_sets_ + i][count, -2] = ay
+                        result[k * number_of_sets_ + i][count, -1] = ax
+
+                    else:
+                        for obj in range(0, timesteps_back):
+                            result[k * number_of_sets_ + i][count, obj * input_shape] = yaw_rate[obj]
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 1] = uy[obj]
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 2] = ux[obj]
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 3] = steer[obj]
+                            result[k * number_of_sets_ + i][count, obj * input_shape + 4] = fx[obj]
+
+                        result[k * number_of_sets_ + i][count, -3] = yaw_acc
+                        result[k * number_of_sets_ + i][count, -2] = ay
+                        result[k * number_of_sets_ + i][count, -1] = ax
+
+                        if include_grip:
+                            if 'grip_06' in dir_:
+                                result[k * number_of_sets_ + i][count, -4] = 0.6
+                            elif 'grip_08' in dir_:
+                                result[k * number_of_sets_ + i][count, -4] = 0.8
+                            elif 'grip_' not in dir_:
+                                result[k * number_of_sets_ + i][count, -4] = 1.0
+
+                    count += 1
+
+                    if idx < (len(data) - (timesteps_back + 1)):
+                        ax_to_plot[idx], ay_to_plot[idx] = pick_acc_idx(data, idx)
+                    else:
+                        for j in range(0, timesteps_back):
+                            ax_to_plot[j], ay_to_plot[j] = pick_acc_idx(data, idx + j)
+
+
+        print('END CREATION TRAINING DATA ' + dir_)
+
+    print('SAVING ACCELERATIONS')
+    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_' + name_file + '.csv', ax_to_plot, delimiter=',')
+    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_' + name_file + '.csv', ay_to_plot, delimiter=',')
+
+    print('FLATTENING')
+    # Put together all data extracted
+    result_flat = flatten_extend(result)
+    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_' + name_file + '.csv', result_flat, delimiter=',')
+
+    # Flatten to obtain a list of lists (200000+, 23)
+    result_flat = np.array(result_flat)
+
+    """# Load bicycle data
+    bicycle_data = np.loadtxt('../data/new/bicycle_model_2grip.csv', delimiter=',')
+    result_flat = np.concatenate((result_flat, bicycle_data), axis=0)"""
+
+    # Remove all lists of all-zero elements
+    result_filtered = result_flat[~np.all(result_flat == 0, axis=1)]
+    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_' + name_file + '.csv', result_filtered,
+               delimiter=',')
+
+    # Shuffle input
+    print('SHUFFLING')
+    np.random.seed(1)
+    np.random.shuffle(result_filtered)
+    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_' + name_file + '.csv', result_filtered, delimiter=',')
+    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_' + name_file + '.csv')
+
+    print('END CREATION TRAINING DATA')
+    print('sum = ' + str(sum_))
+
+    print('len_mu1_perf100 = ' + str(len_mu1_perf100))
+    print('len_mu1_perf75 = ' + str(len_mu1_perf75))
+    print('len_mu1_perf50 = ' + str(len_mu1_perf50))
+    print('len_mu06_perf100 = ' + str(len_mu06_perf100))
+    print('len_mu06_perf75 = ' + str(len_mu06_perf75))
+    print('len_mu06_perf50 = ' + str(len_mu06_perf50))
 
 def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, step, timesteps_back=4,
                                  vy_estimation=False, include_grip=False):
@@ -196,9 +675,10 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     output_shape = 3
 
     sum_ = 0
-    directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
+    namefile = 'mu106'
+    directories = ['/train_car_perf/high_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/mid_perf/',
                    '/train_road_grip/grip_06/', '/train_road_grip/grip_06_perf_045/',
-                   '/train_road_grip/grip_06_perf_03/', '/const_speed/']
+                   '/train_road_grip/grip_06_perf_03/']
     number_of_sets_ = number_of_sets  # fixed number of sets for when I want to change the number of sets manually here
     filename = 'DemoSportsCar_mxp.csv'
 
@@ -358,32 +838,32 @@ def create_training_set_car_perf(path_to_data, path_to_output, number_of_sets, s
     print('POS_MAX_FX: ' + file_max_fx + ' -> IDX: ' + str(pos_max_fx) + ' -> ' + couple_fx)
 
     print('SAVING ACCELERATIONS')
-    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_cpltbicycle.csv', ax_to_plot, delimiter=',')
-    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_cpltbicycle.csv', ay_to_plot, delimiter=',')
+    np.savetxt(path_to_output + 'train_ax_' + str(step) + '_' + namefile + '.csv', ax_to_plot, delimiter=',')
+    np.savetxt(path_to_output + 'train_ay_' + str(step) + '_' + namefile + '.csv', ay_to_plot, delimiter=',')
 
     print('FLATTENING')
     # Put together all data extracted
     result_flat = flatten_extend(result)
-    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_cpltbicycle.csv', result_flat, delimiter=',')
+    np.savetxt(path_to_output + 'train_data_step_flat_' + str(step) + '_' + namefile + '.csv', result_flat, delimiter=',')
 
     # Flatten to obtain a list of lists (200000+, 23)
     result_flat = np.array(result_flat)
 
-    # Load bicycle data
+    """# Load bicycle data
     bicycle_data = np.loadtxt('../data/new/bicycle_model_2grip.csv', delimiter=',')
-    result_flat = np.concatenate((result_flat, bicycle_data), axis=0)
+    result_flat = np.concatenate((result_flat, bicycle_data), axis=0)"""
 
     # Remove all lists of all-zero elements
     result_filtered = result_flat[~np.all(result_flat == 0, axis=1)]
-    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_cpltbicycle.csv', result_filtered,
+    np.savetxt(path_to_output + 'train_data_step_no_shuffle_' + str(step) + '_' + namefile + '.csv', result_filtered,
                delimiter=',')
 
     # Shuffle input
     print('SHUFFLING')
     np.random.seed(1)
     np.random.shuffle(result_filtered)
-    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_cpltbicycle.csv', result_filtered, delimiter=',')
-    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_cpltbicycle.csv')
+    np.savetxt(path_to_output + 'train_data_step_' + str(step) + '_' + namefile + '.csv', result_filtered, delimiter=',')
+    print('Saving training at: ' + path_to_output + 'train_data_step_' + str(step) + '_' + namefile + '.csv')
 
     print('END CREATION TRAINING DATA')
     print('sum = ' + str(sum_))
@@ -837,12 +1317,6 @@ def pick_data_idx(data, idx):
     uy = float(data['Vehicle_States.lateral_vel_wrt_road'][idx])
     ux = float(data['Vehicle_States.longitudinal_vel_wrt_road'][idx])
     steer = float(data['driver_demands.steering'][idx])
-    """# old version
-    frl = float(data['Tire.Ground_Surface_Force_X.L2'][idx])
-    frr = float(data['Tire.Ground_Surface_Force_X.R2'][idx])
-    fr = (frl + frr) / 2
-    ff = float(data['Tire.Ground_Surface_Force_X.L1'][idx])
-    fx = fr + ff"""
 
     # new version
     frl = float(data['Tire.Ground_Surface_Force_X.L2'][idx])
@@ -981,6 +1455,32 @@ def create_test_set_road_grip(path_to_data, path_to_output_, number_of_sets):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
+
+def create_test_static_equilibrium(path_to_output_, seconds_of_test):
+    degs = [0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 45, 60]
+    test_length = seconds_of_test * 100
+
+    # Creating steering tests
+    print('CREATING STEERING EQUILIBRA TEST')
+    yaw_rate = np.full(test_length, 0.0)
+    uy = np.full(test_length, 0.0)
+    ux = np.full(test_length, 0.0)
+    steer = np.full(test_length, 0.0)
+    fx = np.full(test_length, 100)
+    print('CREATING STEP STEERING TEST')
+    for deg in degs:
+        yaw_rate = np.full(test_length, 0.0)
+        uy = np.full(test_length, 0.0)
+        ux = np.full(test_length, 0.0)
+        steer = np.zeros(test_length)
+        steer[10000:] = deg * np.pi / 180
+        fx = np.full(test_length, 100)
+        # Save test set
+        test_set = np.transpose(np.array([yaw_rate, uy, ux, steer, fx]))
+        # Save test set
+        dataframe = pd.DataFrame(test_set)
+        dataframe.to_csv(path_to_output_ + 'test_set_from0_fx100_' + str(deg).replace('-', '') + 'deg.csv', index=False, header=False)
+    print('END CREATION STEP STEERING TEST')
 
 def create_test_step_steer(path_to_data, path_to_output_, number_of_tests):
     dir_ = ['step_steering_highspeed/', 'step_steering_lowspeed/']

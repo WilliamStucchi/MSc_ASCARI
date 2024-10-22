@@ -242,6 +242,31 @@ test_paramstudy_grip_08_perf_100 = 'data/new/test_set_paramstudy_grip_08_perf_10
 test_paramstudy_grip_08_perf_75 = 'data/new/test_set_paramstudy_grip_08_perf_75.csv'
 test_paramstudy_grip_08_perf_50 = 'data/new/test_set_paramstudy_grip_08_perf_50.csv'
 
+test_set_from0_fx100_0deg = 'data/new/test_set_from0_fx100_0deg.csv'
+test_set_from0_fx100_1deg = 'data/new/test_set_from0_fx100_1deg.csv'
+test_set_from0_fx100_2deg = 'data/new/test_set_from0_fx100_2deg.csv'
+test_set_from0_fx100_3deg = 'data/new/test_set_from0_fx100_3deg.csv'
+test_set_from0_fx100_4deg = 'data/new/test_set_from0_fx100_4deg.csv'
+test_set_from0_fx100_5deg = 'data/new/test_set_from0_fx100_5deg.csv'
+test_set_from0_fx100_10deg = 'data/new/test_set_from0_fx100_10deg.csv'
+test_set_from0_fx100_15deg = 'data/new/test_set_from0_fx100_15deg.csv'
+test_set_from0_fx100_20deg = 'data/new/test_set_from0_fx100_20deg.csv'
+test_set_from0_fx100_25deg = 'data/new/test_set_from0_fx100_25deg.csv'
+test_set_from0_fx100_30deg = 'data/new/test_set_from0_fx100_30deg.csv'
+test_set_from0_fx100_45deg = 'data/new/test_set_from0_fx100_45deg.csv'
+test_set_from0_fx100_60deg = 'data/new/test_set_from0_fx100_60deg.csv'
+
+latest_test_grip_1_perf_100 = 'data/latest_CRT/latest_sets/test_set_mu_1_perf_100.csv'
+latest_test_grip_1_perf_75 = 'data/latest_CRT/latest_sets/test_set_mu_1_perf_75.csv'
+latest_test_grip_1_perf_50 = 'data/latest_CRT/latest_sets/test_set_mu_1_perf_50.csv'
+latest_test_grip_1_perf_25 = 'data/latest_CRT/latest_sets/test_set_mu_1_perf_25.csv'
+latest_test_grip_08_perf_100 = 'data/latest_CRT/latest_sets/test_set_mu_08_perf_100.csv'
+latest_test_grip_08_perf_75 = 'data/latest_CRT/latest_sets/test_set_mu_08_perf_75.csv'
+latest_test_grip_08_perf_50 = 'data/latest_CRT/latest_sets/test_set_mu_08_perf_50.csv'
+latest_test_grip_06_perf_100 = 'data/latest_CRT/latest_sets/test_set_mu_06_perf_100.csv'
+latest_test_grip_06_perf_75 = 'data/latest_CRT/latest_sets/test_set_mu_06_perf_75.csv'
+latest_test_grip_06_perf_50 = 'data/latest_CRT/latest_sets/test_set_mu_06_perf_50.csv'
+
 """
 checkpoint_path = "saved_models/step_4/v1/model.ckpt"
 loaded_model_4 = build_model()
@@ -256,8 +281,19 @@ plot_run('results/step_4/v1/results_test_2.csv', test_set_2, 0, leng, 'results/s
 # Step 1
 # Callbacks
 # save_path = 'results/step_1/callbacks/2024_10_08/16_26_37/'
-save_path = 'results/step_1/callbacks/2024_10_09/22_32_30/'
-model_path = 'saved_models/step_1/callbacks/2024_10_09/22_32_30/keras_model.h5'
+# save_path = 'results/step_1/callbacks/2024_10_11/22_06_11/'
+"""save_path = 'results/step_1/callbacks/2024_06_12/13_00_14/'
+model_path = 'saved_models/step_1/callbacks/2024_06_12/13_00_14/keras_model.h5'"""
+
+"""save_path = 'results/step_1/callbacks/2024_10_14/19_30_02/'
+model_path = 'saved_models/step_1/callbacks/2024_10_14/19_30_02/keras_model.h5'"""
+
+save_path = 'results/step_1/callbacks/2024_10_21/20_06_35/'
+model_path = 'saved_models/step_1/callbacks/2024_10_21/20_06_35/keras_model.h5'
+
+"""save_path = 'results/step_1/callbacks/2024_09_17/17_41_36/'
+model_path = 'saved_models/step_1/callbacks/2024_09_17/17_41_36/keras_model.h5'"""
+
 p0 = create_thread('t0', test_set_mu_1, model_path, save_path + 'results_test_mu_1.csv', None)
 p1 = create_thread('t1', test_set_mu_08, model_path, save_path + 'results_test_mu_08.csv', None)
 p2 = create_thread('t2', test_set_mu_06, model_path, save_path + 'results_test_mu_06.csv', None)
@@ -269,55 +305,87 @@ p7 = create_thread('t7', test_set_mu_0804, model_path, save_path + 'results_test
 p8 = create_thread('t8', test_set_mu_06045, model_path, save_path + 'results_test_mu_06045.csv', None)
 p9 = create_thread('t9', test_set_mu_0603, model_path, save_path + 'results_test_mu_0603.csv', None)
 
-p10 = create_thread('t10', test_set_stepsteer_fx100_0deg, model_path, save_path + 'results_test_stepsteer_fx100_0deg.csv', None)
-p101 = create_thread('t101', test_set_stepsteer_fx100_1deg, model_path, save_path + 'results_test_stepsteer_fx100_1deg.csv', None)
-p102 = create_thread('t102', test_set_stepsteer_fx100_2deg, model_path, save_path + 'results_test_stepsteer_fx100_2deg.csv', None)
-p103 = create_thread('t103', test_set_stepsteer_fx100_3deg, model_path, save_path + 'results_test_stepsteer_fx100_3deg.csv', None)
-p104 = create_thread('t104', test_set_stepsteer_fx100_4deg, model_path, save_path + 'results_test_stepsteer_fx100_4deg.csv', None)
-p105 = create_thread('t105', test_set_stepsteer_fx100_5deg, model_path, save_path + 'results_test_stepsteer_fx100_5deg.csv', None)
-p106 = create_thread('t106', test_set_stepsteer_fx100_10deg, model_path, save_path + 'results_test_stepsteer_fx100_10deg.csv', None)
-p107 = create_thread('t107', test_set_stepsteer_fx100_15deg, model_path, save_path + 'results_test_stepsteer_fx100_15deg.csv', None)
-p108 = create_thread('t108', test_set_stepsteer_fx100_20deg, model_path, save_path + 'results_test_stepsteer_fx100_20deg.csv', None)
-p109 = create_thread('t109', test_set_stepsteer_fx100_25deg, model_path, save_path + 'results_test_stepsteer_fx100_25deg.csv', None)
-p1010 = create_thread('t1010', test_set_stepsteer_fx100_30deg, model_path, save_path + 'results_test_stepsteer_fx100_30deg.csv', None)
-p1011 = create_thread('t1011', test_set_stepsteer_fx100_45deg, model_path, save_path + 'results_test_stepsteer_fx100_45deg.csv', None)
-p1012 = create_thread('t1012', test_set_stepsteer_fx100_60deg, model_path, save_path + 'results_test_stepsteer_fx100_60deg.csv', None)
-p1013 = create_thread('t1013', test_set_stepsteer_fx100_75deg, model_path, save_path + 'results_test_stepsteer_fx100_75deg.csv', None)
-p1014 = create_thread('t1014', test_set_stepsteer_fx100_90deg, model_path, save_path + 'results_test_stepsteer_fx100_90deg.csv', None)
-p1015 = create_thread('t1015', test_set_stepsteer_fx100_100deg, model_path, save_path + 'results_test_stepsteer_fx100_100deg.csv', None)
+step_fx100_0deg = create_thread('step_fx100_0deg', test_set_stepsteer_fx100_0deg, model_path,
+                                save_path + 'results_test_stepsteer_fx100_0deg.csv', None)
+step_fx100_1deg = create_thread('step_fx100_1deg', test_set_stepsteer_fx100_1deg, model_path,
+                                save_path + 'results_test_stepsteer_fx100_1deg.csv', None)
+step_fx100_2deg = create_thread('step_fx100_2deg', test_set_stepsteer_fx100_2deg, model_path,
+                                save_path + 'results_test_stepsteer_fx100_2deg.csv', None)
+step_fx100_3deg = create_thread('step_fx100_3deg', test_set_stepsteer_fx100_3deg, model_path,
+                                save_path + 'results_test_stepsteer_fx100_3deg.csv', None)
+step_fx100_4deg = create_thread('step_fx100_4deg', test_set_stepsteer_fx100_4deg, model_path,
+                                save_path + 'results_test_stepsteer_fx100_4deg.csv', None)
+step_fx100_5deg = create_thread('step_fx100_5deg', test_set_stepsteer_fx100_5deg, model_path,
+                                save_path + 'results_test_stepsteer_fx100_5deg.csv', None)
+step_fx100_10deg = create_thread('step_fx100_10deg', test_set_stepsteer_fx100_10deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_10deg.csv', None)
+step_fx100_15deg = create_thread('step_fx100_15deg', test_set_stepsteer_fx100_15deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_15deg.csv', None)
+step_fx100_20deg = create_thread('step_fx100_20deg', test_set_stepsteer_fx100_20deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_20deg.csv', None)
+step_fx100_25deg = create_thread('step_fx100_25deg', test_set_stepsteer_fx100_25deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_25deg.csv', None)
+step_fx100_30deg = create_thread('step_fx100_30deg', test_set_stepsteer_fx100_30deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_30deg.csv', None)
+step_fx100_45deg = create_thread('step_fx100_45deg', test_set_stepsteer_fx100_45deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_45deg.csv', None)
+step_fx100_60deg = create_thread('step_fx100_60deg', test_set_stepsteer_fx100_60deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_60deg.csv', None)
+step_fx100_75deg = create_thread('step_fx100_75deg', test_set_stepsteer_fx100_75deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_75deg.csv', None)
+step_fx100_90deg = create_thread('step_fx100_90deg', test_set_stepsteer_fx100_90deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx100_90deg.csv', None)
+step_fx100_100deg = create_thread('step_fx100_100deg', test_set_stepsteer_fx100_100deg, model_path,
+                                  save_path + 'results_test_stepsteer_fx100_100deg.csv', None)
 
-p1016 = create_thread('t10', test_set_stepsteer_fx25_0deg, model_path, save_path + 'results_test_stepsteer_fx25_0deg.csv', None)
-p1017 = create_thread('t101', test_set_stepsteer_fx25_1deg, model_path, save_path + 'results_test_stepsteer_fx25_1deg.csv', None)
-p1018 = create_thread('t102', test_set_stepsteer_fx25_2deg, model_path, save_path + 'results_test_stepsteer_fx25_2deg.csv', None)
-p1019 = create_thread('t103', test_set_stepsteer_fx25_3deg, model_path, save_path + 'results_test_stepsteer_fx25_3deg.csv', None)
-p1020 = create_thread('t104', test_set_stepsteer_fx25_4deg, model_path, save_path + 'results_test_stepsteer_fx25_4deg.csv', None)
-p1021 = create_thread('t105', test_set_stepsteer_fx25_5deg, model_path, save_path + 'results_test_stepsteer_fx25_5deg.csv', None)
-p1022 = create_thread('t106', test_set_stepsteer_fx25_10deg, model_path, save_path + 'results_test_stepsteer_fx25_10deg.csv', None)
-p1023 = create_thread('t107', test_set_stepsteer_fx25_15deg, model_path, save_path + 'results_test_stepsteer_fx25_15deg.csv', None)
-p1024 = create_thread('t108', test_set_stepsteer_fx25_20deg, model_path, save_path + 'results_test_stepsteer_fx25_20deg.csv', None)
-p1025 = create_thread('t109', test_set_stepsteer_fx25_25deg, model_path, save_path + 'results_test_stepsteer_fx25_25deg.csv', None)
-p1026 = create_thread('t1010', test_set_stepsteer_fx25_30deg, model_path, save_path + 'results_test_stepsteer_fx25_30deg.csv', None)
-p1027 = create_thread('t1011', test_set_stepsteer_fx25_45deg, model_path, save_path + 'results_test_stepsteer_fx25_45deg.csv', None)
-p1028 = create_thread('t1012', test_set_stepsteer_fx25_60deg, model_path, save_path + 'results_test_stepsteer_fx25_60deg.csv', None)
-p1029 = create_thread('t1013', test_set_stepsteer_fx25_75deg, model_path, save_path + 'results_test_stepsteer_fx25_75deg.csv', None)
-p1030 = create_thread('t1014', test_set_stepsteer_fx25_90deg, model_path, save_path + 'results_test_stepsteer_fx25_90deg.csv', None)
-p1031 = create_thread('t1015', test_set_stepsteer_fx25_100deg, model_path, save_path + 'results_test_stepsteer_fx25_100deg.csv', None)
+step_fx25_0deg = create_thread('step_fx25_0deg', test_set_stepsteer_fx25_0deg, model_path,
+                               save_path + 'results_test_stepsteer_fx25_0deg.csv', None)
+step_fx25_1deg = create_thread('step_fx25_1deg', test_set_stepsteer_fx25_1deg, model_path,
+                               save_path + 'results_test_stepsteer_fx25_1deg.csv', None)
+step_fx25_2deg = create_thread('step_fx25_2deg', test_set_stepsteer_fx25_2deg, model_path,
+                               save_path + 'results_test_stepsteer_fx25_2deg.csv', None)
+step_fx25_3deg = create_thread('step_fx25_3deg', test_set_stepsteer_fx25_3deg, model_path,
+                               save_path + 'results_test_stepsteer_fx25_3deg.csv', None)
+step_fx25_4deg = create_thread('step_fx25_4deg', test_set_stepsteer_fx25_4deg, model_path,
+                               save_path + 'results_test_stepsteer_fx25_4deg.csv', None)
+step_fx25_5deg = create_thread('step_fx25_5deg', test_set_stepsteer_fx25_5deg, model_path,
+                               save_path + 'results_test_stepsteer_fx25_5deg.csv', None)
+step_fx25_10deg = create_thread('step_fx25_10deg', test_set_stepsteer_fx25_10deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_10deg.csv', None)
+step_fx25_15deg = create_thread('step_fx25_15deg', test_set_stepsteer_fx25_15deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_15deg.csv', None)
+step_fx25_20deg = create_thread('step_fx25_20deg', test_set_stepsteer_fx25_20deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_20deg.csv', None)
+step_fx25_25deg = create_thread('step_fx25_25deg', test_set_stepsteer_fx25_25deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_25deg.csv', None)
+step_fx25_30deg = create_thread('step_fx25_30deg', test_set_stepsteer_fx25_30deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_30deg.csv', None)
+step_fx25_45deg = create_thread('step_fx25_45deg', test_set_stepsteer_fx25_45deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_45deg.csv', None)
+step_fx25_60deg = create_thread('step_fx25_60deg', test_set_stepsteer_fx25_60deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_60deg.csv', None)
+step_fx25_75deg = create_thread('step_fx25_75deg', test_set_stepsteer_fx25_75deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_75deg.csv', None)
+step_fx25_90deg = create_thread('step_fx25_90deg', test_set_stepsteer_fx25_90deg, model_path,
+                                save_path + 'results_test_stepsteer_fx25_90deg.csv', None)
+step_fx25_100deg = create_thread('step_fx25_100deg', test_set_stepsteer_fx25_100deg, model_path,
+                                 save_path + 'results_test_stepsteer_fx25_100deg.csv', None)
 
-p20 = create_thread('t20', test_set_rampsteer_fx100_0, model_path, save_path + 'results_test_rampsteer_fx100_0.csv', None)
-p201 = create_thread('t201', test_set_rampsteer_fx100_1, model_path, save_path + 'results_test_rampsteer_fx100_1.csv', None)
-p202 = create_thread('t202', test_set_rampsteer_fx100_2, model_path, save_path + 'results_test_rampsteer_fx100_2.csv', None)
-p203 = create_thread('t20', test_set_rampsteer_fx100_3, model_path, save_path + 'results_test_rampsteer_fx100_3.csv', None)
-p204 = create_thread('t201', test_set_rampsteer_fx100_4, model_path, save_path + 'results_test_rampsteer_fx100_4.csv', None)
-p205 = create_thread('t202', test_set_rampsteer_fx100_5, model_path, save_path + 'results_test_rampsteer_fx100_5.csv', None)
+ramp_fx100_0 = create_thread('ramp_fx100_0', test_set_rampsteer_fx100_0, model_path, save_path + 'results_test_rampsteer_fx100_0.csv', None)
+ramp_fx100_1 = create_thread('ramp_fx100_1', test_set_rampsteer_fx100_1, model_path, save_path + 'results_test_rampsteer_fx100_1.csv', None)
+ramp_fx100_2 = create_thread('ramp_fx100_2', test_set_rampsteer_fx100_2, model_path, save_path + 'results_test_rampsteer_fx100_2.csv', None)
+ramp_fx100_3 = create_thread('ramp_fx100_3', test_set_rampsteer_fx100_3, model_path, save_path + 'results_test_rampsteer_fx100_3.csv', None)
+ramp_fx100_4 = create_thread('ramp_fx100_4', test_set_rampsteer_fx100_4, model_path, save_path + 'results_test_rampsteer_fx100_4.csv', None)
+ramp_fx100_5 = create_thread('ramp_fx100_5', test_set_rampsteer_fx100_5, model_path, save_path + 'results_test_rampsteer_fx100_5.csv', None)
 
-p30 = create_thread('t30', test_set_sinesteer_fx100_0, model_path, save_path + 'results_test_sinesteer_fx100_0.csv', None)
-p301 = create_thread('t301', test_set_sinesteer_fx100_1, model_path, save_path + 'results_test_sinesteer_fx100_1.csv', None)
-p302 = create_thread('t302', test_set_sinesteer_fx100_2, model_path, save_path + 'results_test_sinesteer_fx100_2.csv', None)
-p303 = create_thread('t303', test_set_sinesteer_fx100_3, model_path, save_path + 'results_test_sinesteer_fx100_3.csv', None)
-p304 = create_thread('t304', test_set_sinesteer_fx100_4, model_path, save_path + 'results_test_sinesteer_fx100_4.csv', None)
-p305 = create_thread('t305', test_set_sinesteer_fx100_5, model_path, save_path + 'results_test_sinesteer_fx100_5.csv', None)
-p306 = create_thread('t306', test_set_sinesteer_fx100_6, model_path, save_path + 'results_test_sinesteer_fx100_6.csv', None)
-p307 = create_thread('t307', test_set_sinesteer_fx100_7, model_path, save_path + 'results_test_sinesteer_fx100_7.csv', None)
+sine_fx100_0 = create_thread('sine_fx100_0', test_set_sinesteer_fx100_0, model_path, save_path + 'results_test_sinesteer_fx100_0.csv', None)
+sine_fx100_1 = create_thread('sine_fx100_1', test_set_sinesteer_fx100_1, model_path, save_path + 'results_test_sinesteer_fx100_1.csv', None)
+sine_fx100_2 = create_thread('sine_fx100_2', test_set_sinesteer_fx100_2, model_path, save_path + 'results_test_sinesteer_fx100_2.csv', None)
+sine_fx100_3 = create_thread('sine_fx100_3', test_set_sinesteer_fx100_3, model_path, save_path + 'results_test_sinesteer_fx100_3.csv', None)
+sine_fx100_4 = create_thread('sine_fx100_4', test_set_sinesteer_fx100_4, model_path, save_path + 'results_test_sinesteer_fx100_4.csv', None)
+sine_fx100_5 = create_thread('sine_fx100_5', test_set_sinesteer_fx100_5, model_path, save_path + 'results_test_sinesteer_fx100_5.csv', None)
+sine_fx100_6 = create_thread('sine_fx100_6', test_set_sinesteer_fx100_6, model_path, save_path + 'results_test_sinesteer_fx100_6.csv', None)
+sine_fx100_7 = create_thread('sine_fx100_7', test_set_sinesteer_fx100_7, model_path, save_path + 'results_test_sinesteer_fx100_7.csv', None)
 
 p11 = create_thread('t11', test_paramstudy_grip_1_perf_100, model_path, save_path + 'results_test_grip_1_perf_100.csv', None)
 p12 = create_thread('t12', test_paramstudy_grip_1_perf_75, model_path, save_path + 'results_test_grip_1_perf_75.csv', None)
@@ -329,21 +397,44 @@ p17 = create_thread('t17', test_paramstudy_grip_08_perf_100, model_path, save_pa
 p18 = create_thread('t18', test_paramstudy_grip_08_perf_75, model_path, save_path + 'results_test_grip_08_perf_75.csv', None)
 p19 = create_thread('t19', test_paramstudy_grip_08_perf_50, model_path, save_path + 'results_test_grip_08_perf_50.csv', None)
 
-lista = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p101, p102, p103, p104, p105, p106, p107, p108, p109, p1010,
-         p1011, p1012, p1013, p1014, p1015, p20, p201, p202, p203, p204, p205, p30, p301, p302, p303, p304, p305, p306,
-         p307, p11, p12, p13, p14, p15, p16, p17, p18, p19, p1016, p1017, p1018, p1019, p1020, p1021, p1022, p1023,
-         p1024, p1025, p1026, p1027, p1028, p1029, p1030, p1031]
+mu1_perf100 = create_thread('mu1_perf100', latest_test_grip_1_perf_100, model_path,
+                        save_path + 'results_latest_mu_1_perf_100.csv', None)
+mu1_perf75 = create_thread('mu1_perf75', latest_test_grip_1_perf_75, model_path,
+                        save_path + 'results_latest_mu_1_perf_75.csv', None)
+mu1_perf50 = create_thread('mu1_perf50', latest_test_grip_1_perf_50, model_path,
+                        save_path + 'results_latest_mu_1_perf_50.csv', None)
+mu1_perf25 = create_thread('mu1_perf25', latest_test_grip_1_perf_25, model_path,
+                        save_path + 'results_latest_mu_1_perf_25.csv', None)
+mu08_perf100 = create_thread('mu08_perf100', latest_test_grip_08_perf_100, model_path,
+                        save_path + 'results_latest_mu_08_perf_100.csv', None)
+mu08_perf75 = create_thread('mu08_perf75', latest_test_grip_08_perf_75, model_path,
+                        save_path + 'results_latest_mu_08_perf_75.csv', None)
+mu08_perf50 = create_thread('mu08_perf50', latest_test_grip_08_perf_50, model_path,
+                        save_path + 'results_latest_mu_08_perf_50.csv', None)
+mu06_perf100 = create_thread('mu06_perf100', latest_test_grip_06_perf_100, model_path,
+                        save_path + 'results_latest_mu_06_perf_100.csv', None)
+mu06_perf75 = create_thread('mu06_perf75', latest_test_grip_06_perf_75, model_path,
+                        save_path + 'results_latest_mu_06_perf_75.csv', None)
+mu06_perf50 = create_thread('mu06_perf50', latest_test_grip_06_perf_50, model_path,
+                        save_path + 'results_latest_mu_06_perf_50.csv', None)
+
+# p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p11, p12, p13, p14, p15, p16, p17, p18, p19,
+lista = [mu08_perf100,  mu06_perf100, mu08_perf75, mu08_perf50, mu1_perf100, mu1_perf75, mu1_perf50, mu1_perf25,
+         mu06_perf75, mu06_perf50,  step_fx100_0deg, step_fx100_1deg, step_fx100_2deg, step_fx100_3deg,
+         step_fx100_4deg, step_fx100_5deg, step_fx100_10deg, step_fx100_15deg, step_fx100_20deg, step_fx100_25deg,
+         step_fx100_30deg, step_fx100_45deg, step_fx100_60deg, step_fx100_75deg, step_fx100_90deg, step_fx100_100deg,
+         step_fx25_0deg, step_fx25_1deg, step_fx25_2deg, step_fx25_3deg, step_fx25_4deg, step_fx25_5deg,
+         step_fx25_10deg, step_fx25_15deg, step_fx25_20deg, step_fx25_25deg, step_fx25_30deg, step_fx25_45deg,
+         step_fx25_60deg, step_fx25_75deg, step_fx25_90deg, step_fx25_100deg, ramp_fx100_0, ramp_fx100_1, ramp_fx100_2,
+         ramp_fx100_3, ramp_fx100_4, ramp_fx100_5, sine_fx100_0, sine_fx100_1, sine_fx100_2, sine_fx100_3, sine_fx100_4,
+         sine_fx100_5, sine_fx100_6, sine_fx100_7]
+
+"""latest_lista = [mu08_perf100,  mu06_perf100, mu08_perf75, mu08_perf50, mu1_perf100, mu1_perf75, mu1_perf50, mu1_perf25,
+                mu06_perf75, mu06_perf50]"""
+
 for el in lista:
     el.start()
     el.join()
-# start_parallel_threads([p0, p1, p2])
-# start_parallel_threads([p3, p4, p5])
-# start_parallel_threads([p6, p7])
-# start_parallel_threads([p8, p9])
-# start_parallel_threads([p202])
-# start_parallel_threads([p11, p12, p13])
-# start_parallel_threads([p14, p15, p16])
-# start_parallel_threads([p17, p18, p19])
 
 """save_path = 'results/step_1/callbacks/2024_07_22/13_34_22/eps_0/'
 model_path = 'saved_models/step_1/callbacks/2024_07_22/13_34_22/keras_scheduled_eps_0.keras'

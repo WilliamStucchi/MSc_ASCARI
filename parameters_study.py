@@ -8,10 +8,11 @@ from tqdm import tqdm
 spindle = False
 forces = True
 
-directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
+#TODO: rifai i test con i modelli bicicletta e anche i modelli normali perchè sono cambiati in parameters study
+"""directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
                '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/',
-               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
-
+               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']"""
+directories = ['/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
 for k, dir_ in tqdm(enumerate(directories)):
     data = pd.read_csv('../CRT_data/parameters_study/' + dir_ + '/DemoSportsCar_mxp.csv', dtype=object)
     data = data.drop(0, axis='rows')  # remove the row containing the measure units
@@ -75,7 +76,7 @@ for k, dir_ in tqdm(enumerate(directories)):
 
 
         #sim = pd.read_csv('../matlab/test_' + dir_.replace('/', '') + '.csv', dtype=object)
-        sim = pd.read_csv('../matlab/paths_with_vx_computed/sim_test_' + dir_.replace('/', '') + '.csv', dtype=object)
+        sim = pd.read_csv('../matlab/paths_with_muy_06/sim_test_' + dir_.replace('/', '') + '.csv', dtype=object)
         sim.reset_index(drop=True, inplace=True)
 
         Fyf_sim = np.array(sim['Fyf'], dtype=float)
@@ -114,7 +115,7 @@ for k, dir_ in tqdm(enumerate(directories)):
         # Display the plot
         plt.grid(True)
         # plt.show()
-        plt.savefig('../test/NN_vs_bicycle/tires_with_vx_computed/front_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
+        plt.savefig('../test/NN_vs_bicycle/tires_with_muy_06/front_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
         plt.close()
 
         # PLOT
@@ -131,7 +132,7 @@ for k, dir_ in tqdm(enumerate(directories)):
         # Display the plot
         plt.grid(True)
         # plt.show()
-        plt.savefig('../test/NN_vs_bicycle/tires_with_vx_computed/rear_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
+        plt.savefig('../test/NN_vs_bicycle/tires_with_muy_06/rear_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
         plt.close()
 
 

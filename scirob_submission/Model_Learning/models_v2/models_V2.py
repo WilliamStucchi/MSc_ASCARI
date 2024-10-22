@@ -20,8 +20,8 @@ class NN_Model_V2():
         input_layer = tfkl.Input(shape=(self.input_dim, ), name='input_layer')
 
         # Hidden layers
-        x = tfkl.Dense(units=self.units_first_layer - 64, activation='relu')(input_layer)
-        x = tfkl.Dense(units=self.units_second_layer - 64, activation='relu')(x)
+        x = tfkl.Dense(units=self.units_first_layer, activation='relu')(input_layer)
+        x = tfkl.Dense(units=self.units_second_layer, activation='relu')(x)
 
         # Output layer
         output_layer = tfkl.Dense(units=self.output_dim)(x)

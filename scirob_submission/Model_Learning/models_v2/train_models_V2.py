@@ -52,6 +52,7 @@ def apply_scaler(features, labels, n_samples, n_timesteps):
     print('Features: ', features.shape)
     print('Scaled inputs: ', scaled_inputs.shape)
     input('Wait...')
+
     """scaler = StandardScaler()
     scaler.fit(train_features)
     train_features = scaler.transform(train_features)
@@ -147,10 +148,25 @@ path_datetime = datetime.datetime.now().strftime('%H_%M_%S')
 save_path_initial = '../saved_models/'
 
 # GET TRAINING DATA
+# dataset_step_1 = np.loadtxt('../data/new/bike_with_pysicallimits_mu106_perprovaTutto106.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/bike_with_pysicallimits_mu106.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/bike_with_pysicallimits_mu1.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/bicycle_model_highlowperf.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_mu1.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_mu1_constspeed.csv', delimiter=',')
+dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_mu106.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/latest_CRT/latest_sets/train_data_step_1_mu106_constspeed.csv', delimiter=',')
+
+# dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_allkinds.csv', delimiter=',')
 # dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_cpltbicycle.csv', delimiter=',')
-dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_cplt.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_cplt.csv', delimiter=',')
 # dataset_step_1 = np.loadtxt('../data/new/bicycle_model_deltafx.csv', delimiter=',')
 # dataset_step_1 = np.loadtxt('../data/new/bicycle_model_2grip.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/new/train_data_step_1_balanced_enhanced.csv', delimiter=',')
+
+# dataset_step_1 = np.loadtxt('../data/latest_CRT/latest_sets/train_data_step_1_grip1.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/latest_CRT/latest_sets/train_data_step_1_3mu1_3mu06.csv', delimiter=',')
+# dataset_step_1 = np.loadtxt('../data/latest_CRT/latest_sets/train_data_step_1_balanced.csv', delimiter=',')
 print('TOTAL LENGTH OF THE DATASET: ', len(dataset_step_1))
 
 perc_validation = 0.2
@@ -228,13 +244,10 @@ val_features_step_1 = np.reshape(val_features_step_1, (val_labels_step_1.shape[0
 if TRAIN_S1:
     mod = NN_Model_V2()
     model_step_1 = mod.build_model(seed=1)
-    # model_step_1.load_weights('../saved_models/step_1/callbacks/2024_10_08/14_57_18/keras_model.h5')
-
-    # model_step_1 = tf.keras.models.load_model('../saved_models/step_1/callbacks/2024_09_30/15_08_03/keras_model.h5')
-
+    model_step_1.load_weights('../saved_models/step_1/callbacks/2024_10_21/17_22_54/keras_model.h5')
 
     es = tf.keras.callbacks.EarlyStopping(monitor='val_mse',
-                                          mode='min',
+                                            mode='min',
                                           verbose=1,
                                           patience=60)
 
@@ -265,7 +278,7 @@ if TRAIN_S1:
                                        # sample_weight=sample_weights,
                                        batch_size=1000,
                                        validation_data=(val_features_step_1, val_labels_step_1),
-                                       epochs=2500,
+                                       epochs=1500,
                                        verbose=1,
                                        shuffle=False,
                                        callbacks=[reduce_lr_loss, es, mc],
