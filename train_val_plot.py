@@ -73,7 +73,7 @@ def show_kde_car_perf(title, data, folder):
         sns.kdeplot(data=data, x='Train', fill=True, bw_adjust=.1, color='blue', label='Train')
         sns.kdeplot(data=data, x='Val', fill=True, bw_adjust=.1, color='red', label='Val')
 
-        x = 'Test ' + str(iteration)
+        """x = 'Test ' + str(iteration)
         fill = True
         bw_adjust = .1
         color = 'green'
@@ -91,13 +91,14 @@ def show_kde_car_perf(title, data, folder):
             label = 'Test mid_low_perf'
             save_name = title.replace(' ', '_') + '_test_mid_low_perf'
 
-        sns.kdeplot(data=data, x=x, fill=fill, bw_adjust=bw_adjust, color=color, label=label)
+        sns.kdeplot(data=data, x=x, fill=fill, bw_adjust=bw_adjust, color=color, label=label)"""
 
         sns.despine()
         plt.xlabel(title)
         plt.legend(loc='best')
         plt.title(title)
-        plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', format='png')
+        plt.savefig(folder + title + '.png', format='png')
+        # plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', format='png')
 
         plt.show()
         plt.close()
@@ -112,7 +113,7 @@ def show_kde_road_grip(title, data, folder):
         sns.kdeplot(data=data, x='Train', fill=True, bw_adjust=.1, color='blue', label='Train')
         sns.kdeplot(data=data, x='Val', fill=True, bw_adjust=.1, color='red', label='Val')
 
-        x = 'Test ' + str(i)
+        """x = 'Test ' + str(i)
         fill = True
         bw_adjust = .1
         color = 'green'
@@ -120,13 +121,14 @@ def show_kde_road_grip(title, data, folder):
         label = 'Test road_μ = ' + grip_lev
         save_name = title.replace(' ', '_') + '_test_grip_' + grip_lev.replace('.', '')
 
-        sns.kdeplot(data=data, x=x, fill=fill, bw_adjust=bw_adjust, color=color, label=label)
+        sns.kdeplot(data=data, x=x, fill=fill, bw_adjust=bw_adjust, color=color, label=label)"""
 
         sns.despine()
         plt.xlabel(title)
         plt.legend(loc='best')
         plt.title(title)
-        plt.savefig(folder + 'grip_' + grip_lev.replace('.', '') + '/' + save_name + '.png', format='png')
+        plt.savefig(folder + title + '.png', format='png')
+        # plt.savefig(folder + 'grip_' + grip_lev.replace('.', '') + '/' + savename + '.png', format='png')
 
         plt.show()
         plt.close()
@@ -263,9 +265,10 @@ def create_df_road_grip(vy_train, yaw_train, vx_train, delta_train, fx_train,
 
 def kde_car_perf(selector: str):
     # Load data
-    train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_cplt.csv')
+    train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_mu1.csv')
+    # train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_cplt.csv')
     print('Data length: ', str(len(train_feat) + len(val_feat)))
-    folder = '../gg_plots/density_perf_high_midhigh/'
+    folder = '../gg_plots/thesis_plots/density train_val/car_perf/'
 
     if selector == 'car_perf':
         test_0_feat, test_1_feat, test_2_feat, test_3_feat = load_test_car_perf(
@@ -307,16 +310,16 @@ def kde_car_perf(selector: str):
         sets = [df_vy, df_vx, df_yaw, df_delta, df_fx]
 
         for i, title in enumerate(titles):
-            show_kde_road_grip(title, sets[i], folder)
+            show_kde_car_perf(title, sets[i], folder)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def kde_road_grip(selector_test: str):
     # Load data
-    train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step1_mu.csv')
+    train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_mu06.csv')
     print('Data length: ', str(len(train_feat) + len(val_feat)))
-    folder = '../gg_plots/density_grip_mid_low/'
+    folder = '../gg_plots/thesis_plots/density train_val/road_grip/'
 
     if selector_test == 'car_perf':
         test_0_feat, test_1_feat, test_2_feat, test_3_feat = load_test_car_perf(
@@ -363,8 +366,9 @@ def kde_road_grip(selector_test: str):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+kde_car_perf('car_perf')
 kde_road_grip('road_grip')
-kde_road_grip('car_perf')
+# kde_road_grip('car_perf')
 
 """
 loaded_model = tf.keras.models.load_model('scirob_submission/Model_Learning/saved_models/step_1/callbacks/

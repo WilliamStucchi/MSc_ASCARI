@@ -330,10 +330,10 @@ path_to_NN_res = '../matlab/paths_with_muy_06/sim_test_'
 
 path_to_bicycle_res = '../matlab/paths/sim_test_'
 
-# path_to_bicycle_vx_computed_res = '../matlab/paths_with_vx_computed/sim_test_'
-path_to_bicycle_vx_computed_res = '../matlab/paths_with_pacejka_06/sim_test_'
+path_to_bicycle_vx_computed_res = '../matlab/paths_with_vx_computed/sim_test_'
+# path_to_bicycle_vx_computed_res = '../matlab/paths_with_pacejka_06/sim_test_'
 
-path_to_plots = '../test/NN_vs_bicycle/paths_with_pacejka_06/'
+path_to_plots = '../matlab/plots/bike_combined'
 
 path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
 

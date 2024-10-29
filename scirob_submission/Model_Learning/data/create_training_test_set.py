@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -1559,8 +1561,14 @@ def create_test_ramp_steer(path_to_data, path_to_output_, number_of_tests):
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_rampsteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
-                         header=False)
+        if i < math.floor(number_of_tests / 2):
+            dataframe.to_csv(path_to_output_ + 'test_set_rampsteer_fx100_' + str(i).replace('-', '') + '.csv',
+                             index=False,
+                             header=False)
+        else:
+            dataframe.to_csv(path_to_output_ + 'test_set_rampsteer_fx25_' + str(i).replace('-', '') + '.csv',
+                             index=False,
+                             header=False)
     print('END CREATION RAMP STEERING TEST')
 
 
@@ -1598,8 +1606,14 @@ def create_test_sine_steer(path_to_data, path_to_output_, number_of_tests):
 
         # Save test set
         dataframe = pd.DataFrame(test_set)
-        dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx100_' + str(i).replace('-', '') + '.csv', index=False,
-                         header=False)
+        if i < math.floor(number_of_tests / 2):
+            dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx100_' + str(i).replace('-', '') + '.csv',
+                             index=False,
+                             header=False)
+        else:
+            dataframe.to_csv(path_to_output_ + 'test_set_sinesteer_fx25_' + str(i).replace('-', '') + '.csv',
+                             index=False,
+                             header=False)
     print('END CREATION SINE STEERING TEST')
 
 

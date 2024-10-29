@@ -48,6 +48,7 @@ for speed in speeds:
             testname = 'results_test_stepsteer_fx100_' + value + '.csv'
         elif 'lowspeed' in speed:
             testname = 'results_test_stepsteer_fx25_' + value + '.csv'
+
         basepath_NN = 'scirob_submission/Model_Learning/results/step_1/callbacks/'
         # path2results_NN = basepath_NN + '2024_05_17/12_29_37/' + testname # modello allenato su mu1, che sbaglia a bassi gradi di sterzo
         # path2results_NN = basepath_NN + '2024_10_08/16_26_37/' + testname
