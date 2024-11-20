@@ -63,15 +63,15 @@ def plot(bicycle_res: str,
 
     # plot and save comparison between NN predicted and actual vehicle state
     plot_and_save(bicycle_res_yaw, bicycle_vx_res_yaw, labels_yaw, titles, 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
+                  filepath2plots + 'yaw_test_' + str(counter) + '.' + save_format)
     plot_and_save(bicycle_res_ay, bicycle_vx_res_ay, labels_ay, titles, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_test_' + str(counter) + '.png')
+                  filepath2plots + 'ay_test_' + str(counter) + '.' + save_format)
     plot_and_save(bicycle_res_ax, bicycle_vx_res_ax, labels_ax, titles, 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_test_' + str(counter) + '.png')
+                  filepath2plots + 'ax_test_' + str(counter) + '.' + save_format)
     plot_and_save(bicycle_res_vx, bicycle_vx_res_vx, labels_vx, titles, 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_test_' + str(counter) + '.png')
+                  filepath2plots + 'vx_test_' + str(counter) + '.' + save_format)
     plot_and_save(bicycle_res_vy, bicycle_vx_res_vy, labels_vy, titles, 'Lat. vel. vy [m/s]',
-                  filepath2plots + 'vy_test_' + str(counter) + '.png')
+                  filepath2plots + 'vy_test_' + str(counter) + '.' + save_format)
 
     print('\n MSE AND MAE OF UNSCALED VALUES: Test CRT Bicycle model ' + str(counter))
 
@@ -103,31 +103,31 @@ def plot(bicycle_res: str,
 
     save_to_csv(data, 'RMSE AND MAE OF UNSCALED VALUES Test CRT', filepath2plots, counter)
 
-    save_histogram(mean_squared_error(labels_yaw, bicycle_res_yaw), mean_squared_error(labels_yaw, bicycle_vx_res_yaw),
+    save_histogram(root_mean_squared_error(labels_yaw, bicycle_res_yaw), root_mean_squared_error(labels_yaw, bicycle_vx_res_yaw),
                    mean_absolute_error(labels_yaw, bicycle_res_yaw), mean_absolute_error(labels_yaw, bicycle_vx_res_yaw),
-                   titles, 'Yaw rate', filepath2plots + 'metrics/yaw_metrics_' + str(counter) + '.png')
-    save_histogram(mean_squared_error(labels_ay, bicycle_res_ay), mean_squared_error(labels_ay, bicycle_vx_res_ay),
+                   titles, 'Yaw rate', filepath2plots + 'metrics/yaw_metrics_' + str(counter) + '.' + save_format)
+    save_histogram(root_mean_squared_error(labels_ay, bicycle_res_ay), root_mean_squared_error(labels_ay, bicycle_vx_res_ay),
                    mean_absolute_error(labels_ay, bicycle_res_ay), mean_absolute_error(labels_ay, bicycle_vx_res_ay),
-                   titles, 'Lat. acc. ay', filepath2plots + 'metrics/ay_metrics_' + str(counter) + '.png')
-    save_histogram(mean_squared_error(labels_ax, bicycle_res_ax), mean_squared_error(labels_ax, bicycle_vx_res_ax),
+                   titles, 'Lat. acc. ay', filepath2plots + 'metrics/ay_metrics_' + str(counter) + '.' + save_format)
+    save_histogram(root_mean_squared_error(labels_ax, bicycle_res_ax), root_mean_squared_error(labels_ax, bicycle_vx_res_ax),
                    mean_absolute_error(labels_ax, bicycle_res_ax), mean_absolute_error(labels_ax, bicycle_vx_res_ax),
-                   titles, 'Long. acc. ax', filepath2plots + 'metrics/ax_metrics_' + str(counter) + '.png')
-    save_histogram(mean_squared_error(labels_vx, bicycle_res_vx), mean_squared_error(labels_vx, bicycle_vx_res_vx),
+                   titles, 'Long. acc. ax', filepath2plots + 'metrics/ax_metrics_' + str(counter) + '.' + save_format)
+    save_histogram(root_mean_squared_error(labels_vx, bicycle_res_vx), root_mean_squared_error(labels_vx, bicycle_vx_res_vx),
                    mean_absolute_error(labels_vx, bicycle_res_vx), mean_absolute_error(labels_vx, bicycle_vx_res_vx),
-                   titles, 'Long. vel. vx', filepath2plots + 'metrics/vx_metrics_' + str(counter) + '.png')
-    save_histogram(mean_squared_error(labels_vy, bicycle_res_vy), mean_squared_error(labels_vy, bicycle_vx_res_vy),
+                   titles, 'Long. vel. vx', filepath2plots + 'metrics/vx_metrics_' + str(counter) + '.' + save_format)
+    save_histogram(root_mean_squared_error(labels_vy, bicycle_res_vy), root_mean_squared_error(labels_vy, bicycle_vx_res_vy),
                    mean_absolute_error(labels_vy, bicycle_res_vy), mean_absolute_error(labels_vy, bicycle_vx_res_vy),
-                   titles, 'Lat. vel. vy', filepath2plots + 'metrics/vy_metrics_' + str(counter) + '.png')
+                   titles, 'Lat. vel. vy', filepath2plots + 'metrics/vy_metrics_' + str(counter) + '.' + save_format)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def save_histogram(bike_mse, bikeFx_mse, bike_mae, bikeFx_mae, titles, value, savename):
+def save_histogram(bike_rmse, bikeFx_rmse, bike_mae, bikeFx_mae, titles, value, savename):
     metrics_labels = ['RMSE', 'MAE']
 
     # Extract MSE and MAE data for each feature
-    metrics_bicycle_values = list({'RMSE': bike_mse, 'MAE': bike_mae}.values())
-    metrics_bicycle_vx_comp_values = list({'RMSE': bikeFx_mse, 'MAE': bikeFx_mae}.values())
+    metrics_bicycle_values = list({'RMSE': bike_rmse, 'MAE': bike_mae}.values())
+    metrics_bicycle_vx_comp_values = list({'RMSE': bikeFx_rmse, 'MAE': bikeFx_mae}.values())
 
     # Plotting
     x = np.arange(len(metrics_labels))  # X locations for features
@@ -155,14 +155,14 @@ def save_histogram(bike_mse, bikeFx_mse, bike_mae, bikeFx_mae, titles, value, sa
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(savename, format='png', dpi=300)
+    plt.savefig(savename, format=save_format, dpi=300)
     plt.close()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 def save_to_csv(data, title, path_, counter):
-    new_column = np.array([['MSE'], ['MAE']])
+    new_column = np.array([['RMSE'], ['MAE']])
     data = np.hstack((new_column, data))
     np.savetxt(path_ + title + ' ' + str(counter) + '.csv', data,
                header=', Bike yaw rate, Bike Vx, Bike Vy, Bike Ax, Bike Ay, '
@@ -174,50 +174,55 @@ def save_to_csv(data, title, path_, counter):
 
 def plot_and_save(bicycle_res, bicycle_vx_res, label, titles, value, savename):
     colors = ['xkcd:red', 'xkcd:green', 'xkcd:orange', 'xkcd:purple', 'xkcd:black']
-    plt.figure(figsize=(25, 10))
+    plt.figure(figsize=(33, 9))
     # Aumentare il font size per tutto il grafico
     plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=25)   # Titolo degli assi
-    plt.rc('axes', labelsize=25)   # Etichette degli assi
+    plt.rc('axes', labelsize=30)   # Etichette degli assi
     plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
     plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
     plt.rc('legend', fontsize=20)  # Legenda
     ax = plt.gca()
 
     if 'yaw' not in savename:
-        ax.yaxis.set_major_locator(MultipleLocator(2.5))
+        if 'vx' not in savename:
+            ax.yaxis.set_major_locator(MultipleLocator(2.5))
+        else:
+            ax.yaxis.set_major_locator(MultipleLocator(5.0))
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
     time_values = np.linspace(0, len(label) / 100, len(label))
-    plt.plot(time_values, bicycle_res, label=titles[0], color=colors[1], alpha=1.0, linewidth=1.5)
-    plt.plot(time_values, bicycle_vx_res, label=titles[1], color=colors[2], alpha=1.0, linewidth=1.5)
+    plt.plot(time_values, bicycle_res, label=titles[0], color=colors[1], alpha=1.0, linewidth=2.5)
+    plt.plot(time_values, bicycle_vx_res, label=titles[1], color=colors[2], alpha=1.0, linewidth=2.5)
 
     if label is not None:
-        plt.plot(time_values, label, label='Ground Truth', color='xkcd:blue', alpha=1.0, linewidth=1.5)
+        plt.plot(time_values, label, label='Ground Truth', color='xkcd:blue', alpha=1.0, linewidth=2.5)
 
-    plt.ylabel(value)
-    plt.xlabel('Time steps [s]')
-    plt.legend(loc='best')
+    plt.ylabel(value, labelpad=12)
+    plt.xlabel('Time [s]', labelpad=6)
+    if 'ax' in savename:
+        plt.legend(loc='best')
     plt.grid()
+    plt.tight_layout()
 
-    plt.savefig(savename, format='png', dpi=300)
+    plt.savefig(savename, format=save_format, dpi=300)
     plt.ion()
     plt.close()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+save_format = 'eps'
 directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
                '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/',
                '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
 
-path_to_bicycle_res = '../matlab/paths_with_pacejka_06/bike/sim_test_'
+path_to_bicycle_res = '../matlab/paths_with_pacejka_1/bike/sim_test_'
 
-path_to_bicycle_vx_computed_res = '../matlab/paths_with_pacejka_06/bike_with_vx_computed/sim_test_'
+path_to_bicycle_vx_computed_res = '../matlab/paths_with_pacejka_1/bike_with_vx_computed/sim_test_'
 # path_to_bicycle_vx_computed_res = '../matlab/paths_with_pacejka_06/sim_test_'
 
-path_to_plots = '../matlab/plots/bike_combined/pacejka_mu06/'
+path_to_plots = '../matlab/plots/bike_combined/pacejka_mu1/'
 
 path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
 

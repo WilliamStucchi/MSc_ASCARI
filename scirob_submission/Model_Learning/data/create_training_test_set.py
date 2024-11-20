@@ -10,7 +10,7 @@ from scipy.stats import norm
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def plot_delta_steps(path_to_data, number_of_sets):
+def plot_delta_steps(path_to_data, number_of_sets, save_format):
     delta_fx = []
     delta_steer = []
 
@@ -20,9 +20,10 @@ def plot_delta_steps(path_to_data, number_of_sets):
     min_fx = float('inf')
     max_fx = float('-inf')
 
-    """directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
-                   '/train_car_perf/mid_low_perf/']"""
-    directories = ['train_road_grip/grip_06/', 'train_road_grip/grip_06_perf_045/', 'train_road_grip/grip_06_perf_03/']
+    title = 'mu106'
+    """directories = ['train_road_grip/grip_06/', 'train_road_grip/grip_06_perf_045/', 'train_road_grip/grip_06_perf_03/']"""
+    directories = ['/train_car_perf/mid_perf/', '/train_car_perf/mid_high_perf/', '/train_car_perf/high_perf/',
+                   '/train_car_perf/mid_low_perf/', 'train_road_grip/grip_06/', 'train_road_grip/grip_06_perf_045/', 'train_road_grip/grip_06_perf_03/']
     number_of_sets_ = number_of_sets  # fixed number of sets for when I want to change the number of sets manually here
     filename = 'DemoSportsCar_mxp.csv'
 
@@ -100,52 +101,60 @@ def plot_delta_steps(path_to_data, number_of_sets):
 
     # Istogramma
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     n, bins, _ = plt.hist(delta_fx, bins=100, density=True, color='#0000FF', edgecolor='#0000FF')
+
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, 100)
+    p = norm.pdf(x, media_fx, np.sqrt(varianza_fx))
+    plt.plot(x, p, 'r--', lw=2, label='Normal fit')
+
     plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
     plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
     plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20),
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaFx_distribution_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
-    input('wait')
 
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
     plt.yscale('log')
     plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
     plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_logy_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaFx_distribution_logy_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     # Create a box plot
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     sns.boxplot(data=fx_df, x='Delta')
     plt.title('Box Plot of DeltaFx')
     plt.xlabel('[Fx(t) - Fx(t-1)] values')
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_boxplot_mu06.png', format='png', dpi=300)
+    plt.tight_layout()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaFx_boxplot_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
 
@@ -172,7 +181,7 @@ def plot_delta_steps(path_to_data, number_of_sets):
                        ignore_index=True)
 
     # Esportare il DataFrame in un file Excel
-    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_fx_mu06.xlsx', index=False)
+    df.to_excel('../../../../test/deltafx_deltasteer/deltas/dati_output_fx_' + title + '.xlsx', index=False)
 
     z_scores_fx = stats.zscore(delta_fx)
     threshold = 3
@@ -181,57 +190,65 @@ def plot_delta_steps(path_to_data, number_of_sets):
     delta_fx_cleaned = delta_fx[mask_zscore_fx]
     fx_df = pd.DataFrame({'Delta': delta_fx_cleaned})
 
+    media_fx_zscore = np.mean(delta_fx_cleaned)
+    varianza_fx_zscore = np.var(delta_fx_cleaned)
+
     # Istogramma
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
-    n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
+    n, bins, _ = plt.hist(fx_df['Delta'], bins=100, density=True, color='#0000FF', edgecolor='#0000FF')
+
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, 100)
+    p = norm.pdf(x, media_fx_zscore, np.sqrt(varianza_fx_zscore))
+    plt.plot(x, p, 'r--', lw=2, label='Normal fit')
+
     plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
     plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_zscore_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaFx_distribution_zscore_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     n, bins, _ = plt.hist(fx_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
     plt.yscale('log')
     plt.title('Histogram of deltaFx [Fx(t) - Fx(t-1)]', pad=20)
     plt.xlabel('[Fx(t) - Fx(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_distribution_zscore_logy_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaFx_distribution_zscore_logy_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     # Create a box plot
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     sns.boxplot(data=fx_df, x='Delta')
     plt.title('Box Plot of DeltaFx after zscore')
     plt.xlabel('[Fx(t) - Fx(t-1)] values')
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaFx_zscore_boxplot_mu06.png', format='png', dpi=300)
+    plt.tight_layout()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaFx_zscore_boxplot_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
-
-    media_fx_zscore = np.mean(delta_fx_cleaned)
-    varianza_fx_zscore = np.var(delta_fx_cleaned)
-    mean, std_dev = norm.fit(delta_fx_cleaned)
 
     dati_per_excel = {
         'Descrizione': [
@@ -253,7 +270,7 @@ def plot_delta_steps(path_to_data, number_of_sets):
                         ignore_index=True)
 
     # Esportare il DataFrame in un file Excel
-    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_fx_zscore_mu06.xlsx', index=False)
+    df.to_excel('../../../../test/deltafx_deltasteer/deltas/dati_output_fx_zscore_' + title + '.xlsx', index=False)
 
     # ----------------------------
     # Steer
@@ -261,50 +278,59 @@ def plot_delta_steps(path_to_data, number_of_sets):
 
     # Istogramma
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
-    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
+    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, density=True, color='#0000FF', edgecolor='#0000FF')
+
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, 100)
+    p = norm.pdf(x, media_steer, np.sqrt(varianza_steer))
+    plt.plot(x, np.clip(p, 1e-5, None), 'r--', lw=2, label='Normal fit')
+
     plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
     plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaSteer_distribution_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
     plt.yscale('log')
     plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
     plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_logy_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaSteer_distribution_logy_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     # Create a box plot
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     sns.boxplot(data=steer_df, x='Delta')
     plt.title('Box Plot of DeltaSteer')
     plt.xlabel('[δ(t) - δ(t-1)] values')
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_boxplot_mu06.png', format='png', dpi=300)
+    plt.tight_layout()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaSteer_boxplot_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     """for j in range(len(n)):
@@ -330,7 +356,7 @@ def plot_delta_steps(path_to_data, number_of_sets):
                        ignore_index=True)
 
     # Esportare il DataFrame in un file Excel
-    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_steer_mu06.xlsx', index=False)
+    df.to_excel('../../../../test/deltafx_deltasteer/deltas/dati_output_steer_' + title + '.xlsx', index=False)
 
     z_scores_steer = stats.zscore(delta_steer)
     threshold = 3
@@ -339,56 +365,65 @@ def plot_delta_steps(path_to_data, number_of_sets):
     delta_steer_cleaned = delta_steer[mask_zscore_steer]
     steer_df = pd.DataFrame({'Delta': delta_steer_cleaned})
 
+    media_steer_zscore = np.mean(delta_steer_cleaned)
+    varianza_steer_zscore = np.var(delta_steer_cleaned)
+
     # Istogramma
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
-    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
+    n, bins, _ = plt.hist(steer_df['Delta'], bins=100, density=True, color='#0000FF', edgecolor='#0000FF')
+
+    xmin, xmax = plt.xlim()
+    x = np.linspace(xmin, xmax, 100)
+    p = norm.pdf(x, media_steer_zscore, np.sqrt(varianza_steer_zscore))
+    plt.plot(x, np.clip(p, 1e-5, None), 'r--', lw=2, label='Normal fit')
+
     plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
     plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_zscore_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaSteer_distribution_zscore_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     n, bins, _ = plt.hist(steer_df['Delta'], bins=100, color='#0000FF', edgecolor='#0000FF')
     plt.yscale('log')
     plt.title('Histogram of deltaSteer [δ(t) - δ(t-1)]', pad=20)
     plt.xlabel('[δ(t) - δ(t-1)] values', labelpad=20)
     plt.ylabel('# elements per bin', labelpad=20)
     plt.grid()
+    plt.tight_layout()
     # plt.show()
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_distribution_zscore_logy_mu06.png', format='png', dpi=300)
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaSteer_distribution_zscore_logy_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
 
     # Create a box plot
     plt.figure(figsize=(20, 12))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=25)  # Titolo degli assi
+    plt.rc('axes', labelsize=30)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=20)  # Legenda
     sns.boxplot(data=steer_df, x='Delta')
     plt.title('Box Plot of DeltaSteer after zscore')
     plt.xlabel('[δ(t) - δ(t-1)] values')
-    plt.savefig('../../../../test/deltafx_deltasteer/deltaSteer_zscore_boxplot_mu06.png', format='png', dpi=300)
+    plt.tight_layout()
+    plt.savefig('../../../../test/deltafx_deltasteer/deltas/deltaSteer_zscore_boxplot_' + title + '.' + save_format, format=save_format, dpi=300)
     plt.close()
-
-    media_steer_zscore = np.mean(delta_steer_cleaned)
-    varianza_steer_zscore = np.var(delta_steer_cleaned)
 
     dati_per_excel = {
         'Descrizione': [
@@ -410,7 +445,7 @@ def plot_delta_steps(path_to_data, number_of_sets):
                         ignore_index=True)
 
     # Esportare il DataFrame in un file Excel
-    df.to_excel('../../../../test/deltafx_deltasteer/dati_output_steer_zscore_mu06.xlsx', index=False)
+    df.to_excel('../../../../test/deltafx_deltasteer/deltas/dati_output_steer_zscore_' + title + '.xlsx', index=False)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -1489,7 +1524,7 @@ def create_test_step_steer(path_to_data, path_to_output_, number_of_tests):
     filename = 'DemoSportsCar_step.csv'
     degs = ['0', '1', '2', '3', '4', '5', '10', '15', '20', '25', '30', '45', '60', '75', '90', '100']
 
-    # Creating ramp steering tests
+    # Creating st steering tests
     print('CREATING STEP STEERING TEST')
     for el in dir_:
         for i in range(number_of_tests):

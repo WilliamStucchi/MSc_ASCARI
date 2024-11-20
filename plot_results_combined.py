@@ -2,15 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.ticker import MultipleLocator
+import matplotlib.patches as mpatches
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import MinMaxScaler
+import seaborn as sns
 
 
 def plot(data: list,
          titles: list,
          label: str,
          filepath2plots: str,
-         counter: str):
+         counter: str,
+         save_format: str):
 
     data_ = []
     ax_ = []
@@ -78,17 +81,17 @@ def plot(data: list,
     labels_ax = labels[:, 3]
     labels_ay = labels[:, 4]
 
-    # plot and save comparison between NN predicted and actual vehicle state
+    """# plot and save comparison between NN predicted and actual vehicle state
     plot_and_save(res_vx, labels_vx, titles, 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_test_' + str(counter) + '.png')
+                  filepath2plots + 'vx_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(res_vy, labels_vy, titles, 'Lat. vel. vy [m/s]',
-                  filepath2plots + 'vy_test_' + str(counter) + '.png')
+                  filepath2plots + 'vy_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(res_yaw, labels_yaw, titles, 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
+                  filepath2plots + 'yaw_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(res_ax, labels_ax, titles, 'Long. acc. ax [m/s2]',
-                  filepath2plots + 'ax_test_' + str(counter) + '.png')
+                  filepath2plots + 'ax_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(res_ay, labels_ay, titles, 'Lat. acc. ay [m/s2]',
-                  filepath2plots + 'ay_test_' + str(counter) + '.png')
+                  filepath2plots + 'ay_test_' + str(counter) + '.' + save_format, save_format)"""
 
     metrics_array = []
     column_header = ', '
@@ -113,53 +116,64 @@ def plot(data: list,
         
     data = np.asarray([metrics_array]).reshape(2, 5*len(res_yaw)).round(5)
 
-    save_to_csv(data, 'MSE AND MAE OF UNSCALED VALUES Test CRT', filepath2plots, counter, column_header)
+    """save_to_csv(data, 'MSE AND MAE OF UNSCALED VALUES Test CRT', filepath2plots, counter, column_header)
 
-    save_histogram(res_yaw, labels_yaw, titles, 'Yaw rate', filepath2plots + 'metrics/yaw_metrics_' + str(counter) + '.png')
-    save_histogram(res_ay, labels_ay, titles, 'Lat. acc. ay', filepath2plots + 'metrics/ay_metrics_' + str(counter) + '.png')
-    save_histogram(res_ax, labels_ax, titles, 'Long. acc. ax', filepath2plots + 'metrics/ax_metrics_' + str(counter) + '.png')
-    save_histogram(res_vx, labels_vx, titles, 'Long. vel. vx', filepath2plots + 'metrics/vx_metrics_' + str(counter) + '.png')
-    save_histogram(res_vy, labels_vy, titles, 'Lat. vel. vy', filepath2plots + 'metrics/vy_metrics_' + str(counter) + '.png')
+    save_histogram(res_yaw, labels_yaw, titles, 'Yaw rate',
+                   filepath2plots + 'metrics/yaw_metrics_' + str(counter) + '.' + save_format, save_format)
+    save_histogram(res_ay, labels_ay, titles, 'Lat. acc. ay',
+                   filepath2plots + 'metrics/ay_metrics_' + str(counter) + '.' + save_format, save_format)
+    save_histogram(res_ax, labels_ax, titles, 'Long. acc. ax',
+                   filepath2plots + 'metrics/ax_metrics_' + str(counter) + '.' + save_format, save_format)
+    save_histogram(res_vx, labels_vx, titles, 'Long. vel. vx',
+                   filepath2plots + 'metrics/vx_metrics_' + str(counter) + '.' + save_format, save_format)
+    save_histogram(res_vy, labels_vy, titles, 'Lat. vel. vy',
+                   filepath2plots + 'metrics/vy_metrics_' + str(counter) + '.' + save_format, save_format)
+    """
+    return data
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def plot_and_save(res, label, titles, value, savename):
+def plot_and_save(res, label, titles, value, savename, save_format):
     colors = ['r', 'green', 'orange', 'violet', 'xkcd:black']
-    plt.figure(figsize=(25, 10))
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=22)  # Titolo degli assi
-    plt.rc('axes', labelsize=22)  # Etichette degli assi
-    plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-    plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=17)  # Legenda
+    plt.figure(figsize=(33, 9))
+    # Aumentare il font size per tutto il grafico
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', labelsize=35)  # Etichette degli assi
+    plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=25)  # Legenda
     ax = plt.gca()
 
     if 'yaw' not in savename:
-        ax.yaxis.set_major_locator(MultipleLocator(2.5))
+        if 'vx' not in savename:
+            ax.yaxis.set_major_locator(MultipleLocator(2.5))
+        else:
+            ax.yaxis.set_major_locator(MultipleLocator(5.0))
     else:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
 
     time_values = np.linspace(0, len(label) / 100, len(label))
     for i, el in enumerate(res):
-        plt.plot(time_values, res[i], label=titles[i], color=colors[i], alpha=1.0, linewidth=2.0)
+        plt.plot(time_values, res[i], label=titles[i], color=colors[i], alpha=1.0, linewidth=2.5)
 
     if label is not None:
-            plt.plot(time_values, label, label='Ground Truth', color='b', alpha=1.0, linewidth=2.0)
+            plt.plot(time_values, label, label='Ground Truth', color='b', alpha=1.0, linewidth=2.5)
 
     plt.ylabel(value)
-    plt.xlabel('Time [s]')
-    plt.legend(loc='best')
+    plt.xlabel('Time [s]', labelpad=15)
+    if 'ax' in savename:
+        plt.legend(loc='best')
     plt.grid()
+    plt.tight_layout()
 
-    plt.savefig(savename, format='png', dpi=300)
-    plt.ion()
+    plt.savefig(savename, format=save_format, dpi=300)
     plt.close()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def save_histogram(nn_res, labels, titles, value, savename):
+def save_histogram(nn_res, labels, titles, value, savename, save_format):
     metrics_labels = ['RMSE', 'MAE']
 
     rmse = []
@@ -202,7 +216,7 @@ def save_histogram(nn_res, labels, titles, value, savename):
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(savename, format='png', dpi=300)
+    plt.savefig(savename, format=save_format, dpi=300)
     plt.close()
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -314,33 +328,556 @@ def save_to_csv(data, title, path_, counter, column_header):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+# NN_1 metrics
+rmse_NN_1_ax = []
+rmse_NN_1_ay = []
+rmse_NN_1_vx = []
+rmse_NN_1_vy = []
+rmse_NN_1_yaw = []
 
-result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_14/19_30_02/results_latest_'
-title_1 = 'CRT (μ=1)'
-result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_17/16_05_26/results_latest_'
-title_2 = 'Bike (μ=1) + CRT (μ=1)'
-result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_14/20_28_05/results_latest_'
+mae_NN_1_ax = []
+mae_NN_1_ay = []
+mae_NN_1_vx = []
+mae_NN_1_vy = []
+mae_NN_1_yaw = []
+
+# NN_2_2 metrics
+rmse_NN_2_ax = []
+rmse_NN_2_ay = []
+rmse_NN_2_vx = []
+rmse_NN_2_vy = []
+rmse_NN_2_yaw = []
+
+mae_NN_2_ax = []
+mae_NN_2_ay = []
+mae_NN_2_vx = []
+mae_NN_2_vy = []
+mae_NN_2_yaw = []
+
+color_dict = {'Red_pastel': '#960018',
+              'Blue_pastel': '#2A52BE',
+              'Green_pastel': '#3CB371',
+              'Saffron_pastel': '#FF9933',
+              'Purple_pastel': '#9F00FF'}
+
+save_format = 'eps'
+result_1 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_20/16_09_55/results_test_'
+title_1 = 'FF trained on μ=1.0'
+result_2 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_08_30/12_10_48/results_test_'
+title_2 = 'FF trained on μ=1.0 and μ=0.6'
+result_3 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_14/20_28_05/results_test_'
 title_3 = 'Bike (μ=1, μ=0.6) + CRT (μ=1)'
-result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_13/16_22_36/results_latest_'
+result_4 = 'scirob_submission/Model_Learning/results/step_1/callbacks/2024_10_13/16_22_36/results_test_'
 title_4 = 'bike + mu1'
 
-path_to_results = [result_1, result_2, result_3]
-titles = [title_1, title_2, title_3]
+path_to_results = [result_1, result_2]
+titles = [title_1, title_2]
 
-path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/latest/test_set_'
+path_to_labels = 'NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
 
-path_to_plots = '../test/test_post_20241020/'
+path_to_plots = '../test/test_post_20241020/comparison_between_training_sets/'
 
-for num_test in ['mu_1_perf_50', 'mu_06_perf_100', 'mu_08_perf_100', 'mu_1_perf_100', 'mu_1_perf_75', 'mu_1_perf_25', 'mu_06_perf_75', 'mu_06_perf_50',
-                 'mu_08_perf_75', 'mu_08_perf_50']:
+for num_test in ['grip_1_perf_50', 'grip_06_perf_100', 'grip_08_perf_100', 'grip_1_perf_100', 'grip_1_perf_75',
+                 'grip_06_perf_75', 'grip_06_perf_50', 'grip_08_perf_75', 'grip_08_perf_50']:
 
     print('Printing results for test ' + str(num_test))
     path_to_labels_ = path_to_labels[:path_to_labels.rfind('_') + 1] + str(num_test)
-    plot(data=path_to_results,
+    metrics = plot(data=path_to_results,
          titles=titles,
          label=path_to_labels_,
          filepath2plots=path_to_plots,
-         counter=str(num_test))
+         counter=str(num_test),
+         save_format=save_format)
+
+    # NN_1 metrics
+    rmse_NN_1_ax.append(metrics[0, 3])
+    rmse_NN_1_ay.append(metrics[0, 4])
+    rmse_NN_1_vx.append(metrics[0, 1])
+    rmse_NN_1_vy.append(metrics[0, 2])
+    rmse_NN_1_yaw.append(metrics[0, 0])
+
+    mae_NN_1_ax.append(metrics[1, 3])
+    mae_NN_1_ay.append(metrics[1, 4])
+    mae_NN_1_vx.append(metrics[1, 1])
+    mae_NN_1_vy.append(metrics[1, 2])
+    mae_NN_1_yaw.append(metrics[1, 0])
+
+    # NN_2 metrics
+    rmse_NN_2_ax.append(metrics[0, 8])
+    rmse_NN_2_ay.append(metrics[0, 9])
+    rmse_NN_2_vx.append(metrics[0, 6])
+    rmse_NN_2_vy.append(metrics[0, 7])
+    rmse_NN_2_yaw.append(metrics[0, 5])
+
+    mae_NN_2_ax.append(metrics[1, 8])
+    mae_NN_2_ay.append(metrics[1, 9])
+    mae_NN_2_vx.append(metrics[1, 6])
+    mae_NN_2_vy.append(metrics[1, 7])
+    mae_NN_2_yaw.append(metrics[1, 5])
+    
+# median and iqr
+# NN_1
+median_rmse_NN_1_ax = np.median(rmse_NN_1_ax)
+median_rmse_NN_1_ay = np.median(rmse_NN_1_ay)
+median_rmse_NN_1_vx = np.median(rmse_NN_1_vx)
+median_rmse_NN_1_vy = np.median(rmse_NN_1_vy)
+median_rmse_NN_1_yaw = np.median(rmse_NN_1_yaw)
+
+median_mae_NN_1_ax = np.median(mae_NN_1_ax)
+median_mae_NN_1_ay = np.median(mae_NN_1_ay)
+median_mae_NN_1_vx = np.median(mae_NN_1_vx)
+median_mae_NN_1_vy = np.median(mae_NN_1_vy)
+median_mae_NN_1_yaw = np.median(mae_NN_1_yaw)
+# NN_2
+median_rmse_NN_2_ax = np.median(rmse_NN_2_ax)
+median_rmse_NN_2_ay = np.median(rmse_NN_2_ay)
+median_rmse_NN_2_vx = np.median(rmse_NN_2_vx)
+median_rmse_NN_2_vy = np.median(rmse_NN_2_vy)
+median_rmse_NN_2_yaw = np.median(rmse_NN_2_yaw)
+
+median_mae_NN_2_ax = np.median(mae_NN_2_ax)
+median_mae_NN_2_ay = np.median(mae_NN_2_ay)
+median_mae_NN_2_vx = np.median(mae_NN_2_vx)
+median_mae_NN_2_vy = np.median(mae_NN_2_vy)
+median_mae_NN_2_yaw = np.median(mae_NN_2_yaw)
+
+# struct NN_1
+metrics_NN_1_ax = list({'Median RMSE': median_rmse_NN_1_ax, 'Median MAE': median_mae_NN_1_ax}.values())
+metrics_NN_1_ay = list({'Median RMSE': median_rmse_NN_1_ay, 'Median MAE': median_mae_NN_1_ay}.values())
+metrics_NN_1_vx = list({'Median RMSE': median_rmse_NN_1_vx, 'Median MAE': median_mae_NN_1_vx}.values())
+metrics_NN_1_vy = list({'Median RMSE': median_rmse_NN_1_vy, 'Median MAE': median_mae_NN_1_vy}.values())
+metrics_NN_1_yaw = list({'Median RMSE': median_rmse_NN_1_yaw, 'Median MAE': median_mae_NN_1_yaw}.values())
+
+# struct NN_2
+metrics_NN_2_ax = list({'Median RMSE': median_rmse_NN_2_ax, 'Median MAE': median_mae_NN_2_ax}.values())
+metrics_NN_2_ay = list({'Median RMSE': median_rmse_NN_2_ay, 'Median MAE': median_mae_NN_2_ay}.values())
+metrics_NN_2_vx = list({'Median RMSE': median_rmse_NN_2_vx, 'Median MAE': median_mae_NN_2_vx}.values())
+metrics_NN_2_vy = list({'Median RMSE': median_rmse_NN_2_vy, 'Median MAE': median_mae_NN_2_vy}.values())
+metrics_NN_2_yaw = list({'Median RMSE': median_rmse_NN_2_yaw, 'Median MAE': median_mae_NN_2_yaw}.values())
+
+# PLOT
+# ----------------------------------------------------------------------------------------------------------------------
+metrics_labels = ['Median RMSE', 'Median MAE']
+x = np.arange(len(metrics_labels))  # la posizione delle metriche sull'asse x
+width = 0.125  # larghezza delle barre
+
+# AX
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=25)  # Legenda
+plt.bar(x - width/2, metrics_NN_1_ax, width, label=titles[0], color=color_dict['Red_pastel'])
+plt.bar(x + width/2, metrics_NN_2_ax, width, label=titles[1], color=color_dict['Green_pastel'])
+
+# Aggiunta delle etichette
+plt.ylabel('Values')
+plt.title('Comparison of the metrics for Long. Acc. $a_x$', pad=15)
+plt.xticks([0, 1], metrics_labels)
+plt.legend(loc='best')
+plt.grid()
+plt.tight_layout()
+
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/median'
+                           '/median_ax.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# AY
+# ----------------------------------------------------------------------------------------------------------------------
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+plt.bar(x - width/2, metrics_NN_1_ay, width, label=titles[0], color=color_dict['Red_pastel'])
+plt.bar(x + width/2, metrics_NN_2_ay, width, label=titles[1], color=color_dict['Green_pastel'])
+
+# Aggiunta delle etichette
+plt.ylabel('Values')
+plt.title('Comparison of the metrics for Lateral Acc. $a_y$', pad=15)
+plt.xticks([0, 1], metrics_labels)
+# plt.legend(loc='best')
+plt.grid()
+plt.tight_layout()
+
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/median'
+                            '/median_ay.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# VX
+# ----------------------------------------------------------------------------------------------------------------------
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+plt.bar(x - width/2, metrics_NN_1_vx, width, label=titles[0], color=color_dict['Red_pastel'])
+plt.bar(x + width/2, metrics_NN_2_vx, width, label=titles[1], color=color_dict['Green_pastel'])
+
+# Aggiunta delle etichette
+plt.ylabel('Values')
+plt.title('Comparison of the metrics for Long. Vel. $v_x$', pad=15)
+plt.xticks([0, 1], metrics_labels)
+# plt.legend(loc='best')
+plt.grid()
+plt.tight_layout()
+
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/median'
+                            '/median_vx.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# VY
+# ----------------------------------------------------------------------------------------------------------------------
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+plt.bar(x - width/2, metrics_NN_1_vy, width, label=titles[0], color=color_dict['Red_pastel'])
+plt.bar(x + width/2, metrics_NN_2_vy, width, label=titles[1], color=color_dict['Green_pastel'])
+
+# Aggiunta delle etichette
+plt.ylabel('Values')
+plt.title('Comparison of the metrics for Lateral Vel. $v_y$', pad=15)
+plt.xticks([0, 1], metrics_labels)
+# plt.legend(loc='best')
+plt.grid()
+plt.tight_layout()
+
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/median'
+                            '/median_vy.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# YAW
+# ----------------------------------------------------------------------------------------------------------------------
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+plt.bar(x - width/2, metrics_NN_1_yaw, width, label=titles[0], color=color_dict['Red_pastel'])
+plt.bar(x + width/2, metrics_NN_2_yaw, width, label=titles[1], color=color_dict['Green_pastel'])
+
+# Aggiunta delle etichette
+plt.ylabel('Values')
+plt.title('Comparison of the metrics for Yaw Rate $r$', pad=15)
+plt.xticks([0, 1], metrics_labels)
+# plt.legend(loc='best')
+plt.grid()
+plt.tight_layout()
+
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/median'
+                            '/median_yaw.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# WHISKERS
+# AX
+# ----------------------------------------------------------------------------------------------------------------------
+rmse_data_ax = [rmse_NN_1_ax, rmse_NN_2_ax]
+mae_data_ax = [mae_NN_1_ax, mae_NN_2_ax]
+
+# Group data by metric
+data = [rmse_data_ax, mae_data_ax]
+
+# Positioning for each model within RMSE and MAE
+positions = [[1, 2], [4, 5]]  # Positions for RMSE and MAE for each model
+
+# Colors for each model
+colors = [color_dict['Red_pastel'], color_dict['Green_pastel']]
+
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=25)  # Legenda
+# Create the box plots
+for i, metric_data in enumerate(data):
+    for j, model_data in enumerate(metric_data):
+        plt.boxplot(model_data, positions=[positions[i][j]], widths=0.6, patch_artist=True,
+                    boxprops=dict(facecolor=colors[j]), medianprops=dict(color="black"), showfliers=False)
+
+# Set the x-axis labels and legend
+plt.xticks([1.5, 4.5], ['RMSE', 'MAE'])
+plt.title("RMSE and MAE Distribution for Long. Acc. $a_x$", pad=15)
+
+# Add a legend for the models
+# Create custom legend handles
+legend_handles = [
+    mpatches.Patch(color=colors[0], label=titles[0]),
+    mpatches.Patch(color=colors[1], label=titles[1])
+]
+plt.legend(handles=legend_handles, loc="best")
+# plt.show()
+plt.tight_layout()
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/whiskers'
+                            '/whiskers_ax.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# AY
+# ----------------------------------------------------------------------------------------------------------------------
+rmse_data_ay = [rmse_NN_1_ay, rmse_NN_2_ay]
+mae_data_ay = [mae_NN_1_ay, mae_NN_2_ay]
+
+# Group data by metric
+data = [rmse_data_ay, mae_data_ay]
+
+# Positioning for each model within RMSE and MAE
+positions = [[1, 2], [4, 5]]  # Positions for RMSE and MAE for each model
+
+# Colors for each model
+colors = [color_dict['Red_pastel'], color_dict['Green_pastel']]
+
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+# Create the box plots
+for i, metric_data in enumerate(data):
+    for j, model_data in enumerate(metric_data):
+        plt.boxplot(model_data, positions=[positions[i][j]], widths=0.6, patch_artist=True,
+                    boxprops=dict(facecolor=colors[j]), medianprops=dict(color="black"), showfliers=False)
+
+# Set the x-axis labels and legend
+plt.xticks([1.5, 4.5], ['RMSE', 'MAE'])
+plt.title("RMSE and MAE Distribution for Lateral Acc. $a_y$", pad=15)
+
+# Add a legend for the models
+# Create custom legend handles
+"""legend_handles = [
+    mpatches.Patch(color=colors[0], label=titles[0]),
+    mpatches.Patch(color=colors[1], label=titles[1]),
+    mpatches.Patch(color=colors[2], label=titles[2])
+]
+plt.legend(handles=legend_handles, loc="upper center")"""
+# plt.show()
+plt.tight_layout()
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/whiskers'
+                            '/whiskers_ay.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# VX
+# ----------------------------------------------------------------------------------------------------------------------
+rmse_data_vx = [rmse_NN_1_vx, rmse_NN_2_vx]
+mae_data_vx = [mae_NN_1_vx, mae_NN_2_vx]
+
+# Group data by metric
+data = [rmse_data_vx, mae_data_vx]
+
+# Positioning for each model within RMSE and MAE
+positions = [[1, 2], [4, 5]]  # Positions for RMSE and MAE for each model
+
+# Colors for each model
+colors = [color_dict['Red_pastel'], color_dict['Green_pastel']]
+
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+# Create the box plots
+for i, metric_data in enumerate(data):
+    for j, model_data in enumerate(metric_data):
+        plt.boxplot(model_data, positions=[positions[i][j]], widths=0.6, patch_artist=True,
+                    boxprops=dict(facecolor=colors[j]), medianprops=dict(color="black"), showfliers=False)
+
+# Set the x-axis labels and legend
+plt.xticks([1.5, 4.5], ['RMSE', 'MAE'])
+plt.title("RMSE and MAE Distribution for Long. Vel. $v_x$", pad=15)
+
+# Add a legend for the models
+# Create custom legend handles
+"""legend_handles = [
+    mpatches.Patch(color=colors[0], label=titles[0]),
+    mpatches.Patch(color=colors[1], label=titles[2])
+]
+plt.legend(handles=legend_handles, loc="upper center")"""
+# plt.show()
+plt.tight_layout()
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/whiskers'
+                            '/whiskers_vx.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# VY
+# ----------------------------------------------------------------------------------------------------------------------
+rmse_data_vy = [rmse_NN_1_vy, rmse_NN_2_vy]
+mae_data_vy = [mae_NN_1_vy, mae_NN_2_vy]
+
+# Group data by metric
+data = [rmse_data_vy, mae_data_vy]
+
+# Positioning for each model within RMSE and MAE
+positions = [[1, 2], [4, 5]]  # Positions for RMSE and MAE for each model
+
+# Colors for each model
+colors = [color_dict['Red_pastel'], color_dict['Green_pastel']]
+
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+# Create the box plots
+for i, metric_data in enumerate(data):
+    for j, model_data in enumerate(metric_data):
+        plt.boxplot(model_data, positions=[positions[i][j]], widths=0.6, patch_artist=True,
+                    boxprops=dict(facecolor=colors[j]), medianprops=dict(color="black"), showfliers=False)
+
+# Set the x-axis labels and legend
+plt.xticks([1.5, 4.5], ['RMSE', 'MAE'])
+plt.title("RMSE and MAE Distribution for Lateral Vel. $v_y$", pad=15)
+
+# Add a legend for the models
+# Create custom legend handles
+"""legend_handles = [
+    mpatches.Patch(color=colors[0], label=titles[0]),
+    mpatches.Patch(color=colors[1], label=titles[1]),
+    mpatches.Patch(color=colors[2], label=titles[2])
+]
+plt.legend(handles=legend_handles, loc="upper center")"""
+# plt.show()
+plt.tight_layout()
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/whiskers'
+                            '/whiskers_vy.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+# YAW
+# ----------------------------------------------------------------------------------------------------------------------
+rmse_data_yaw = [rmse_NN_1_yaw, rmse_NN_2_yaw]
+mae_data_yaw = [mae_NN_1_yaw, mae_NN_2_yaw]
+
+# Group data by metric
+data = [rmse_data_yaw, mae_data_yaw]
+
+# Positioning for each model within RMSE and MAE
+positions = [[1, 2], [4, 5]]  # Positions for RMSE and MAE for each model
+
+# Colors for each model
+colors = [color_dict['Red_pastel'], color_dict['Green_pastel']]
+
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+# Create the box plots
+for i, metric_data in enumerate(data):
+    for j, model_data in enumerate(metric_data):
+        plt.boxplot(model_data, positions=[positions[i][j]], widths=0.6, patch_artist=True,
+                    boxprops=dict(facecolor=colors[j]), medianprops=dict(color="black"), showfliers=False)
+
+# Set the x-axis labels and legend
+plt.xticks([1.5, 4.5], ['RMSE', 'MAE'])
+plt.title("RMSE and MAE Distribution for Yaw Rate $r$", pad=15)
+
+# Add a legend for the models
+# Create custom legend handles
+"""legend_handles = [
+    mpatches.Patch(color=colors[0], label=titles[0]),
+    mpatches.Patch(color=colors[1], label=titles[1]),
+    mpatches.Patch(color=colors[2], label=titles[2])
+]
+plt.legend(handles=legend_handles, loc="upper center")"""
+# plt.show()
+plt.tight_layout()
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/whiskers'
+                            '/whiskers_yaw.' + save_format, format=save_format, dpi=300)
+plt.close()
+
+
+# Violin plot
+# ----------------------------------------------------------------------------------------------------------------------
+
+rmse_data_yaw = [rmse_NN_1_yaw, rmse_NN_2_yaw]
+mae_data_yaw = [mae_NN_1_yaw, mae_NN_2_yaw]
+
+# Prepare lists to store the data for the DataFrame
+models = []
+metrics = []
+values = []
+
+## Add RMSE data to the lists
+for i, rmse_values in enumerate(rmse_data_yaw):
+    model_name = titles[i]
+    models.extend([f"{model_name}_RMSE"] * len(rmse_values))
+    metrics.extend(['RMSE'] * len(rmse_values))
+    values.extend(rmse_values)
+
+# Add MAE data to the lists
+for i, mae_values in enumerate(mae_data_yaw):
+    model_name = titles[i]
+    models.extend([f"{model_name}_MAE"] * len(mae_values))
+    metrics.extend(['MAE'] * len(mae_values))
+    values.extend(mae_values)
+
+# Create the DataFrame
+df = pd.DataFrame({
+    'Model_Metric': models,
+    'Metric': metrics,
+    'Value': values
+})
+
+print(df)
+
+# Define a custom color palette for each model, with consistent colors for both RMSE and MAE
+palette = {
+    titles[0] + '_RMSE': color_dict['Red_pastel'],
+    titles[1] + '_RMSE': color_dict['Saffron_pastel'],
+    titles[0] + '_MAE': color_dict['Red_pastel'],
+    titles[1] + '_MAE': color_dict['Saffron_pastel']
+}
+
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=30)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
+
+# Create a violin plot with the custom palette and separated categories for each model and metric
+sns.violinplot(x='Model_Metric', y='Value', data=df, hue='Model_Metric', palette=palette)
+
+# Add title and labels
+plt.title('RMSE and MAE Distributions for Models')
+plt.xlabel('Metric')
+plt.ylabel('Value')
+
+plt.tight_layout()
+# Mostrare il grafico
+plt.savefig(path_to_plots + '/metrics/violin'
+                            '/violin_yaw.' + save_format, format=save_format, dpi=300)
+plt.close()
 
 
 """tests = ['1', '08', '06', '0806', '0804', '06045', '0603']

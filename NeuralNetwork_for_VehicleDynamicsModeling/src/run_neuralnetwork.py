@@ -196,7 +196,7 @@ def run_test_CRT(path_dict: dict,
             path2model = path_dict['filepath2results_trainedmodel_recurr']
 
     if path_to_data is not None:
-        with open(path_to_data + str(counter) + '.csv', 'r') as fh:
+        with open(str(path_to_data) + str(counter) + '.csv', 'r') as fh:
             data = np.loadtxt(fh, delimiter=',')
     else:
         with open(path_dict['filepath2inputs_testdata_CRT'] + '_' + str(counter) + '.csv', 'r') as fh:
@@ -284,6 +284,5 @@ def run_test_CRT(path_dict: dict,
             results)
     else:
         index_last_slash = path_to_model.rfind('/')
-        output_path = (path_to_model[:index_last_slash + 1] + '/matfiles/results_test_' + nn_mode + '_' +
-                       str(test_type) + '.csv')
+        output_path = (path_to_model[:index_last_slash + 1] + '/matfiles/results_test_' + test_type + '.csv')
         np.savetxt(output_path, results)

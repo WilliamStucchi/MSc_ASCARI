@@ -67,13 +67,19 @@ def pad(to_pad, final_length):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def show_kde_car_perf(title, data, folder):
-    for iteration in range(4):
+def show_kde_car_perf(title, data, folder, save_format):
+    """for iteration in range(4):
+        plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+        plt.rc('axes', titlesize=25)  # Titolo degli assi
+        plt.rc('axes', labelsize=25)  # Etichette degli assi
+        plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+        plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+        plt.rc('legend', fontsize=20)  # Legenda
         sns.set_style('whitegrid')
         sns.kdeplot(data=data, x='Train', fill=True, bw_adjust=.1, color='blue', label='Train')
-        sns.kdeplot(data=data, x='Val', fill=True, bw_adjust=.1, color='red', label='Val')
+        sns.kdeplot(data=data, x='Validation', fill=True, bw_adjust=.1, color='red', label='Val')
 
-        """x = 'Test ' + str(iteration)
+        x = 'Test ' + str(iteration)
         fill = True
         bw_adjust = .1
         color = 'green'
@@ -91,17 +97,39 @@ def show_kde_car_perf(title, data, folder):
             label = 'Test mid_low_perf'
             save_name = title.replace(' ', '_') + '_test_mid_low_perf'
 
-        sns.kdeplot(data=data, x=x, fill=fill, bw_adjust=bw_adjust, color=color, label=label)"""
+        sns.kdeplot(data=data, x=x, fill=fill, bw_adjust=bw_adjust, color=color, label=label)
 
         sns.despine()
         plt.xlabel(title)
         plt.legend(loc='best')
         plt.title(title)
-        plt.savefig(folder + title + '.png', format='png')
-        # plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', format='png')
+        plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', save_format='png')
 
-        plt.show()
-        plt.close()
+        # plt.show()
+        plt.close()"""
+
+    # This following code is to be used in case we want to plot the kde only for training data, with no test data
+    plt.figure(figsize=(19, 14))
+    plt.rc('font', size=30)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', titlesize=35)  # Titolo degli assi
+    plt.rc('axes', labelsize=35)  # Etichette degli assi
+    plt.rc('xtick', labelsize=30)  # Etichette dei ticks su x
+    plt.rc('ytick', labelsize=30)  # Etichette dei ticks su y
+    plt.rc('legend', fontsize=25)  # Legenda
+    sns.set_style('whitegrid')
+    sns.kdeplot(data=data, x='Train', fill=True, bw_adjust=.1, color='blue', label='Train')
+    sns.kdeplot(data=data, x='Val', fill=True, bw_adjust=.1, color='red', label='Validation')
+
+    sns.despine()
+    plt.xlabel(title, labelpad=20)
+    plt.ylabel('Density', labelpad=20)
+    plt.legend(loc='best')
+    plt.title(title, pad=20)
+    plt.savefig(folder + title + '.' + save_format, format=save_format)
+    # plt.savefig(folder + 'test_' + str(iteration) + '/' + save_name + '.png', save_format='png')
+
+    # plt.show()
+    plt.close()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -127,8 +155,8 @@ def show_kde_road_grip(title, data, folder):
         plt.xlabel(title)
         plt.legend(loc='best')
         plt.title(title)
-        plt.savefig(folder + title + '.png', format='png')
-        # plt.savefig(folder + 'grip_' + grip_lev.replace('.', '') + '/' + savename + '.png', format='png')
+        plt.savefig(folder + title + '.' + save_format, format=save_format)
+        # plt.savefig(folder + 'grip_' + grip_lev.replace('.', '') + '/' + savename + '.png', save_format='png')
 
         plt.show()
         plt.close()
@@ -263,12 +291,12 @@ def create_df_road_grip(vy_train, yaw_train, vx_train, delta_train, fx_train,
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def kde_car_perf(selector: str):
+def kde_car_perf(selector: str, save_format: str):
     # Load data
     train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_mu1.csv')
     # train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_cplt.csv')
     print('Data length: ', str(len(train_feat) + len(val_feat)))
-    folder = '../gg_plots/thesis_plots/density train_val/car_perf/'
+    folder = '../gg_plots/thesis_plots/density train_val/mu1/'
 
     if selector == 'car_perf':
         test_0_feat, test_1_feat, test_2_feat, test_3_feat = load_test_car_perf(
@@ -285,11 +313,11 @@ def kde_car_perf(selector: str):
                                                                    vy_test, yaw_test, vx_test, delta_test, fx_test)
 
         # Plotting and saving
-        titles = ['Lateral velocity', 'Longitudinal velocity', 'Yaw rate', 'Steering angle', 'Longitudinal force']
+        titles = ['Lateral_velocity', 'Longitudinal_velocity', 'Yaw_rate', 'Steering_angle', 'Longitudinal_force']
         sets = [df_vy, df_vx, df_yaw, df_delta, df_fx]
 
         for i, title in enumerate(titles):
-            show_kde_car_perf(title, sets[i], folder)
+            show_kde_car_perf(title, sets[i], folder, save_format)
 
     elif selector == 'road_grip':
         test_0_feat, test_1_feat, test_2_feat = load_test_road_grip('scirob_submission/Model_Learning/data/new/')
@@ -306,16 +334,16 @@ def kde_car_perf(selector: str):
                                                                     vy_test, yaw_test, vx_test, delta_test, fx_test)
 
         # Plotting and saving
-        titles = ['Lateral velocity', 'Longitudinal velocity', 'Yaw rate', 'Steering angle', 'Longitudinal force']
+        titles = ['Lateral_velocity', 'Longitudinal_velocity', 'Yaw_rate', 'Steering_angle', 'Longitudinal_force']
         sets = [df_vy, df_vx, df_yaw, df_delta, df_fx]
 
         for i, title in enumerate(titles):
-            show_kde_car_perf(title, sets[i], folder)
+            show_kde_car_perf(title, sets[i], folder, save_format)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def kde_road_grip(selector_test: str):
+def kde_road_grip(selector_test: str, save_format: str):
     # Load data
     train_feat, val_feat = load_features('scirob_submission/Model_Learning/data/new/train_data_step_1_mu06.csv')
     print('Data length: ', str(len(train_feat) + len(val_feat)))
@@ -336,11 +364,11 @@ def kde_road_grip(selector_test: str):
                                                                    vy_test, yaw_test, vx_test, delta_test, fx_test)
 
         # Plotting and saving
-        titles = ['Lateral velocity', 'Longitudinal velocity', 'Yaw rate', 'Steering angle', 'Longitudinal force']
+        titles = ['Lateral_velocity', 'Longitudinal_velocity', 'Yaw_rate', 'Steering_angle', 'Longitudinal_force']
         sets = [df_vy, df_vx, df_yaw, df_delta, df_fx]
 
         for i, title in enumerate(titles):
-            show_kde_car_perf(title, sets[i], folder)
+            show_kde_car_perf(title, sets[i], folder, save_format)
 
     if selector_test == 'road_grip':
         test_0_feat, test_1_feat, test_2_feat = load_test_road_grip('scirob_submission/Model_Learning/data/new/')
@@ -357,17 +385,17 @@ def kde_road_grip(selector_test: str):
                                                                     vy_test, yaw_test, vx_test, delta_test, fx_test)
 
         # Plotting and saving
-        titles = ['Lateral velocity', 'Longitudinal velocity', 'Yaw rate', 'Steering angle', 'Longitudinal force']
+        titles = ['Lateral_velocity', 'Longitudinal_velocity', 'Yaw_rate', 'Steering_angle', 'Longitudinal_force']
         sets = [df_vy, df_vx, df_yaw, df_delta, df_fx]
 
         for i, title in enumerate(titles):
-            show_kde_road_grip(title, sets[i], folder)
+            show_kde_road_grip(title, sets[i], folder, save_format)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-kde_car_perf('car_perf')
-kde_road_grip('road_grip')
+save_format = 'eps'
+kde_car_perf('car_perf', save_format)
 # kde_road_grip('car_perf')
 
 """

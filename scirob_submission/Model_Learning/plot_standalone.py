@@ -128,7 +128,8 @@ def plot_run_test_CRT(filepath2results: str,
                       # filepath2resgrip: str,
                       filepath2labelsaccel: str,
                       filepath2plots: str,
-                      counter: str):
+                      counter: str,
+                      save_format: str):
     """Plots test results of comparison between neural network and provided vehicle data.
 
     :param counter:
@@ -192,29 +193,6 @@ def plot_run_test_CRT(filepath2results: str,
     ax_diff = ax_label - ax_result
     ay_diff = ay_label - ay_result
 
-    # calculate scaled results
-    scaler_results = MinMaxScaler(feature_range=(0, 1))
-
-    scaler_temp_result = np.concatenate((vx_result, vy_result, yaw_result, ax_result, ay_result), axis=1)
-    scaler_temp_label = np.concatenate((vx_label, vy_label, yaw_label, ax_label, ay_label), axis=1)
-    scaler_temp = np.concatenate((scaler_temp_result, scaler_temp_label), axis=0)
-
-    scaler_results = scaler_results.fit(scaler_temp)
-    scaler_temp_result = scaler_results.transform(scaler_temp_result)
-    scaler_temp_label = scaler_results.transform(scaler_temp_label)
-
-    vx_result_scaled = scaler_temp_result[:, 0]
-    vy_result_scaled = scaler_temp_result[:, 1]
-    yaw_result_scaled = scaler_temp_result[:, 2]
-    ax_result_scaled = scaler_temp_result[:, 3]
-    ay_result_scaled = scaler_temp_result[:, 4]
-
-    vx_label_scaled = scaler_temp_label[:, 0]
-    vy_label_scaled = scaler_temp_label[:, 1]
-    yaw_label_scaled = scaler_temp_label[:, 2]
-    ax_label_scaled = scaler_temp_label[:, 3]
-    ay_label_scaled = scaler_temp_label[:, 4]
-
     print('Saving diff files')
     np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_vx_' + str(counter) + '.csv', vx_diff)
     np.savetxt(filepath2results[:filepath2results.rfind('/')+1] + 'diff_vy_' + str(counter) + '.csv', vy_diff)
@@ -257,15 +235,15 @@ def plot_run_test_CRT(filepath2results: str,
 
     # plot and save comparison between NN predicted and actual vehicle state
     plot_and_save(yaw_result, yaw_label, None, 'Yaw rate [rad/s]',
-                  filepath2plots + 'yaw_test_' + str(counter) + '.png')
+                  filepath2plots + 'yaw_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(vy_result, vy_label, None, 'Lat. vel. vy [m/s]',
-                  filepath2plots + 'vy_test_' + str(counter) + '.png')
+                  filepath2plots + 'vy_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(vx_result, vx_label, None, 'Long. vel. vx [m/s]',
-                  filepath2plots + 'vx_test_' + str(counter) + '.png')
+                  filepath2plots + 'vx_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(ax_result, ax_label, None, 'Long. accel. ax [m/s2]',
-                  filepath2plots + 'ax_test_' + str(counter) + '.png')
+                  filepath2plots + 'ax_test_' + str(counter) + '.' + save_format, save_format)
     plot_and_save(ay_result, ay_label, None, 'Lat. accel. ay [m/s2]',
-                  filepath2plots + 'ay_test_' + str(counter) + '.png')
+                  filepath2plots + 'ay_test_' + str(counter) + '.' + save_format, save_format)
     """plot_and_save(grip_result, grip_label, None, 'Grip level',
                   filepath2plots + 'grip_test_' + str(counter) + '.png')
     plot_and_save(grip_result_smooth, grip_label, None, 'Grip level smooth',
@@ -284,29 +262,116 @@ def plot_run_test_CRT(filepath2results: str,
                   filepath2plots + 'ay_diff_' + str(counter) + '.png')"""
 
 
+def plot_run_test_CRT_TUM(filepath2results: str,
+                          filepath2testdata: str,
+                          # filepath2resgrip: str,
+                          filepath2labelsaccel: str,
+                          filepath2plots: str,
+                          counter: str,
+                          save_format: str):
+    """Plots test results of comparison between neural network and provided vehicle data.
+
+    :param counter:
+    :param path_dict:       dictionary which contains paths to all relevant folders and files of this module
+    :type path_dict: dict
+    :param params_dict:    dictionary which contains all parameters necessary to run this module
+    :type params_dict: dict
+    """
+
+
+    # load results
+    with open(filepath2results, 'r') as fh:
+        results = np.loadtxt(fh)
+        results = results[:-4]
+
+    # with open(filepath2resgrip, 'r') as fh:
+       # res_grip = np.loadtxt(fh)
+
+    with open(filepath2labelsaccel, 'r') as fh:
+        label_accel = np.loadtxt(fh, delimiter=',')
+        label_accel = label_accel[:-4]
+
+    # load label data
+    with open(filepath2testdata, 'r') as fh:
+        labels = np.loadtxt(fh, delimiter=',')
+        labels = labels[:-4]
+
+    vx_result = results[:, 0][:, np.newaxis]
+    vy_result = results[:, 1][:, np.newaxis]
+    yaw_result = results[:, 2][:, np.newaxis]
+    ax_result = results[:, 3][:, np.newaxis]
+    ay_result = results[:, 4][:, np.newaxis]
+
+    vx_label = labels[:, 2][:, np.newaxis]
+    vy_label = labels[:, 1][:, np.newaxis]
+    yaw_label = labels[:, 0][:, np.newaxis]
+    ax_label = label_accel[:, 3][:, np.newaxis]
+    ay_label = label_accel[:, 4][:, np.newaxis]
+
+    round_digits = 5
+
+    print('\n')
+    print('MSE AND MAE OF UNSCALED VALUES: Test CRT ' + str(counter))
+
+    data = np.asarray([np.sqrt(mean_squared_error(yaw_label, yaw_result)),
+                       np.sqrt(mean_squared_error(vx_label, vx_result)),
+                       np.sqrt(mean_squared_error(vy_label, vy_result)),
+                       np.sqrt(mean_squared_error(ax_label, ax_result)),
+                       np.sqrt(mean_squared_error(ay_label, ay_result)),
+
+                       mean_absolute_error(yaw_label, yaw_result),
+                       mean_absolute_error(vx_label, vx_result),
+                       mean_absolute_error(vy_label, vy_result),
+                       mean_absolute_error(ax_label, ax_result),
+                       mean_absolute_error(ay_label, ay_result)]).reshape(2, 5).round(round_digits)
+
+    column_header = ['yaw rate', 'long. vel. vx', 'lat. vel. vy', 'long. acc. ax', 'lat. acc. ay']
+    row_header = ['RMSE', 'MAE']
+
+    row_format = "{:>15}" * (len(column_header) + 1)
+    print(row_format.format("", *column_header))
+    for row_head, row_data in zip(row_header, data):
+        print(row_format.format(row_head, *row_data))
+
+    save_to_csv(data, 'MSE AND MAE OF UNSCALED VALUES Test CRT', filepath2plots, counter)
+
+    save_to_csv(data, 'MSE AND MAE OF SCALED VALUES Test CRT', filepath2plots, counter)
+
+    print('\n')
+
+    # plot and save comparison between NN predicted and actual vehicle state
+    plot_and_save(yaw_result, yaw_label, None, 'Yaw rate [rad/s]',
+                  filepath2plots + 'yaw_test_' + str(counter) + '.' + save_format, save_format)
+    plot_and_save(vy_result, vy_label, None, 'Lat. vel. vy [m/s]',
+                  filepath2plots + 'vy_test_' + str(counter) + '.' + save_format, save_format)
+    plot_and_save(vx_result, vx_label, None, 'Long. vel. vx [m/s]',
+                  filepath2plots + 'vx_test_' + str(counter) + '.' + save_format, save_format)
+    plot_and_save(ax_result, ax_label, None, 'Long. accel. ax [m/s2]',
+                  filepath2plots + 'ax_test_' + str(counter) + '.' + save_format, save_format)
+    plot_and_save(ay_result, ay_label, None, 'Lat. accel. ay [m/s2]',
+                  filepath2plots + 'ay_test_' + str(counter) + '.' + save_format, save_format)
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
-def plot_and_save(inp_1, inp_2, inp_3, value, savename):
-    plt.figure(figsize=(25, 10))
+def plot_and_save(inp_1, inp_2, inp_3, value, savename, save_format):
+    plt.figure(figsize=(33, 9))
     # Aumentare il font size per tutto il grafico
-    plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-    plt.rc('axes', titlesize=25)  # Titolo degli assi
-    plt.rc('axes', labelsize=25)  # Etichette degli assi
+    plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+    plt.rc('axes', labelsize=35)  # Etichette degli assi
     plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
     plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
-    plt.rc('legend', fontsize=20)  # Legenda
+    plt.rc('legend', fontsize=25)  # Legenda
     ax = plt.gca()
 
     if 'yaw' in savename:
         ax.yaxis.set_major_locator(MultipleLocator(0.25))
-    elif 'grip' in savename:
-        ax.yaxis.set_major_locator(MultipleLocator(0.1))
     else:
         ax.yaxis.set_major_locator(MultipleLocator(2.5))
 
     if inp_1 is not None:
         time_values = np.linspace(0, len(inp_1) / 100, len(inp_1))
-        plt.plot(time_values, inp_1, label='Neural Network', color='r', linewidth=2.0)
+        plt.plot(time_values, inp_1, label='Recurrent Network', color='r', linewidth=2.0)
 
     if inp_2 is not None:
         time_values = np.linspace(0, len(inp_2) / 100, len(inp_2))
@@ -317,11 +382,11 @@ def plot_and_save(inp_1, inp_2, inp_3, value, savename):
         plt.plot(time_values, inp_3, label='Difference', color='blue', linewidth=1.5)
 
     plt.ylabel(value)
-    plt.xlabel('Time steps [s]')
+    plt.xlabel('Time [s]', labelpad=15)
     plt.legend()
     plt.grid()
-
-    plt.savefig(savename, format='png')
+    plt.tight_layout()
+    plt.savefig(savename, format=save_format)
     plt.close()
 
 
@@ -335,17 +400,18 @@ def save_to_csv(data, title, path_, counter):
 # ----------------------------------------------------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------------------------------------------------
-# TEST CRT
+# TEST CRT STAN
 # ----------------------------------------------------------------------------------------------------------------------
 
+save_format = 'eps'
 # path_to_results = 'results/step_1/callbacks/2024_10_15/12_39_30/results_latest_'
-path_to_results = 'results/step_1/callbacks/2024_10_20/16_09_55/results_latest_'
-path_to_data = 'data/latest_CRT/latest_sets/test_set_'
-path_to_plots = 'results/step_1/callbacks/2024_10_20/16_09_55/images/'
-path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/latest/test_set_'
+path_to_results = 'results/step_1/callbacks/2024_10_17/16_05_26/results_test_'
+path_to_data = 'data/new/test_set_paramstudy_'
+path_to_plots = 'results/step_1/callbacks/2024_10_17/16_05_26/images/'
+path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
 
-for num_test in ['mu_06_perf_100', 'mu_08_perf_100', 'mu_1_perf_100', 'mu_1_perf_75', 'mu_1_perf_50', 'mu_1_perf_25',
-                 'mu_06_perf_75', 'mu_06_perf_50', 'mu_08_perf_75', 'mu_08_perf_50']:
+for num_test in ['grip_06_perf_100', 'grip_08_perf_100', 'grip_1_perf_100', 'grip_1_perf_75', 'grip_1_perf_50',
+                 'grip_06_perf_75', 'grip_06_perf_50', 'grip_08_perf_75', 'grip_08_perf_50']:
 
 
     path_to_results_ = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '.csv'
@@ -363,8 +429,36 @@ for num_test in ['mu_06_perf_100', 'mu_08_perf_100', 'mu_1_perf_100', 'mu_1_perf
                       #filepath2resgrip=path_to_res_grip,
                       filepath2labelsaccel=path_to_labels_for_accel_,
                       filepath2plots=path_to_plots,
-                      counter=num_test)
+                      counter=num_test, 
+                      save_format=save_format)
 
+# ----------------------------------------------------------------------------------------------------------------------
+# TUM
+# ----------------------------------------------------------------------------------------------------------------------
+
+"""save_format = 'eps'
+path_to_results = '../../NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_20/11_30_21/matfiles/results_test_'
+path_to_data = 'data/new/test_set_paramstudy_'
+path_to_plots = '../../NeuralNetwork_for_VehicleDynamicsModeling/outputs/2024_05_20/11_30_21/figures/'
+path_to_labels_for_accel = '../../NeuralNetwork_for_VehicleDynamicsModeling/inputs/trainingdata/new/test_set_paramstudy_'
+
+for num_test in ['grip_06_perf_100', 'grip_08_perf_100', 'grip_1_perf_100', 'grip_1_perf_75', 'grip_1_perf_50',
+                 'grip_06_perf_75', 'grip_06_perf_50', 'grip_08_perf_75', 'grip_08_perf_50']:
+
+
+    path_to_results_ = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '.csv'
+    # path_to_res_grip = path_to_results[:path_to_results.rfind('_') + 1] + num_test + '_grip.csv'
+    path_to_data_ = path_to_data[:path_to_data.rfind('_') + 1] + num_test + '.csv'
+    path_to_labels_for_accel_ = (path_to_labels_for_accel[:path_to_labels_for_accel.rfind('_') + 1]
+                                 + num_test + '.csv')
+
+    plot_run_test_CRT_TUM(filepath2results=path_to_results_,
+                          filepath2testdata=path_to_data_,
+                          #filepath2resgrip=path_to_res_grip,
+                          filepath2labelsaccel=path_to_labels_for_accel_,
+                          filepath2plots=path_to_plots,
+                          counter=num_test,
+                          save_format=save_format)"""
 
 """
 path_to_results = 'results/step_4/callbacks/2024_05_10/09_39_23/results_test_'

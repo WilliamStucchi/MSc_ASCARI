@@ -296,8 +296,8 @@ model_path = 'saved_models/step_1/callbacks/2024_06_12/13_00_14/keras_model.h5'"
 """save_path = 'results/step_1/callbacks/2024_10_14/19_30_02/'
 model_path = 'saved_models/step_1/callbacks/2024_10_14/19_30_02/keras_model.h5'"""
 
-save_path = 'results/step_1/callbacks/2024_10_17/10_56_37/'
-model_path = 'saved_models/step_1/callbacks/2024_10_17/10_56_37/keras_model.h5'
+save_path = 'results/step_1/callbacks/2024_10_20/16_09_55/'
+model_path = 'saved_models/step_1/callbacks/2024_10_20/16_09_55/keras_model.h5'
 
 """save_path = 'results/step_1/callbacks/2024_09_17/17_41_36/'
 model_path = 'saved_models/step_1/callbacks/2024_09_17/17_41_36/keras_model.h5'"""
@@ -435,8 +435,7 @@ mu06_perf50 = create_thread('mu06_perf50', latest_test_grip_06_perf_50, model_pa
                         save_path + 'results_latest_mu_06_perf_50.csv', None)
 
 # p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p11, p12, p13, p14, p15, p16, p17, p18, p19,
-lista = [mu08_perf100,  mu06_perf100, mu08_perf75, mu08_perf50, mu1_perf100, mu1_perf75, mu1_perf50, mu1_perf25,
-         mu06_perf75, mu06_perf50,  step_fx100_0deg, step_fx100_1deg, step_fx100_2deg, step_fx100_3deg,
+lista = [step_fx100_0deg, step_fx100_1deg, step_fx100_2deg, step_fx100_3deg,
          step_fx100_4deg, step_fx100_5deg, step_fx100_10deg, step_fx100_15deg, step_fx100_20deg, step_fx100_25deg,
          step_fx100_30deg, step_fx100_45deg, step_fx100_60deg, step_fx100_75deg, step_fx100_90deg, step_fx100_100deg,
          step_fx25_0deg, step_fx25_1deg, step_fx25_2deg, step_fx25_3deg, step_fx25_4deg, step_fx25_5deg,
@@ -446,11 +445,7 @@ lista = [mu08_perf100,  mu06_perf100, mu08_perf75, mu08_perf50, mu1_perf100, mu1
          sine_fx100_5, sine_fx100_6, sine_fx100_7, sine_fx25_8, sine_fx25_9, sine_fx25_10, sine_fx25_11, sine_fx25_12,
          sine_fx25_13, sine_fx25_14, sine_fx25_15]
 
-"""latest_lista = [mu08_perf100,  mu06_perf100, mu08_perf75, mu08_perf50, mu1_perf100, mu1_perf75, mu1_perf50, mu1_perf25,
-                mu06_perf75, mu06_perf50]"""
-
-new = [ramp_fx25_3, ramp_fx25_4, ramp_fx25_5, sine_fx25_8, sine_fx25_9, sine_fx25_10, sine_fx25_11, sine_fx25_12,
-         sine_fx25_13, sine_fx25_14, sine_fx25_15]
+new = [p11, p12, p13, p14, p15, p16, p17, p18, p19]
 
 for el in new:
     el.start()

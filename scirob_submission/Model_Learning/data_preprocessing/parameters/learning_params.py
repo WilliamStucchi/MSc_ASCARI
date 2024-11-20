@@ -9,6 +9,9 @@ Param         = {} #For Everything Else
 
 #Define Constants
 
+Veh["max_delta_diff"]    = 0.43
+Veh['max_fx_diff']       = 2500
+
 #Vehicle Model Parameters
 Veh["a"]                 = 1.51
 Veh["b"]                 = 1.23
@@ -107,7 +110,7 @@ Param["SAVE"]            = True
 
 #Data Generation Parameters
 Param["DT"]              = 0.01   #Sampling Time
-Param["N_SAMPLES"]       = 300000 #Number of state transition trajectories.
+Param["N_SAMPLES"]       = 50000 #Number of state transition trajectories.
 Param["ADD_NOISE"]       = True
 Param["TWO_FRIC"]        = True
 Param["WEIGHT_TRANSFER"] = False

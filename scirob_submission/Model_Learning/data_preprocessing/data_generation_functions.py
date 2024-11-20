@@ -42,7 +42,7 @@ def sample(Param, Veh, mu):
     b = Veh["b"]
     m = Veh["m"]
     Cr = Veh["Cr"]
-    del_lim = Veh["del_lim"]
+    del_lim = Veh["delta_lim"]
 
     p_lim = Veh["p_lim"]
     b_bias = Veh["b_bias"]
@@ -288,6 +288,10 @@ def gen_data(Param, Veh):
 
 
 def gen_data_mod(Param, Veh):
+    yaw_rates = []
+    steering_angles = []
+    longitudinal_vels = []
+
     # Unpack dicts
     N_SAMPLES = Param["N_SAMPLES"]
     Ux_lim = Param["UX_LIM"]
@@ -305,7 +309,7 @@ def gen_data_mod(Param, Veh):
     a = Veh["a"]
     b = Veh["b"]
     Cr = Veh["Cr"]
-    del_lim = Veh["del_lim"]
+    del_lim = Veh["delta_lim"]
     Izz = Veh["Izz"]
     p_lim = Veh["p_lim"]
     b_bias = Veh["b_bias"]
@@ -328,12 +332,15 @@ def gen_data_mod(Param, Veh):
                         gen_data[i, 2] = Ux_t
                         gen_data[i, 3] = del_t
                         gen_data[i, 4] = Fxf_t / Fx_norm
-                        print("Fx: ", gen_data[i, 4])
+                        # print("Fx: ", gen_data[i, 4])
 
                         # Calculate the initial slip from SS assumptions
                         a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
                         a_r = np.arctan((Uy_t - b * r_t) / Ux_t)
 
+                        yaw_rates.append(r_t)
+                        steering_angles.append(gen_data[i, 3])
+                        longitudinal_vels.append(Ux_t)
                     else:
                         # Propagate the next state w/ dynamics model!
                         r_t, Uy_t, Ux_t, a_f, a_r = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fxf_t, Fxr_t, Param, Veh, mu,
@@ -350,7 +357,11 @@ def gen_data_mod(Param, Veh):
                         # Then Cache them in the data!
                         gen_data[i, (N_STATE_INPUT * j) + 3] = del_t
                         gen_data[i, (N_STATE_INPUT * j) + 4] = Fxf_t / Fx_norm
-                        print("Fx: ", (N_STATE_INPUT * j) + 4)
+                        # print("Fx: ", (N_STATE_INPUT * j) + 4)
+
+                        yaw_rates.append(r_t)
+                        steering_angles.append(gen_data[i, (N_STATE_INPUT * j) + 3])
+                        longitudinal_vels.append(Ux_t)
 
                 # For the Last T step we will get the vel targets we want to predict!
                 r_t, Uy_t, Ux_t, _, _ = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fxf_t, Fxr_t, Param, Veh, mu, a_f, a_r,
@@ -371,12 +382,15 @@ def gen_data_mod(Param, Veh):
                         gen_data[i, 2] = Ux_t
                         gen_data[i, 3] = del_t
                         gen_data[i, 4] = Fxf_t / Fx_norm
-                        print(gen_data[i, 4])
+                        # print(gen_data[i, 4])
 
                         # Calculate the initial slip from SS assumptions
                         a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
                         a_r = np.arctan((Uy_t - b * r_t) / Ux_t)
 
+                        yaw_rates.append(r_t)
+                        steering_angles.append(gen_data[i, 3])
+                        longitudinal_vels.append(Ux_t)
                     else:
                         # Propagate the next state w/ dynamics model!
                         r_t, Uy_t, Ux_t, a_f, a_r = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fxf_t, Fxr_t, Param, Veh,
@@ -393,7 +407,11 @@ def gen_data_mod(Param, Veh):
                         # Then Cache them in the data!
                         gen_data[i, (N_STATE_INPUT * j) + 3] = del_t
                         gen_data[i, (N_STATE_INPUT * j) + 4] = Fxf_t / Fx_norm
-                        print(gen_data[i, (N_STATE_INPUT * j) + 4])
+                        # print(gen_data[i, (N_STATE_INPUT * j) + 4])
+
+                        yaw_rates.append(r_t)
+                        steering_angles.append(gen_data[i, (N_STATE_INPUT * j) + 3])
+                        longitudinal_vels.append(Ux_t)
 
                 # For the Last T step we will get the vel targets we want to predict!
                 r_t, Uy_t, Ux_t, _, _ = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fxf_t, Fxr_t, Param, Veh, mu_2, a_f, a_r,
@@ -418,7 +436,7 @@ def gen_data_mod(Param, Veh):
                     gen_data[i, 2] = Ux_t
                     gen_data[i, 3] = del_t
                     gen_data[i, 4] = Fxf_t # / Fx_norm
-                    print(gen_data[i, 4])
+                    # print(gen_data[i, 4])
 
                     # Calculate the initial slip from SS assumptions
                     a_f = np.arctan((Uy_t + a * r_t) / Ux_t) - del_t
@@ -437,13 +455,13 @@ def gen_data_mod(Param, Veh):
                     # Sample the next set of controls!
                     _, _, _, del_t, Fxf_t, Fxr_t = sample(Param, Veh, mu)
 
-                    print('Force front: ', Fxf_t / Fx_norm)
-                    print('Force rear: ', Fxr_t / Fx_norm)
+                    # print('Force front: ', Fxf_t / Fx_norm)
+                    # print('Force rear: ', Fxr_t / Fx_norm)
 
                     # Then Cache them in the data!
                     gen_data[i, (N_STATE_INPUT * j) + 3] = del_t
                     gen_data[i, (N_STATE_INPUT * j) + 4] = Fxf_t / Fx_norm
-                    print(gen_data[i, (N_STATE_INPUT * j) + 4])
+                    # print(gen_data[i, (N_STATE_INPUT * j) + 4])
 
             # For the Last T step we will get the vel targets we want to predict!
             # r_t, Uy_t, _ , _, _                                                                                        = step_dynamics(r_t, Uy_t, Ux_t, del_t, Fxf_t, Fxr_t, Param, Veh, mu, a_f, a_r, Param["DT"])
@@ -457,7 +475,7 @@ def gen_data_mod(Param, Veh):
             gen_data[i, (N_STATE_INPUT * T) + 1] = Uy_t
             gen_data[i, (N_STATE_INPUT * T) + 2] = Ux_t
 
-    return gen_data
+    return gen_data, yaw_rates, steering_angles, longitudinal_vels
 
 
 def add_noise(gen_data, Param):

@@ -8,11 +8,11 @@ from tqdm import tqdm
 spindle = False
 forces = True
 
-#TODO: rifai i test con i modelli bicicletta e anche i modelli normali perchè sono cambiati in parameters study
-"""directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
+save_format = 'eps'
+directories = ['/grip_1_perf_100/', '/grip_1_perf_75/', '/grip_1_perf_50/',
                '/grip_08_perf_100/', '/grip_08_perf_75/', '/grip_08_perf_50/',
-               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']"""
-directories = ['/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+               '/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
+# directories = ['/grip_06_perf_100/', '/grip_06_perf_75/', '/grip_06_perf_50/']
 for k, dir_ in tqdm(enumerate(directories)):
     data = pd.read_csv('../CRT_data/parameters_study/' + dir_ + '/DemoSportsCar_mxp.csv', dtype=object)
     data = data.drop(0, axis='rows')  # remove the row containing the measure units
@@ -68,15 +68,16 @@ for k, dir_ in tqdm(enumerate(directories)):
         alphaf_R_real = np.array(data['Tire.Lateral_Slip_Without_Lag.R1'], dtype=float)
         alphaf_real = (alphaf_L_real + alphaf_R_real) / 2
         alphaf_real[alphaf_real < 0] = 0
+        alphaf_real = alphaf_real * 180 / np.pi
 
         alphar_L_real = np.array(data['Tire.Lateral_Slip_Without_Lag.L2'], dtype=float)
         alphar_R_real = np.array(data['Tire.Lateral_Slip_Without_Lag.R2'], dtype=float)
         alphar_real = (alphar_L_real + alphar_R_real) / 2
         alphar_real[alphar_real < 0] = 0
-
+        alphar_real = alphar_real * 180 / np.pi
 
         #sim = pd.read_csv('../matlab/test_' + dir_.replace('/', '') + '.csv', dtype=object)
-        sim = pd.read_csv('../matlab/paths_with_muy_06/sim_test_' + dir_.replace('/', '') + '.csv', dtype=object)
+        sim = pd.read_csv('../matlab/paths_with_pacejka_1/bike/sim_test_' + dir_.replace('/', '') + '.csv', dtype=object)
         sim.reset_index(drop=True, inplace=True)
 
         Fyf_sim = np.array(sim['Fyf'], dtype=float)
@@ -91,48 +92,54 @@ for k, dir_ in tqdm(enumerate(directories)):
 
         alphaf_sim = np.array(sim['alphaf'], dtype=float)
         alphaf_sim[alphaf_sim < 0] = 0
+        alphaf_sim = alphaf_sim * 180 / np.pi
         alphar_sim = np.array(sim['alphar'], dtype=float)
         alphar_sim[alphar_sim < 0] = 0
+        alphar_sim = alphar_sim * 180 / np.pi
 
         # PLOT
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(12, 10))
         # Aumentare il font size per tutto il grafico
-        plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
+        plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
         plt.rc('axes', titlesize=25)  # Titolo degli assi
         plt.rc('axes', labelsize=25)  # Etichette degli assi
         plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
         plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
         plt.rc('legend', fontsize=20)  # Legenda
-        plt.plot(alphaf_real, -Fyf_real / Fzf_real, label='CRT data', color='r', linewidth=1.0)
-        plt.plot(alphaf_sim, -Fyf_sim / Fzf_sim, label='Bicycle model', color='b', linewidth=1.0)
+        plt.plot(alphaf_real, -Fyf_real / Fzf_real, label='CRT data', color='r', linewidth=2.0)
+        plt.plot(alphaf_sim, -Fyf_sim / Fzf_sim, label='Bicycle model', color='b', linewidth=2.0)
 
         # Add labels and title
-        plt.ylabel('Fy/Fz')
-        plt.xlabel('alpha [rad]')
-        plt.title(dir_.replace('/', '').replace('_', ' ') + '%' + ' front')
+        plt.ylabel('Fy / Fz', labelpad=20)
+        plt.xlabel('Slip angle [deg]', labelpad=15)
+        plt.title('Test: ' + dir_.replace('/', '').replace('_', ' ')
+                  .replace('grip', 'μ =') + '%' + ' front', pad=20)
         plt.legend(loc='best')
 
         # Display the plot
         plt.grid(True)
         # plt.show()
-        plt.savefig('../test/NN_vs_bicycle/tires_with_muy_06/front_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
+        plt.savefig('../matlab/tires_with_pacejka_1/tires/front_tire_' + dir_.replace('/', '') +
+                    '.' + save_format, format=save_format, dpi=300)
         plt.close()
 
         # PLOT
-        plt.figure(figsize=(10, 8))
-        plt.plot(alphar_real, -Fyr_real / Fzr_real, label='CRT data', color='r', linewidth=1.0)
-        plt.plot(alphar_sim, -Fyr_sim / Fzr_sim, label='Bicycle model', color='b', linewidth=1.0)
+        plt.figure(figsize=(12, 10))
+        plt.plot(alphar_real, -Fyr_real / Fzr_real, label='CRT data', color='r', linewidth=2.0)
+        plt.plot(alphar_sim, -Fyr_sim / Fzr_sim, label='Bicycle model', color='b', linewidth=2.0)
 
         # Add labels and title
-        plt.ylabel('Fy/Fz')
-        plt.xlabel('alpha [rad]')
-        plt.title(dir_.replace('/', '').replace('_', ' ') + '%' + ' rear')
+        plt.ylabel('Fy / Fz', labelpad=20)
+        plt.xlabel('Slip angle [deg]', labelpad=15)
+        plt.title('Test: ' + dir_.replace('/', '').replace('_', ' ')
+                  .replace('grip', 'μ =') + '%' + ' rear', pad=20)
         plt.legend(loc='best')
 
         # Display the plot
         plt.grid(True)
         # plt.show()
-        plt.savefig('../test/NN_vs_bicycle/tires_with_muy_06/rear_tire_' + dir_.replace('/', '') + '.png', format='png', dpi=300)
+        plt.savefig('../matlab/tires_with_pacejka_1/tires/rear_tire_' + dir_.replace('/', '') +
+                    '.' + save_format, format=save_format, dpi=300)
         plt.close()
 
 

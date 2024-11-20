@@ -1,5 +1,6 @@
 # Run all required imports
 from new_data_generation_functions import *
+# from just_for_plot_data_generation_functions import *
 from parameters.learning_params import *
 import numpy as np
 import matplotlib as mpl
@@ -20,7 +21,7 @@ print(data.shape)
 
 np.random.shuffle(data)
 
-np.savetxt('../data/new/bike_with_pysicallimits_mu106_perprovaTutto106.csv', data, delimiter=',')
+np.savetxt('../data/new/just_for_plots.csv', data, delimiter=',')
 input('wait')
 """
 Ranges for the speeds:
@@ -33,19 +34,21 @@ Ranges for the speeds:
 
 
 print('PLOTTING')
+save_format = 'eps'
+title = 'old_mu1'
 # --------------------------------------------------------------------
 # Complete plot
 # --------------------------------------------------------------------
 cmap = sns.color_palette("magma", as_cmap=True)
 
 # Plot gg-plot
-plt.figure(figsize=(20, 12))
-plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-plt.rc('axes', titlesize=22)  # Titolo degli assi
-plt.rc('axes', labelsize=22)  # Etichette degli assi
-plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-plt.rc('legend', fontsize=17)  # Legenda
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=25)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=30)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
 
 points = plt.scatter(steering_angles, yaw_rates, c=long_vels, s=20, cmap=cmap)
 cbar = plt.colorbar(points)
@@ -53,12 +56,13 @@ cbar.set_label('Long. Vel. [m/s]', rotation=90, labelpad=30)
 
 plt.title('(Steering angle, Yaw_rate) relation at different velocities', pad=20)
 plt.ylabel('Yaw rate [rad/s]', labelpad=20)
-plt.xlabel('Steering [°]', labelpad=20)
+plt.xlabel('Steering [deg]', labelpad=20)
 
 plt.grid(True)
+plt.tight_layout()
 fig1 = plt.gcf()
 plt.show()
-fig1.savefig('../../../../test/deltafx_deltasteer/steering_yaw_relation_total_vincolifisici_mu06.png', format='png')
+fig1.savefig('../../../../test/deltafx_deltasteer/steer_yaw_rel/steering_yaw_relation_total_vincolifisici_' + title + '.' + save_format, format=save_format)
 
 
 # --------------------------------------------------------------------
@@ -67,13 +71,13 @@ fig1.savefig('../../../../test/deltafx_deltasteer/steering_yaw_relation_total_vi
 mask_positive_steering = (steering_angles >= 0)
 
 # Plot gg-plot
-plt.figure(figsize=(20, 12))
-plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-plt.rc('axes', titlesize=22)  # Titolo degli assi
-plt.rc('axes', labelsize=22)  # Etichette degli assi
-plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-plt.rc('legend', fontsize=17)  # Legenda
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=25)  # Titolo degli assi
+plt.rc('axes', labelsize=30)  # Etichette degli assi
+plt.rc('xtick', labelsize=30)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
 
 points = plt.scatter(steering_angles[mask_positive_steering], yaw_rates[mask_positive_steering],
                      c=long_vels[mask_positive_steering], s=20, cmap=cmap)
@@ -82,12 +86,13 @@ cbar.set_label('Long. Vel. [m/s]', rotation=90, labelpad=30)
 
 plt.title('(Steering angle, Yaw_rate) relation at different velocities', pad=20)
 plt.ylabel('Yaw rate [rad/s]', labelpad=20)
-plt.xlabel('Steering [°]', labelpad=20)
+plt.xlabel('Steering [deg]', labelpad=20)
 
 plt.grid(True)
+plt.tight_layout()
 fig1 = plt.gcf()
 plt.show()
-fig1.savefig('../../../../test/deltafx_deltasteer/steering_yaw_relation_positive_vincolifisici_mu06.png', format='png')
+fig1.savefig('../../../../test/deltafx_deltasteer/steer_yaw_rel/steering_yaw_relation_positive_vincolifisici_' + title + '.' + save_format, format=save_format)
 
 
 # --------------------------------------------------------------------
@@ -97,27 +102,28 @@ fig1.savefig('../../../../test/deltafx_deltasteer/steering_yaw_relation_positive
 mask_small_yaw_rate = (yaw_rates <= 1) & (yaw_rates >= 0)
 
 # Plot gg-plot
-plt.figure(figsize=(20, 12))
-plt.rc('font', size=15)  # Modifica la grandezza del font globalmente
-plt.rc('axes', titlesize=22)  # Titolo degli assi
-plt.rc('axes', labelsize=22)  # Etichette degli assi
-plt.rc('xtick', labelsize=22)  # Etichette dei ticks su x
-plt.rc('ytick', labelsize=22)  # Etichette dei ticks su y
-plt.rc('legend', fontsize=17)  # Legenda
+plt.figure(figsize=(15, 10))
+plt.rc('font', size=20)  # Modifica la grandezza del font globalmente
+plt.rc('axes', titlesize=25)  # Titolo degli assi
+plt.rc('axes', labelsize=25)  # Etichette degli assi
+plt.rc('xtick', labelsize=25)  # Etichette dei ticks su x
+plt.rc('ytick', labelsize=25)  # Etichette dei ticks su y
+plt.rc('legend', fontsize=20)  # Legenda
 
 points = plt.scatter(steering_angles[mask_positive_steering & mask_small_yaw_rate],
                      yaw_rates[mask_positive_steering & mask_small_yaw_rate],
-                     c=long_vels[mask_positive_steering & mask_small_yaw_rate], s=20, cmap=cmap)
+                     c=long_vels[mask_positive_steering & mask_small_yaw_rate], s=25, cmap=cmap)
 cbar = plt.colorbar(points)
 cbar.set_label('Long. Vel. [m/s]', rotation=90, labelpad=30)
 
 
 plt.title('(Steering angle, Yaw_rate) relation at different velocities', pad=20)
 plt.ylabel('Yaw rate [rad/s]', labelpad=20)
-plt.xlabel('Steering [°]', labelpad=20)
+plt.xlabel('Steering [deg]', labelpad=20)
 
 plt.grid(True)
+plt.tight_layout()
 fig1 = plt.gcf()
 plt.show()
-fig1.savefig('../../../../test/deltafx_deltasteer/steering_yaw_relation_smaller_vincolifisici_mu06.png', format='png')
+fig1.savefig('../../../../test/deltafx_deltasteer/steer_yaw_rel/steering_yaw_relation_smaller_vincolifisici_' + title + '.' + save_format, format=save_format)
 

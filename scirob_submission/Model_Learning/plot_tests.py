@@ -89,11 +89,11 @@ def plot_run(path_to_results: str,
     print(name + '[Save path: ' + save_path + ']')
     # plot and save comparison between NN predicted and actual vehicle state
     plot_and_save(dyaw_result, dyaw_label, dyaw_diff, 'Yaw rate [rad/s]',
-                  save_path + 'images/yaw.png', True, True)
+                  save_path + 'images/yaw.png', plot=False, save=True)
     plot_and_save(vy_result, vy_label, vy_diff, 'Lat. vel. vy [m/s]',
-                  save_path + 'images/vy.png', True, True)
+                  save_path + 'images/vy.png', plot=False, save=True)
     plot_and_save(vx_result, vx_label, vx_diff, 'Long. vel. vx [m/s]',
-                  save_path + 'images/vx.png', True, True)
+                  save_path + 'images/vx.png', plot=False, save=True)
 
 
 def plot_and_save(inp_1,

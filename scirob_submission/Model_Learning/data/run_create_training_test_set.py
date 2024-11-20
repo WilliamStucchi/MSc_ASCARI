@@ -9,8 +9,8 @@ path_to_output = 'piste_training_complete/'
 create_piste_training_complete(path_to_data, path_to_output, 32)
 """
 
-path_to_output = 'handling/'
-# plot_delta_steps(path_to_data, 16)
+path_to_output = 'new/'
+plot_delta_steps(path_to_data, 16, 'eps')
 # create_training_set(path_to_data, path_to_output, 16, 1)
 # create_training_set_car_perf(path_to_data, path_to_output, 16, 1)
 # create_training_set_road_grip(path_to_data, path_to_output, 17, 1)
@@ -18,8 +18,8 @@ path_to_output = 'handling/'
 # create_training_scheduled_sampling(path_to_data, path_to_output, 16, 1)
 # create_test_step_steer(path_to_data, path_to_output, 16)
 # create_test_static_equilibrium(path_to_output, 300)
-create_test_ramp_steer(path_to_data, path_to_output, 6)
-create_test_sine_steer(path_to_data, path_to_output, 16)
+# create_test_ramp_steer(path_to_data, path_to_output, 6)
+# create_test_sine_steer(path_to_data, path_to_output, 16)
 """create_test_impulse_steer(path_to_data, path_to_output, 6, 300)
 create_test_sweep_steer(path_to_data, path_to_output, 1, 300)"""
 # create_test_set_param_study(path_to_data, path_to_output)

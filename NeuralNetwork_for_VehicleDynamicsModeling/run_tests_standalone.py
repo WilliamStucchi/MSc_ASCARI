@@ -28,15 +28,42 @@ path_dict = helper_funcs_NN.src.manage_paths.manage_paths()
 
 
 # rete feedforward
-path_to_model = 'outputs/2024_05_19/17_00_32/keras_model.h5'
-path_to_results = 'outputs/2024_05_19/17_00_32/'
+path_to_model = 'outputs/2024_05_20/11_30_21/keras_model_recurrent.h5'
+path_to_results = 'outputs/2024_05_20/11_30_21/'
 
-path_to_data = 'inputs/trainingdata/new/test_set_'
+path_to_data = 'inputs/trainingdata/new/test_set_paramstudy_'
+
+tests = ['grip_1_perf_100', 'grip_1_perf_75', 'grip_1_perf_50',
+         'grip_08_perf_100', 'grip_08_perf_75', 'grip_08_perf_50',
+         'grip_06_perf_100', 'grip_06_perf_75', 'grip_06_perf_50']
 
 # create a dictionary which contains all parameters
 params_dict = helper_funcs_NN.src.handle_params.handle_params(path_dict=path_dict)
 
-for count in range(1, 4):
+for test in tests:
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
+        print('STARTING RUN FEEDFORWARD NETWORK')
+
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           path_to_model=path_to_model,
+                                           path_to_data=path_to_data,
+                                           nn_mode="feedforward",
+                                           test_type=test,
+                                           counter=test)
+
+    if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 2:
+        print('STARTING RUN RECURRENT NETWORK')
+
+        src.run_neuralnetwork.run_test_CRT(path_dict=path_dict,
+                                           params_dict=params_dict,
+                                           path_to_model=path_to_model,
+                                           path_to_data=path_to_data,
+                                           nn_mode='recurrent',
+                                           test_type=test,
+                                           counter=test)
+
+"""for count in range(1, 4):
 
     if params_dict['NeuralNetwork_Settings']['run_file_mode'] == 1:
         print('STARTING RUN FEEDFORWARD NETWORK')
@@ -98,7 +125,7 @@ for grip_ in grips:
                                                  params_dict=params_dict,
                                                  path_to_model=path_to_model,
                                                  path_to_results=path_to_results,
-                                                 counter=grip_)
+                                                 counter=grip_)"""
 
 """
 index_last_slash = path_to_model.rfind('/')

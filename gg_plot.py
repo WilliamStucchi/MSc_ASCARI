@@ -15,9 +15,11 @@ train_ay_g = []
 test_ax = []
 test_ay = []
 
-filename = 'gg_test_mu1'
+save_format = 'eps'
+filename = 'gg_dataset_mu1'
 # Acquire training data
-directories = ['parameters_study/grip_1_perf_100/', 'parameters_study/grip_1_perf_75/', 'parameters_study/grip_1_perf_50/']
+directories = ['train_car_perf/high_perf/', 'train_car_perf/mid_high_perf/', 'train_car_perf/mid_perf/',
+               'train_car_perf/mid_low_perf/']
 titles = ['100% performance', '75% performance', '50% performance', '25% performance']
 colors = {'100% performance': 'red', '75% performance': 'blue', '50% performance': 'green', '25% performance': 'orange'}
 color_values = [colors[perf] for perf in titles]
@@ -30,7 +32,7 @@ for i in range(len(directories)):
     temp = []
     train_ay.append(temp)
 
-"""print('ACQUIRING TRAINING DATA')
+print('ACQUIRING TRAINING DATA')
 for k, dir_ in enumerate(directories):
     print('ACQUIRING TRAINING DATA from ' + dir_)
     for i in tqdm(range(0, 17, 1)):
@@ -43,9 +45,9 @@ for k, dir_ in enumerate(directories):
         train_ax[k].append(data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float))
         train_ay[k].append(data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float))
 
-    print('END ACQUISITION TRAINING DATA from ' + dir_)"""
+    print('END ACQUISITION TRAINING DATA from ' + dir_)
 
-print('ACQUIRING TEST DATA')
+"""print('ACQUIRING TEST DATA')
 for k, dir_ in enumerate(directories):
     print('ACQUIRING TRAINING DATA from ' + dir_)
     # Load set
@@ -57,7 +59,7 @@ for k, dir_ in enumerate(directories):
     train_ax[k].append(data['Vehicle_States.longitudinal_acc_wrt_road'].to_numpy().astype(float))
     train_ay[k].append(data['Vehicle_States.lateral_acc_wrt_road'].to_numpy().astype(float))
 
-    print('END ACQUISITION TRAINING DATA from ' + dir_)
+    print('END ACQUISITION TRAINING DATA from ' + dir_)"""
 
 flattened_ax = [np.concatenate(sublist).tolist() for sublist in train_ax]
 flattened_ay = [np.concatenate(sublist).tolist() for sublist in train_ay]
@@ -161,5 +163,5 @@ plt.axvline(0, color='k', linewidth=0.5, linestyle='--')
 fig1 = plt.gcf()
 plt.show()
 plt.draw()
-fig1.savefig('../gg_plots/thesis_plots/' + filename + '.png', format='png')
+fig1.savefig('../gg_plots/thesis_plots/' + filename + '.' + save_format, format=save_format)
 
